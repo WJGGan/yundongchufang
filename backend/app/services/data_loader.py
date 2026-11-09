@@ -6,6 +6,8 @@
 from __future__ import annotations
 
 import json
+import secrets
+import time
 from functools import lru_cache
 from typing import Any
 
@@ -47,8 +49,43 @@ def emergency_rules() -> dict[str, Any]:
     return _load("emergency_keywords.json")
 
 
+CUSTOM_DIR = DATA_DIR / "custom_students"
+
+
+def custom_students() -> list[dict[str, Any]]:
+    """用户在前端录入并保存的档案。不做缓存，提交后立即可见。"""
+    if not CUSTOM_DIR.is_dir():
+        return []
+    students = []
+    for path in sorted(CUSTOM_DIR.glob("*.json")):
+        try:
+            with path.open(encoding="utf-8") as handle:
+                students.append(json.load(handle))
+        except (OSError, json.JSONDecodeError):
+            continue
+    return students
+
+
+def all_students() -> list[dict[str, Any]]:
+    return mock_students() + custom_students()
+
+
+def save_custom_student(record: dict[str, Any]) -> dict[str, Any]:
+    """把用户录入的档案保存为一份新的 JSON 文件，并返回带学号的完整档案。
+
+    学号始终由服务端生成，不采用用户输入，避免覆盖已有档案或拼出路径。
+    """
+    CUSTOM_DIR.mkdir(parents=True, exist_ok=True)
+    student_id = f"CU{time.strftime('%Y%m%d%H%M%S')}{secrets.token_hex(2).upper()}"
+    record["student_id"] = student_id
+    path = CUSTOM_DIR / f"{student_id}.json"
+    with path.open("w", encoding="utf-8") as handle:
+        json.dump(record, handle, ensure_ascii=False, indent=2)
+    return record
+
+
 def find_student(student_id: str) -> dict[str, Any] | None:
-    for student in mock_students():
+    for student in all_students():
         if student["student_id"] == student_id:
             return student
     return None

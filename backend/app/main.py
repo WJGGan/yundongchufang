@@ -38,7 +38,7 @@ if FRONTEND_DIR.is_dir():
     @app.get("/", include_in_schema=False)
     @app.get("/report", include_in_schema=False)
     def report() -> FileResponse:
-        """运动处方报告页（A4 双页版式）。
+        """运动处方报告页（纯 HTML 流式页面，自适应窗口宽度）。
 
         作为默认入口：打开即呈现空白报告版式，选择档案生成后再填充内容。
         也支持从工作台经 sessionStorage 带数据跳转过来。

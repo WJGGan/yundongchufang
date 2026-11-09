@@ -77,6 +77,18 @@ const EMPTY_PROFILE = {
 
 const clone = (o) => JSON.parse(JSON.stringify(o));
 
+/* 自行录入表单的空白值 */
+const EMPTY_FORM = {
+  name: '', gender: '男', age: '', grade: '', height: '', weight: '', fhl: '',
+  resting_hr: '', blood_pressure: '',
+  wsm: '', ldty: '', zwtqq: '', yfzts: '', yqm: '', bbm: '', ytxs: '', ywqz: '',
+  chronic: '', medications: '', injuries: '', symptoms: '', family: '',
+  sleep: '',
+  weekly_frequency: '', main_activities: '', sedentary: '',
+  goals: '', days_per_week: '', minutes_per_session: '', preferred_slot: '',
+  venue: '', equipment: '', liked: '', disliked: '',
+};
+
 createApp({
   data() {
     return {
@@ -93,8 +105,10 @@ createApp({
       emergency: null,
       blocked: null,
       exerciseMap: {},
-      // 屏幕上的整体字号倍率（打印时固定为 1，由 A4 等比压缩接管）
-      zoom: 1.2,
+      showForm: false,
+      form: clone(EMPTY_FORM),
+      formSaving: false,
+      formError: '',
       fittPrinciple: FITT_PRINCIPLE,
       generalTips: GENERAL_TIPS,
     };
@@ -324,10 +338,6 @@ createApp({
         if (data.rx) this.applyResult(data.rx, data.profile);
       } catch (e) { /* 数据损坏则保持空态 */ }
     }
-
-    // 只有打印才需要等比压到 A4；屏幕上是流式布局，不做测量与缩放
-    window.addEventListener('beforeprint', () => this.enterPrintLayout());
-    window.addEventListener('afterprint', () => this.exitPrintLayout());
   },
 
   methods: {
@@ -379,7 +389,6 @@ createApp({
       (rx.exercise_details || []).forEach((e) => { this.exerciseMap[e.id] = e; });
       this.hasData = true;
       document.title = `${rx.name || ''}运动处方报告`;
-      this.scheduleFit();
     },
 
     resetState() {
@@ -398,11 +407,21 @@ createApp({
       this.resetState();
       this.generating = true;
       this.stage = '正在读取健康档案…';
-
       try {
         const record = await (await fetch(`/api/v1/students/${this.selectedId}`)).json();
-        this.stage = '正在生成体质画像…';
+        await this.streamGenerate(record);
+      } catch (err) {
+        this.genError = `生成失败：${err}`;
+        this.generating = false;
+        this.stage = '';
+      }
+    },
 
+    /* 把一份完整档案送入画像 + 处方生成流程（SSE） */
+    async streamGenerate(record) {
+      this.generating = true;
+      this.stage = '正在生成体质画像…';
+      try {
         const res = await fetch('/api/v1/prescription:generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -425,6 +444,110 @@ createApp({
         this.generating = false;
         this.stage = '';
       }
+    },
+
+    /* ---------- 自行录入 ---------- */
+
+    splitList(text) {
+      return (text || '').split(/[,，、;；\n]/).map((s) => s.trim()).filter(Boolean);
+    },
+
+    toNum(text) {
+      if (text === '' || text == null) return null;
+      const n = Number(text);
+      return Number.isFinite(n) ? n : null;
+    },
+
+    buildRecord() {
+      const f = this.form;
+      if (!f.name || !f.age || !f.height || !f.weight) {
+        this.formError = '请至少填写姓名、年龄、身高、体重';
+        return null;
+      }
+      if (!this.splitList(f.goals).length) {
+        this.formError = '请至少填写一个运动目标';
+        return null;
+      }
+      this.formError = '';
+      const today = new Date().toISOString().slice(0, 10);
+      return {
+        student_id: '',
+        name: f.name,
+        school: '',
+        physical_exam: {
+          XB: f.gender, NL: f.age, SG: f.height, TZ: f.weight,
+          FHL: f.fhl, SCHOOL_GRADE: f.grade, UP_TIME: today,
+        },
+        fitness_test: {
+          NJ: f.grade, XB: f.gender, SGCJ: f.height, TZCJ: f.weight, FHLCJ: f.fhl,
+          WSMCJ: f.wsm, LDTYCJ: f.ldty, ZWTQQCJ: f.zwtqq, YFZTSCJ: f.yfzts,
+          YQMCJ: f.yqm, BBMCJ: f.bbm, YTXSCJ: f.ytxs, YWQZCJ: f.ywqz,
+        },
+        health_profile: {
+          chronic_conditions: this.splitList(f.chronic),
+          medications: this.splitList(f.medications),
+          injury_history: this.splitList(f.injuries).map((t) => ({ note: t })),
+          recent_symptoms: this.splitList(f.symptoms),
+          family_history: this.splitList(f.family),
+          vitals: { resting_heart_rate: f.resting_hr, blood_pressure: f.blood_pressure },
+          exercise_history: {
+            weekly_frequency: this.toNum(f.weekly_frequency),
+            main_activities: this.splitList(f.main_activities),
+            sedentary_hours_per_day: this.toNum(f.sedentary),
+          },
+          lifestyle: { sleep_hours: this.toNum(f.sleep) },
+        },
+        prescription_request: {
+          goals: this.splitList(f.goals),
+          available_time: {
+            days_per_week: this.toNum(f.days_per_week),
+            minutes_per_session: this.toNum(f.minutes_per_session),
+            preferred_slot: f.preferred_slot,
+          },
+          venue: this.splitList(f.venue),
+          equipment: this.splitList(f.equipment),
+          preferences: { liked: this.splitList(f.liked), disliked: this.splitList(f.disliked) },
+          guardian_consent: true,
+        },
+      };
+    },
+
+    async submitCustom() {
+      if (this.formSaving || this.generating) return;
+      const record = this.buildRecord();
+      if (!record) return;
+
+      this.formSaving = true;
+      let saved;
+      try {
+        const res = await fetch('/api/v1/students', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(record),
+        });
+        if (!res.ok) {
+          let detail = `HTTP ${res.status}`;
+          try { detail = (await res.json()).detail || detail; } catch (e) { /* 原样提示 */ }
+          this.formError = `保存失败：${detail}`;
+          return;
+        }
+        saved = await res.json();
+      } catch (err) {
+        this.formError = `保存失败：${err}`;
+        return;
+      } finally {
+        this.formSaving = false;
+      }
+
+      // 新档案已落盘：刷新下拉列表并选中，再直接走生成流程
+      fetch('/api/v1/students')
+        .then((r) => r.json())
+        .then((list) => { this.students = list; })
+        .catch(() => {});
+      this.selectedId = saved.student_id;
+      this.showForm = false;
+      this.resetState();
+      await this.streamGenerate(saved);
     },
 
     handleFrame(frame) {
@@ -512,84 +635,6 @@ createApp({
     dateOnly(s) {
       const d = this.parseDate(s);
       return d ? this.fmtDate(d) : (s || '');
-    },
-
-    zoomIn() { this.zoom = Math.min(2, +(this.zoom + 0.1).toFixed(2)); },
-    zoomOut() { this.zoom = Math.max(0.6, +(this.zoom - 0.1).toFixed(2)); },
-    print() { window.print(); },
-
-    /* ------------------------------------------------------------------
-       屏幕与打印两套排版：
-       屏幕上按流式卡片呈现，宽度随窗口、高度随内容，不做任何缩放；
-       打印时先给 body 加 .printing 把几何切回 A4，再把每页内容等比压到
-       正好一张纸。做法是先把内容层按 1/s 加宽，再整体 scale(s) 还原到纸张
-       宽度，等价于「缩小字号 + 同步放宽行宽」，版式比例不变。
-       ------------------------------------------------------------------ */
-    enterPrintLayout() {
-      document.body.classList.add('printing');
-      // 切到 A4 几何后必须同步重排一次，否则下面量到的还是屏幕尺寸
-      void document.body.offsetHeight;
-      this.fitSheets();
-    },
-
-    exitPrintLayout() {
-      this.resetFit();
-      document.body.classList.remove('printing');
-    },
-
-    resetFit() {
-      document.querySelectorAll('.sheet-inner').forEach((inner) => {
-        inner.style.width = '';
-        inner.style.minHeight = '';
-        inner.style.transform = '';
-        delete inner.dataset.fit;
-      });
-    },
-
-    fitSheets() {
-      document.querySelectorAll('.sheet').forEach((sheet) => {
-        const inner = sheet.querySelector('.sheet-inner');
-        if (!inner) return;
-
-        const cs = getComputedStyle(sheet);
-        const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
-        const padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
-        const availW = sheet.clientWidth - padX;
-        const availH = sheet.clientHeight - padY;
-        if (availW <= 0 || availH <= 0) return;
-
-        const apply = (s) => {
-          inner.style.width = `${availW / s}px`;
-          inner.style.minHeight = `${availH / s}px`;
-          inner.style.transform = s === 1 ? 'none' : `scale(${s})`;
-        };
-
-        let s = 1;
-        apply(1);
-        // 迭代逼近：加宽后高度会变化，两三轮即可收敛
-        for (let i = 0; i < 4; i++) {
-          const h = inner.scrollHeight;
-          const next = Math.min(1, availH / h);
-          if (Math.abs(next - s) < 0.005) { s = next; break; }
-          s = next;
-          apply(s);
-        }
-        // 兜底：仍溢出就继续收一点，避免打印被裁切
-        let guard = 0;
-        while (inner.scrollHeight * s > availH + 1 && guard < 12) {
-          s *= 0.97;
-          apply(s);
-          guard += 1;
-        }
-        inner.dataset.fit = s.toFixed(3);
-      });
-    },
-
-    scheduleFit() {
-      this.$nextTick(() => {
-        // 屏幕上无需缩放：内容换新后清掉上一次打印留下的内联尺寸即可
-        requestAnimationFrame(() => this.resetFit());
-      });
     },
   },
 }).mount('#report');

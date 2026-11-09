@@ -10,8 +10,8 @@
 <body>
 <div id="report">
 
-  <!-- 工具条（打印时隐藏） -->
-  <div class="toolbar no-print">
+  <!-- 工具条 -->
+  <div class="toolbar">
     <select class="tb-select" v-model="selectedId" :disabled="generating">
       <option value="" disabled>选择学生档案…</option>
       <option v-for="s in students" :key="s.student_id" :value="s.student_id">
@@ -25,6 +25,9 @@
     <button class="tb-btn primary" :disabled="!selectedId || generating" @click="generate">
       {{ generating ? '生成中…' : '重新生成' }}
     </button>
+    <button class="tb-btn" :class="{ active: showForm }" @click="showForm = !showForm">
+      ✎ 自行录入档案
+    </button>
     <span class="tb-title" v-if="hasData">
       {{ rx.name || '—' }} · 运动处方报告
       <em class="tb-src" v-if="source">{{ source }}</em>
@@ -32,37 +35,108 @@
     <span class="tb-stage" v-else-if="generating">{{ stage }}</span>
     <span class="tb-spacer"></span>
     <a class="tb-btn ghost" href="/workbench">调试工作台</a>
-    <button class="tb-btn" @click="zoomOut">－</button>
-    <span class="tb-zoom">{{ Math.round(zoom * 100) }}%</span>
-    <button class="tb-btn" @click="zoomIn">＋</button>
-    <button class="tb-btn primary" :disabled="!hasData" @click="print">打印 / 导出 PDF</button>
   </div>
 
-  <!-- 生成进度（打印时隐藏） -->
-  <div class="gen-bar no-print" v-if="generating">
+  <!-- 生成进度 -->
+  <div class="gen-bar" v-if="generating">
     <div class="gen-track"><i></i></div>
     <span class="gen-text">{{ stage }}</span>
     <span class="gen-hint">模型逐字生成中，整条流程约需数分钟，请勿关闭页面</span>
   </div>
 
-  <div class="gen-alert no-print" v-if="genError">{{ genError }}</div>
+  <div class="gen-alert" v-if="genError">{{ genError }}</div>
 
-  <div class="gen-alert no-print" v-if="emergency">
+  <div class="gen-alert" v-if="emergency">
     <strong>{{ emergency.title }}</strong>
     <p>{{ emergency.message }}</p>
     <ul><li v-for="a in emergency.immediate_advice" :key="a">{{ a }}</li></ul>
   </div>
 
-  <div class="gen-alert no-print" v-if="blocked">
+  <div class="gen-alert" v-if="blocked">
     <strong>安全评估判定当前不宜生成可执行处方</strong>
     <ul><li v-for="a in blocked.referral_advice" :key="a">{{ a }}</li></ul>
   </div>
 
-  <div class="sheet-wrap" :class="{ pending: !hasData }" :style="{ '--zoom': zoom }">
+  <!-- 自行录入档案 -->
+  <div class="form-panel" v-if="showForm">
+    <div class="fp-head">
+      <h3>自行录入健康档案</h3>
+      <p>带 * 为必填，其余可留空；多个条目之间用逗号、顿号或分号分隔。提交后档案会保存为一份新的 JSON，并立即走画像与处方生成流程。</p>
+    </div>
 
-    <!-- ===================== 第 1 页 ===================== -->
+    <div class="fp-sec">
+      <h4>基本信息</h4>
+      <div class="fp-grid">
+        <label>姓名 *<input v-model.trim="form.name" placeholder="张三" /></label>
+        <label>性别 *
+          <select v-model="form.gender"><option>男</option><option>女</option></select>
+        </label>
+        <label>年龄 *<input v-model.trim="form.age" placeholder="14" /></label>
+        <label>年级<input v-model.trim="form.grade" placeholder="初二" /></label>
+        <label>身高（cm）*<input v-model.trim="form.height" placeholder="168.5" /></label>
+        <label>体重（kg）*<input v-model.trim="form.weight" placeholder="55.0" /></label>
+        <label>肺活量（ml）<input v-model.trim="form.fhl" placeholder="2600" /></label>
+        <label>安静心率（次/分）<input v-model.trim="form.resting_hr" placeholder="72" /></label>
+      </div>
+    </div>
+
+    <div class="fp-sec">
+      <h4>体质测试成绩（选填）</h4>
+      <div class="fp-grid">
+        <label>50米跑（秒）<input v-model.trim="form.wsm" placeholder="8.9" /></label>
+        <label>立定跳远（cm）<input v-model.trim="form.ldty" placeholder="185" /></label>
+        <label>坐位体前屈（cm）<input v-model.trim="form.zwtqq" placeholder="12.5" /></label>
+        <label>一分钟跳绳（个）<input v-model.trim="form.yfzts" placeholder="150" /></label>
+        <label>1000米·男<input v-model.trim="form.yqm" placeholder="4分32秒" /></label>
+        <label>800米·女<input v-model.trim="form.bbm" placeholder="3分50秒" /></label>
+        <label>引体向上·男（个）<input v-model.trim="form.ytxs" placeholder="5" /></label>
+        <label>仰卧起坐·女（个/分）<input v-model.trim="form.ywqz" placeholder="38" /></label>
+      </div>
+    </div>
+
+    <div class="fp-sec">
+      <h4>健康状况（选填）</h4>
+      <div class="fp-grid">
+        <label class="w2">慢性疾病<input v-model.trim="form.chronic" placeholder="哮喘（轻度）、过敏性鼻炎" /></label>
+        <label class="w2">正在用药<input v-model.trim="form.medications" placeholder="沙丁胺醇气雾剂（按需）" /></label>
+        <label class="w2">伤病史<input v-model.trim="form.injuries" placeholder="右踝韧带扭伤（2025-04，已恢复）" /></label>
+        <label class="w2">近期症状<input v-model.trim="form.symptoms" placeholder="运动后膝盖疼痛" /></label>
+        <label class="w2">家族病史<input v-model.trim="form.family" placeholder="父亲高血压" /></label>
+        <label>血压（mmHg）<input v-model.trim="form.blood_pressure" placeholder="110/70" /></label>
+        <label>睡眠时长（小时）<input v-model.trim="form.sleep" placeholder="7.5" /></label>
+      </div>
+    </div>
+
+    <div class="fp-sec">
+      <h4>运动习惯与处方需求</h4>
+      <div class="fp-grid">
+        <label>每周运动次数<input v-model.trim="form.weekly_frequency" placeholder="2" /></label>
+        <label class="w2">常做运动<input v-model.trim="form.main_activities" placeholder="篮球、骑行" /></label>
+        <label>每天久坐（小时）<input v-model.trim="form.sedentary" placeholder="9" /></label>
+        <label class="w2">运动目标 *<input v-model.trim="form.goals" placeholder="减脂、提升心肺耐力、1000米提分" /></label>
+        <label>每周可练（天）<input v-model.trim="form.days_per_week" placeholder="4" /></label>
+        <label>每次时长（分钟）<input v-model.trim="form.minutes_per_session" placeholder="45" /></label>
+        <label>偏好时间段<input v-model.trim="form.preferred_slot" placeholder="放学后" /></label>
+        <label class="w2">可用场地<input v-model.trim="form.venue" placeholder="家庭、小区空地、学校操场" /></label>
+        <label class="w2">可用器材<input v-model.trim="form.equipment" placeholder="跳绳、瑜伽垫、弹力带" /></label>
+        <label class="w2">喜欢的运动<input v-model.trim="form.liked" placeholder="骑行、篮球" /></label>
+        <label class="w2">不喜欢的运动<input v-model.trim="form.disliked" placeholder="长距离慢跑" /></label>
+      </div>
+    </div>
+
+    <div class="fp-foot">
+      <span class="fp-err" v-if="formError">{{ formError }}</span>
+      <span class="fp-spacer"></span>
+      <button class="tb-btn" @click="showForm = false">收起</button>
+      <button class="tb-btn primary" :disabled="formSaving || generating" @click="submitCustom">
+        {{ formSaving ? '保存中…' : '保存档案并生成处方' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="sheet-wrap" :class="{ pending: !hasData }">
+
     <div class="sheet">
-      <div class="page-no">1/2</div>
       <div class="sheet-inner">
 
       <!-- 报头 -->
@@ -285,18 +359,6 @@
         </div>
       </section>
 
-      <div class="sheet-foot">
-        <span>{{ rx.prescription_id }}</span>
-        <span>第 1 页 / 共 2 页</span>
-      </div>
-      </div>
-    </div>
-
-    <!-- ===================== 第 2 页 ===================== -->
-    <div class="sheet">
-      <div class="page-no">2/2</div>
-      <div class="sheet-inner">
-
       <!-- 5 注意事项与安全提示 -->
       <section class="sec">
         <div class="sec-head orange"><i>5</i><h3>注意事项与安全提示</h3></div>
@@ -424,7 +486,7 @@
 
       <div class="sheet-foot">
         <span>{{ rx.prescription_id }}</span>
-        <span>第 2 页 / 共 2 页</span>
+        <span>本报告由模型辅助生成，需经专业人员审核后使用</span>
       </div>
       </div>
     </div>

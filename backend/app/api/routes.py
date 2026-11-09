@@ -18,14 +18,15 @@ from app.schemas.profile import ProfileResult
 from app.schemas.record import HealthRecord
 from app.services import prescription_service, profile_service
 from app.services.data_loader import (
+    all_students,
     exercise_index,
     exercise_library,
     find_student,
     knowledge_base,
     knowledge_cards,
     load_pregenerated,
-    mock_students,
     pregenerated_ids,
+    save_custom_student,
 )
 from app.services.safety import check_emergency
 
@@ -76,7 +77,7 @@ def get_meta() -> dict[str, Any]:
         "versions": profile_service.current_versions().model_dump(),
         "exercise_count": len(exercise_library()["exercises"]),
         "knowledge_card_count": len(knowledge_cards()),
-        "student_count": len(mock_students()),
+        "student_count": len(all_students()),
         "contraindication_tags": exercise_library()["contraindication_tag_vocabulary"],
     }
 
@@ -84,7 +85,7 @@ def get_meta() -> dict[str, Any]:
 @router.get("/students", response_model=list[StudentSummary])
 def list_students() -> list[StudentSummary]:
     summaries: list[StudentSummary] = []
-    for student in mock_students():
+    for student in all_students():
         exam = student.get("physical_exam") or {}
         request = student.get("prescription_request") or {}
         summaries.append(
@@ -102,6 +103,15 @@ def list_students() -> list[StudentSummary]:
             )
         )
     return summaries
+
+
+@router.post("/students")
+def create_student(record: HealthRecord) -> dict[str, Any]:
+    """保存前端录入的新档案为一份 JSON，返回带服务端学号的完整档案。
+
+    保存后该学生即出现在 /students 列表中，可直接走画像与处方生成流程。
+    """
+    return save_custom_student(record.model_dump())
 
 
 @router.get("/students/{student_id}")
