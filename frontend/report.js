@@ -187,12 +187,12 @@ createApp({
         ? `靶心率 ${z.lower}–${z.upper} 次/分　RPE ${this.rx.intensity_control.rpe_range || '—'}`
         : `RPE ${this.rx.intensity_control.rpe_range || '—'}`;
       return [
-        { label: '运动类型', value: f.type.value, detail: f.type.detail },
-        { label: '运动强度', value: f.intensity.value, detail: `${hrLine}　${f.intensity.detail || ''}`.trim() },
-        { label: '运动时间', value: f.time.value, detail: f.time.detail },
-        { label: '运动频率', value: f.frequency.value, detail: f.frequency.detail },
-        { label: '周运动总量', value: f.volume.value, detail: f.volume.detail },
-        { label: '运动进阶', value: f.progression.value, detail: `${f.progression.detail || ''}${this.rx.cycle.next_review ? '　复评：' + this.rx.cycle.next_review : ''}`.trim() },
+        { label: '运动类型', k: 'T', cls: 't2', value: f.type.value, detail: f.type.detail },
+        { label: '运动强度', k: 'I', cls: 'i', value: f.intensity.value, detail: `${hrLine}　${f.intensity.detail || ''}`.trim() },
+        { label: '运动时间', k: 'T', cls: 't', value: f.time.value, detail: f.time.detail },
+        { label: '运动频率', k: 'F', cls: 'f', value: f.frequency.value, detail: f.frequency.detail },
+        { label: '周运动总量', k: 'V', cls: 'v', value: f.volume.value, detail: f.volume.detail },
+        { label: '运动进阶', k: 'P', cls: 'p', value: f.progression.value, detail: `${f.progression.detail || ''}${this.rx.cycle.next_review ? '　复评：' + this.rx.cycle.next_review : ''}`.trim() },
       ];
     },
 

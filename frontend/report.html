@@ -250,18 +250,16 @@
       <section class="sec">
         <div class="sec-head blue"><i>3</i><h3>运动方案（FITT-VP 一览表）</h3></div>
         <div class="sec-body">
-          <table class="plan-table">
-            <thead><tr><th class="c1">项目</th><th>内容</th></tr></thead>
-            <tbody>
-              <tr v-for="r in planRows" :key="r.label">
-                <th>{{ r.label }}</th>
-                <td>
-                  <div class="pt-main">{{ r.value || '—' }}</div>
-                  <div class="pt-sub" v-if="r.detail">{{ r.detail }}</div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="plan-grid">
+            <div class="plan-card" v-for="r in planRows" :key="r.label">
+              <span class="fitt-ico" :class="r.cls">{{ r.k }}</span>
+              <div class="pc-body">
+                <h5>{{ r.label }}</h5>
+                <div class="pc-main">{{ r.value || '—' }}</div>
+                <p class="pc-sub" v-if="r.detail">{{ r.detail }}</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -273,92 +271,92 @@
         </div>
 
         <div class="sec-body detail-grid">
-          <!-- 4.1 有氧 -->
-          <div class="dt-box">
+          <!-- 4.1 有氧：周计划表单独占满整行，避免分栏挤压 -->
+          <div class="dt-box dt-full">
             <div class="dt-head purple">4.1 有氧运动</div>
             <div class="dt-body">
               <div class="dt-line">
                 <span>强度 / 时长 / 频率：</span>
                 <b>{{ hrText }} · {{ rx.fitt_vp.time.value || '—' }} · {{ rx.fitt_vp.frequency.value || '—' }}</b>
               </div>
-              <table class="week-table">
-                <thead>
-                  <tr><th>星期</th><th>运动项目</th><th>靶心率</th><th>时长</th><th>备注</th></tr>
-                </thead>
-                <tbody>
-                  <tr v-for="d in weekRows" :key="d.day" :class="{ rest: d.rest }">
-                    <th>{{ d.day }}</th>
-                    <td>{{ d.items }}</td>
-                    <td class="mono">{{ d.hr }}</td>
-                    <td class="mono">{{ d.minutes }}</td>
-                    <td>{{ d.note }}</td>
-                  </tr>
-                </tbody>
-              </table>
+              <div class="dt-scroll">
+                <table class="week-table">
+                  <thead>
+                    <tr><th>星期</th><th>运动项目</th><th>靶心率</th><th>时长</th><th>备注</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="d in weekRows" :key="d.day" :class="{ rest: d.rest }">
+                      <th>{{ d.day }}</th>
+                      <td>{{ d.items }}</td>
+                      <td class="mono">{{ d.hr }}</td>
+                      <td class="mono">{{ d.minutes }}</td>
+                      <td>{{ d.note }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 
-          <!-- 4.2 抗阻 + 4.3 柔韧 -->
-          <div class="dt-col">
-            <div class="dt-box">
-              <div class="dt-head purple">4.2 抗阻运动<em v-if="resistanceFreq">（{{ resistanceFreq }}）</em></div>
-              <div class="dt-body">
-                <div class="dt-line" v-if="muscleGroups.length">
-                  <span>主要肌群：</span>
-                  <span class="tagline"><em v-for="m in muscleGroups" :key="m">{{ m }}</em></span>
-                </div>
-                <div class="move" v-for="m in resistanceMoves" :key="m.key">
-                  <div class="move-head">
-                    <strong>{{ m.name }}</strong>
-                    <span class="code">{{ m.id }}</span>
-                    <span class="dose">{{ m.dosage }}</span>
-                  </div>
-                  <p class="move-key" v-if="m.point"><span>要点</span>{{ m.point }}</p>
-                  <p class="move-err" v-if="m.error"><span>避免</span>{{ m.error }}</p>
-                </div>
-                <p class="dt-empty" v-if="!resistanceMoves.length">本周期暂未安排抗阻动作。</p>
+          <!-- 4.2 抗阻 -->
+          <div class="dt-box">
+            <div class="dt-head purple">4.2 抗阻运动<em v-if="resistanceFreq">（{{ resistanceFreq }}）</em></div>
+            <div class="dt-body">
+              <div class="dt-line" v-if="muscleGroups.length">
+                <span>主要肌群：</span>
+                <span class="tagline"><em v-for="m in muscleGroups" :key="m">{{ m }}</em></span>
               </div>
-            </div>
-
-            <div class="dt-box">
-              <div class="dt-head purple">4.3 柔韧 / 核心 / 功能训练</div>
-              <div class="dt-body">
-                <div class="mini" v-for="m in flexMoves" :key="m.key">
+              <div class="move" v-for="m in resistanceMoves" :key="m.key">
+                <div class="move-head">
                   <strong>{{ m.name }}</strong>
+                  <span class="code">{{ m.id }}</span>
                   <span class="dose">{{ m.dosage }}</span>
-                  <p v-if="m.point">{{ m.point }}</p>
                 </div>
-                <p class="dt-empty" v-if="!flexMoves.length">本周期暂未安排柔韧/核心动作。</p>
+                <p class="move-key" v-if="m.point"><span>要点</span>{{ m.point }}</p>
+                <p class="move-err" v-if="m.error"><span>避免</span>{{ m.error }}</p>
               </div>
+              <p class="dt-empty" v-if="!resistanceMoves.length">本周期暂未安排抗阻动作。</p>
+            </div>
+          </div>
+
+          <!-- 4.3 柔韧 -->
+          <div class="dt-box">
+            <div class="dt-head purple">4.3 柔韧 / 核心 / 功能训练</div>
+            <div class="dt-body">
+              <div class="mini" v-for="m in flexMoves" :key="m.key">
+                <strong>{{ m.name }}</strong>
+                <span class="dose">{{ m.dosage }}</span>
+                <p v-if="m.point">{{ m.point }}</p>
+              </div>
+              <p class="dt-empty" v-if="!flexMoves.length">本周期暂未安排柔韧/核心动作。</p>
             </div>
           </div>
 
           <!-- 4.4 运动流程 -->
-          <div class="dt-col">
-            <div class="dt-box">
-              <div class="dt-head purple">4.4 运动流程（每次）</div>
-              <div class="dt-body flow">
-                <div class="flow-row" v-for="f in flowRows" :key="f.name">
-                  <span class="flow-dot" :class="f.cls"></span>
-                  <div>
-                    <strong>{{ f.name }}<em v-if="f.minutes">（{{ f.minutes }} 分钟）</em></strong>
-                    <p>{{ f.desc }}</p>
-                  </div>
+          <div class="dt-box">
+            <div class="dt-head purple">4.4 运动流程（每次）</div>
+            <div class="dt-body flow">
+              <div class="flow-row" v-for="f in flowRows" :key="f.name">
+                <span class="flow-dot" :class="f.cls"></span>
+                <div>
+                  <strong>{{ f.name }}<em v-if="f.minutes">（{{ f.minutes }} 分钟）</em></strong>
+                  <p>{{ f.desc }}</p>
                 </div>
-                <div class="flow-foot">
-                  <span>谈话测试</span>{{ rx.intensity_control.talk_test || '—' }}
-                </div>
+              </div>
+              <div class="flow-foot">
+                <span>谈话测试</span>{{ rx.intensity_control.talk_test || '—' }}
               </div>
             </div>
+          </div>
 
-            <div class="dt-box">
-              <div class="dt-head purple">本阶段要点</div>
-              <div class="dt-body">
-                <div class="dt-line"><span>当前阶段：</span><b>{{ rx.cycle.current_phase || '—' }}</b></div>
-                <div class="dt-line"><span>进阶方式：</span><b>{{ rx.fitt_vp.progression.value || '—' }}</b></div>
-                <div class="dt-line"><span>下次复评：</span><b>{{ rx.cycle.next_review || '—' }}</b></div>
-                <p class="dt-empty">{{ rx.fitt_vp.progression.detail }}</p>
-              </div>
+          <!-- 本阶段要点 -->
+          <div class="dt-box">
+            <div class="dt-head purple">本阶段要点</div>
+            <div class="dt-body">
+              <div class="dt-line"><span>当前阶段：</span><b>{{ rx.cycle.current_phase || '—' }}</b></div>
+              <div class="dt-line"><span>进阶方式：</span><b>{{ rx.fitt_vp.progression.value || '—' }}</b></div>
+              <div class="dt-line"><span>下次复评：</span><b>{{ rx.cycle.next_review || '—' }}</b></div>
+              <p class="dt-empty">{{ rx.fitt_vp.progression.detail }}</p>
             </div>
           </div>
         </div>
