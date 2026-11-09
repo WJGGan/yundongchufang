@@ -138,7 +138,8 @@
     </div>
   </div>
 
-  <div class="sheet-wrap" :class="{ pending: !hasData }">
+  <!-- 报告版式：录入档案时整体隐藏，避免两个界面上下叠放 -->
+  <div class="sheet-wrap" :class="{ pending: !hasData }" v-if="!showForm">
 
     <div class="sheet">
       <div class="sheet-inner">

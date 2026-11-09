@@ -22,12 +22,12 @@
   --red: #c7362f;
   --red-soft: #fdeeed;
 
-  --fs-xs: 12px;    /* 地板：编号、代码、脚注 */
-  --fs-sm: 12.5px;  /* 密集表格、徽标 */
-  --fs-md: 13px;    /* 次级正文、列表 */
-  --fs-body: 14px;  /* 表单/卡片正文 */
-  --fs-base: 15px;  /* 页面正文基准 */
-  --fs-lg: 16px;    /* 区块标题 */
+  --fs-xs: 13px;    /* 地板：编号、代码、脚注 */
+  --fs-sm: 14px;    /* 密集表格、徽标 */
+  --fs-md: 15px;    /* 次级正文、列表 */
+  --fs-body: 16px;  /* 表单/卡片正文 */
+  --fs-base: 17px;  /* 页面正文基准 */
+  --fs-lg: 19px;    /* 区块标题 */
 }
 
 * { box-sizing: border-box; }
@@ -117,7 +117,7 @@ body {
   max-width: 560px; margin: 90px auto; padding: 36px;
   background: #fff; border-radius: 12px; text-align: center;
 }
-.empty-state h2 { margin: 0 0 10px; font-size: 20px; }
+.empty-state h2 { margin: 0 0 10px; font-size: 22px; }
 .empty-state p { color: var(--ink-3); margin: 0 0 20px; }
 
 /* ---------- 报告卡片 ----------
@@ -164,8 +164,8 @@ body {
 .logo-text span { font-size: var(--fs-xs); color: var(--ink-3); }
 
 .head-title { text-align: center; }
-.head-title h1 { margin: 0; font-size: 26px; font-weight: 800; color: var(--blue); letter-spacing: 2px; }
-.head-title h2 { margin: 4px 0 0; font-size: 21px; font-weight: 700; color: var(--blue); letter-spacing: 1.5px; }
+.head-title h1 { margin: 0; font-size: 30px; font-weight: 800; color: var(--blue); letter-spacing: 2px; }
+.head-title h2 { margin: 5px 0 0; font-size: 24px; font-weight: 700; color: var(--blue); letter-spacing: 1.5px; }
 .head-title .slogan { margin: 8px 0 0; font-size: var(--fs-md); color: var(--ink-3); letter-spacing: 2px; }
 
 .head-meta {
@@ -188,7 +188,7 @@ body {
 }
 .sec-head i {
   font-style: normal; font-weight: 800; font-size: var(--fs-base);
-  width: 24px; height: 24px; border-radius: 5px;
+  width: 26px; height: 26px; border-radius: 6px;
   background: rgba(255, 255, 255, .25);
   display: flex; align-items: center; justify-content: center;
 }
@@ -224,14 +224,14 @@ body {
   color: var(--ink-2);
 }
 .cks em::before {
-  content: ''; width: 14px; height: 14px;
+  content: ''; width: 16px; height: 16px;
   border: 1px solid #9aa7bd; border-radius: 3px; background: #fff;
   display: inline-block;
 }
 .cks em.on { color: var(--blue); font-weight: 700; }
 .cks em.on::before {
   background: var(--blue); border-color: var(--blue);
-  content: '✓'; color: #fff; font-size: 11px; line-height: 14px; text-align: center;
+  content: '✓'; color: #fff; font-size: 12px; line-height: 16px; text-align: center;
 }
 
 /* ---------- 2 运动目的 ---------- */
@@ -243,7 +243,7 @@ body {
   font-size: var(--fs-body); color: var(--ink-2);
 }
 .goal-grid label em {
-  width: 14px; height: 14px; flex: none;
+  width: 16px; height: 16px; flex: none;
   border: 1px solid #9aa7bd; border-radius: 3px; background: #fff;
 }
 .goal-grid label.on { color: var(--green); font-weight: 700; }
@@ -252,7 +252,7 @@ body {
   position: relative;
 }
 .goal-grid label.on em::after {
-  content: '✓'; color: #fff; font-size: 11px; line-height: 14px;
+  content: '✓'; color: #fff; font-size: 12px; line-height: 16px;
   position: absolute; inset: 0; text-align: center;
 }
 .goal-extra, .goal-weak {
@@ -266,8 +266,8 @@ body {
 }
 .goal-weak .rank { display: inline-flex; align-items: center; gap: 5px; font-size: var(--fs-sm); color: var(--ink-2); }
 .goal-weak .rank b {
-  width: 18px; height: 18px; border-radius: 50%;
-  background: var(--orange); color: #fff; font-size: 11px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--orange); color: #fff; font-size: 12px;
   display: inline-flex; align-items: center; justify-content: center;
 }
 
@@ -279,7 +279,7 @@ body {
 .fitt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px 10px; }
 .fitt-row { display: flex; gap: 8px; align-items: flex-start; }
 .fitt-ico {
-  width: 22px; height: 22px; flex: none; border-radius: 5px;
+  width: 24px; height: 24px; flex: none; border-radius: 5px;
   color: #fff; font-weight: 800; font-size: var(--fs-sm);
   display: flex; align-items: center; justify-content: center;
 }
@@ -296,9 +296,9 @@ body {
 .plan-table { width: 100%; border-collapse: collapse; }
 .plan-table th, .plan-table td { border: 1px solid var(--line); padding: 8px 12px; text-align: left; vertical-align: middle; }
 .plan-table thead th { background: var(--blue); color: #fff; font-size: var(--fs-body); font-weight: 600; text-align: center; }
-.plan-table thead th.c1 { width: 112px; }
+.plan-table thead th.c1 { width: 122px; }
 .plan-table tbody th {
-  width: 112px; background: var(--blue-soft); color: var(--blue);
+  width: 122px; background: var(--blue-soft); color: var(--blue);
   font-size: var(--fs-body); font-weight: 700; text-align: center; vertical-align: middle;
 }
 .pt-main { font-size: var(--fs-body); font-weight: 600; }
@@ -329,9 +329,9 @@ body {
 .week-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .week-table th, .week-table td { border: 1px solid var(--line-2); padding: 5px 6px; font-size: var(--fs-sm); text-align: left; word-break: break-word; line-height: 1.5; }
 .week-table thead th { background: #f4f7fc; color: var(--ink-2); font-weight: 600; text-align: center; }
-.week-table thead th:nth-child(1) { width: 42px; }
-.week-table thead th:nth-child(3) { width: 64px; }
-.week-table thead th:nth-child(4) { width: 44px; }
+.week-table thead th:nth-child(1) { width: 46px; }
+.week-table thead th:nth-child(3) { width: 72px; }
+.week-table thead th:nth-child(4) { width: 48px; }
 .week-table thead th:nth-child(5) { width: 24%; }
 .week-table tbody th { text-align: center; color: var(--blue); font-weight: 600; background: #fafcff; }
 .week-table td.mono { text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums; }
@@ -393,7 +393,7 @@ body {
 
 .forbid { display: flex; gap: 7px; margin-bottom: 8px; }
 .forbid .fb {
-  flex: none; padding: 0 7px; height: 20px; line-height: 20px;
+  flex: none; padding: 0 7px; height: 22px; line-height: 22px;
   border-radius: 4px; font-size: var(--fs-xs); color: #fff;
 }
 .forbid .fb.no { background: var(--red); }
@@ -405,7 +405,7 @@ body {
 .mon li { display: flex; gap: 7px; font-size: var(--fs-md); color: var(--ink-2); margin-bottom: 6px; }
 .mon li span {
   flex: none; color: var(--blue); font-weight: 600;
-  background: var(--blue-soft); border-radius: 4px; padding: 0 6px; height: 22px; line-height: 22px;
+  background: var(--blue-soft); border-radius: 4px; padding: 0 6px; height: 24px; line-height: 24px;
   font-size: var(--fs-sm);
 }
 .mon li.stop span { color: var(--red); background: var(--red-soft); }
@@ -447,8 +447,8 @@ body {
 .rec-title { margin: 0 0 7px; font-size: var(--fs-body); color: var(--blue); }
 .rec-table { width: 100%; border-collapse: collapse; }
 .rec-table th, .rec-table td { border: 1px solid var(--line); padding: 2px 7px; font-size: var(--fs-sm); }
-.rec-table thead th { background: var(--blue-soft); color: var(--blue); font-weight: 600; height: 30px; }
-.rec-table tbody td { height: 28px; }
+.rec-table thead th { background: var(--blue-soft); color: var(--blue); font-weight: 600; height: 34px; }
+.rec-table tbody td { height: 32px; }
 
 .tip-bar {
   margin-top: 12px; padding: 10px 14px; border-radius: 6px;
@@ -463,7 +463,7 @@ body {
 .sign-line u { flex: 1; text-decoration: none; border-bottom: 1px solid var(--line); min-height: 24px; }
 .sign-line .unit { font-size: var(--fs-xs); color: var(--ink-3); }
 .stamp {
-  width: 104px; height: 104px; border: 2px solid var(--red); border-radius: 50%;
+  width: 112px; height: 112px; border: 2px solid var(--red); border-radius: 50%;
   color: var(--red); font-size: var(--fs-md); opacity: .55;
   display: flex; align-items: center; justify-content: center; text-align: center;
   margin-left: auto;
@@ -504,8 +504,8 @@ body {
   .rpt-head { grid-template-columns: 1fr; gap: 10px; }
   .logo { display: none; }
   .head-meta { width: 100%; }
-  .head-title h1 { font-size: 22px; }
-  .head-title h2 { font-size: 18px; }
+  .head-title h1 { font-size: 25px; }
+  .head-title h2 { font-size: 20px; }
   .two-col { grid-template-columns: 1fr; }
   .info-grid { grid-template-columns: repeat(2, 1fr); }
   .info-grid .f.wide { grid-column: span 2; }
@@ -538,7 +538,7 @@ body {
 @media screen and (max-width: 1280px) {
   .form-panel { margin-left: 16px; margin-right: 16px; width: auto; }
 }
-.fp-head h3 { margin: 0 0 4px; font-size: 18px; color: var(--blue); }
+.fp-head h3 { margin: 0 0 4px; font-size: 20px; color: var(--blue); }
 .fp-head p { margin: 0 0 12px; font-size: var(--fs-md); color: var(--ink-3); }
 
 .fp-sec { margin-bottom: 16px; }

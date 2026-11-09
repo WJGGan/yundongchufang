@@ -77,16 +77,25 @@ const EMPTY_PROFILE = {
 
 const clone = (o) => JSON.parse(JSON.stringify(o));
 
-/* 自行录入表单的空白值 */
-const EMPTY_FORM = {
-  name: '', gender: '男', age: '', grade: '', height: '', weight: '', fhl: '',
+/* 自行录入表单的默认值：预填李沐阳（BJ2025090314）的完整档案，
+   不改任何字段直接提交也能走通保存与生成流程 */
+const DEFAULT_FORM = {
+  name: '李沐阳', gender: '男', age: '14', grade: '初二',
+  height: '168.5', weight: '72.3', fhl: '2680',
   resting_hr: '', blood_pressure: '',
-  wsm: '', ldty: '', zwtqq: '', yfzts: '', yqm: '', bbm: '', ytxs: '', ywqz: '',
-  chronic: '', medications: '', injuries: '', symptoms: '', family: '',
-  sleep: '',
-  weekly_frequency: '', main_activities: '', sedentary: '',
-  goals: '', days_per_week: '', minutes_per_session: '', preferred_slot: '',
-  venue: '', equipment: '', liked: '', disliked: '',
+  wsm: '8.9', ldty: '185', zwtqq: '4.2', yfzts: '',
+  yqm: '4分32秒', bbm: '', ytxs: '3', ywqz: '',
+  chronic: '哮喘（轻度间歇性，近一年未急性发作）',
+  medications: '沙丁胺醇气雾剂（按需使用）',
+  injuries: '右踝韧带扭伤（2025-04，已恢复，剧烈变向时偶有酸胀）',
+  symptoms: '', family: '父亲高血压',
+  sleep: '7',
+  weekly_frequency: '2', main_activities: '校内体育课、周末骑行', sedentary: '9',
+  goals: '健康体重管理、心肺耐力提升、体测专项提升:1000米',
+  days_per_week: '4', minutes_per_session: '45', preferred_slot: '放学后',
+  venue: '家庭、小区空地、学校操场',
+  equipment: '跳绳、弹力带、瑜伽垫、自行车、篮球',
+  liked: '骑行、篮球', disliked: '长距离慢跑',
 };
 
 createApp({
@@ -106,7 +115,7 @@ createApp({
       blocked: null,
       exerciseMap: {},
       showForm: false,
-      form: clone(EMPTY_FORM),
+      form: clone(DEFAULT_FORM),
       formSaving: false,
       formError: '',
       aiOpen: false,
