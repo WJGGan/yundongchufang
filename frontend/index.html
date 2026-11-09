@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>健康档案理解与一人一策运动处方</title>
+<script src="https://unpkg.com/vue@3.4.38/dist/vue.global.prod.js"></script>
+<link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="brand">
+      <h1>健康档案理解与一人一策运动处方</h1>
+      <p class="sub">青少年运动健康模型 · 第一版</p>
+    </div>
+    <div class="meta" v-if="meta">
+      <span class="chip" :class="{ warn: meta.llm_provider === 'mock' }">
+        {{ meta.llm_provider === 'mock' ? '离线占位模式' : meta.model }}
+      </span>
+      <span class="chip ghost">动作库 {{ meta.exercise_count }}</span>
+      <span class="chip ghost">知识卡片 {{ meta.knowledge_card_count }}</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- 左栏：档案 -->
+    <section class="col col-record">
+      <div class="col-head">
+        <h2>健康档案</h2>
+        <span class="count">{{ students.length }} 份</span>
+      </div>
+
+      <div class="student-list">
+        <button
+          v-for="s in students"
+          :key="s.student_id"
+          class="student-card"
+          :class="{ active: selectedId === s.student_id }"
+          @click="selectStudent(s.student_id)">
+          <div class="student-row">
+            <strong>{{ s.name }}</strong>
+            <span class="tag">{{ s.grade }}·{{ s.gender }}</span>
+          </div>
+          <div class="student-meta">{{ s.age }}岁 · {{ s.height_cm }}cm · {{ s.weight_kg }}kg</div>
+          <div class="student-goals">{{ s.goals.join('、') }}</div>
+          <div class="student-flags" v-if="s.highlights.length">
+            <span class="flag" v-for="h in s.highlights" :key="h">{{ h }}</span>
+          </div>
+        </button>
+      </div>
+
+      <div class="record-detail" v-if="record">
+        <h3>原始字段</h3>
+        <details open>
+          <summary>体检结果表</summary>
+          <table class="kv">
+            <tr v-for="(v, k) in record.physical_exam" :key="k">
+              <th>{{ fieldLabel(k) }}</th>
+              <td :class="{ empty: !v }">{{ v || '—' }}</td>
+            </tr>
+          </table>
+        </details>
+        <details>
+          <summary>体质结果表</summary>
+          <table class="kv">
+            <tr v-for="(v, k) in record.fitness_test" :key="k">
+              <th>{{ fieldLabel(k) }}</th>
+              <td :class="{ empty: !v }">{{ v || '—' }}</td>
+            </tr>
+          </table>
+        </details>
+        <details>
+          <summary>健康扩展层</summary>
+          <pre class="json">{{ pretty(record.health_profile) }}</pre>
+        </details>
+        <details>
+          <summary>处方请求参数</summary>
+          <pre class="json">{{ pretty(record.prescription_request) }}</pre>
+        </details>
+      </div>
+    </section>
+
+    <!-- 中栏：画像 -->
+    <section class="col col-profile">
+      <div class="col-head">
+        <h2>体质画像</h2>
+        <button class="btn" :disabled="!record || loadingProfile" @click="runProfile">
+          {{ loadingProfile ? '分析中…' : '生成画像' }}
+        </button>
+      </div>
+
+      <div class="placeholder" v-if="!profile && !emergency && !loadingProfile">
+        从左侧选择一份档案，点击「生成画像」
+      </div>
+      <div class="loading" v-if="loadingProfile">正在读取档案并生成体质画像…</div>
+
+      <!-- 急症熔断 -->
+      <div class="alert-block" v-if="emergency">
+        <div class="alert-title">{{ emergency.title }}</div>
+        <p>{{ emergency.message }}</p>
+        <div class="alert-kw">
+          命中关键词：<span v-for="k in emergency.matched_keywords" :key="k" class="kw">{{ k }}</span>
+        </div>
+        <ul class="alert-list">
+          <li v-for="a in emergency.immediate_advice" :key="a">{{ a }}</li>
+        </ul>
+        <div class="alert-foot">
+          <p v-for="a in emergency.allowed_activity" :key="a">{{ a }}</p>
+          <p>{{ emergency.next_step }}</p>
+          <p class="disclaimer">{{ emergency.disclaimer }}</p>
+        </div>
+      </div>
+
+      <template v-if="profile">
+        <!-- 安全评估 -->
+        <div class="card safety" :class="'risk-' + riskClass(profile.safety.risk_level)">
+          <div class="card-head">
+            <h3>安全评估</h3>
+            <span class="risk-badge">风险 {{ profile.safety.risk_level }}</span>
+          </div>
+          <div class="safety-body">
+            <div class="safety-line">
+              <span class="label">可否生成处方</span>
+              <span :class="profile.safety.can_generate_prescription ? 'ok' : 'no'">
+                {{ profile.safety.can_generate_prescription ? '可以' : '不建议，先转介' }}
+              </span>
+            </div>
+            <div class="safety-line">
+              <span class="label">强度上限</span>
+              <span>最大心率 {{ profile.safety.intensity_ceiling.hr_max_percent }}% · RPE {{ profile.safety.intensity_ceiling.rpe_max }}</span>
+            </div>
+            <p class="basis">{{ profile.safety.intensity_ceiling.basis }}</p>
+            <div class="tags" v-if="profile.safety.blocked_exercise_tags.length">
+              <span class="label">禁用动作标签</span>
+              <span class="tag danger" v-for="t in profile.safety.blocked_exercise_tags" :key="t">{{ t }}</span>
+            </div>
+            <ul class="notes" v-if="profile.safety.referral_advice.length">
+              <li v-for="r in profile.safety.referral_advice" :key="r">{{ r }}</li>
+            </ul>
+            <ul class="notes dim" v-if="profile.safety.notes.length">
+              <li v-for="n in profile.safety.notes" :key="n">{{ n }}</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 基础评价 -->
+        <div class="card">
+          <div class="card-head"><h3>基础评价</h3></div>
+          <div class="basic-grid">
+            <div><span class="label">年级</span>{{ profile.basic.grade }}</div>
+            <div><span class="label">年龄</span>{{ profile.basic.age }} 岁</div>
+            <div><span class="label">身高</span>{{ profile.basic.height_cm }} cm</div>
+            <div><span class="label">体重</span>{{ profile.basic.weight_kg }} kg</div>
+            <div><span class="label">BMI</span>{{ profile.basic.bmi }}</div>
+            <div><span class="label">评价</span><strong>{{ profile.basic.bmi_evaluation }}</strong></div>
+          </div>
+          <p class="basis">{{ profile.basic.bmi_basis }}</p>
+          <p class="basis">{{ profile.basic.growth_note }}</p>
+        </div>
+
+        <!-- 五维 -->
+        <div class="card">
+          <div class="card-head"><h3>体质五维</h3></div>
+          <div class="dim" v-for="d in profile.fitness_dimensions" :key="d.dimension">
+            <div class="dim-head">
+              <strong>{{ d.dimension }}</strong>
+              <span class="level" :class="'lv-' + levelClass(d.level)">{{ d.level }}</span>
+            </div>
+            <div class="dim-bar"><i :style="{ width: levelWidth(d.level) }" :class="'lv-' + levelClass(d.level)"></i></div>
+            <div class="dim-ind">
+              <span v-for="i in d.indicators" :key="i.name">{{ i.name }} {{ i.raw }}<em v-if="i.level">（{{ i.level }}）</em></span>
+            </div>
+            <p class="basis">{{ d.basis }}</p>
+            <div class="refs" v-if="d.knowledge_refs && d.knowledge_refs.length">
+              <button class="ref" v-for="r in d.knowledge_refs" :key="r" @click="showCard(r)">{{ r }}</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 综合与短板 -->
+        <div class="card">
+          <div class="card-head">
+            <h3>综合评价</h3>
+            <span class="chip ghost">{{ profile.overall.level }}</span>
+          </div>
+          <p class="summary">{{ profile.overall.summary }}</p>
+          <div class="sub-block" v-if="profile.overall.strengths.length">
+            <span class="label">优势</span>
+            <ul><li v-for="s in profile.overall.strengths" :key="s">{{ s }}</li></ul>
+          </div>
+          <div class="sub-block">
+            <span class="label">短板（按处方优先级排序）</span>
+            <ol class="weakness">
+              <li v-for="w in profile.overall.weaknesses" :key="w.dimension">
+                <strong>{{ w.dimension }}</strong>
+                <span>{{ w.reason }}</span>
+              </li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- 健康关注点 -->
+        <div class="card" v-if="profile.health_focus.length">
+          <div class="card-head"><h3>健康关注点</h3></div>
+          <div class="focus" v-for="f in profile.health_focus" :key="f.item">
+            <div class="focus-head"><strong>{{ f.item }}</strong><span class="tag">{{ f.type }}</span></div>
+            <p><span class="label">影响</span>{{ f.impact }}</p>
+            <p><span class="label">注意</span>{{ f.attention }}</p>
+          </div>
+        </div>
+
+        <!-- 数据质量 -->
+        <div class="card" v-if="hasDataIssues">
+          <div class="card-head"><h3>数据质量与追问</h3></div>
+          <div class="sub-block" v-if="profile.data_quality.missing_fields.length">
+            <span class="label">缺失字段</span>
+            <ul>
+              <li v-for="m in profile.data_quality.missing_fields" :key="m.field">
+                <strong>{{ m.field }}</strong>（{{ m.priority }}）— {{ m.why_needed }}
+              </li>
+            </ul>
+          </div>
+          <div class="sub-block" v-if="profile.data_quality.conflicts.length">
+            <span class="label">矛盾项</span>
+            <ul>
+              <li v-for="(c, i) in profile.data_quality.conflicts" :key="i">
+                {{ c.description }}<em v-if="c.suggestion"> → {{ c.suggestion }}</em>
+              </li>
+            </ul>
+          </div>
+          <div class="sub-block" v-if="profile.data_quality.clarification_questions.length">
+            <span class="label">建议追问</span>
+            <div class="question" v-for="(q, i) in profile.data_quality.clarification_questions" :key="i">
+              <span class="q-pri" :class="'pri-' + priClass(q.priority)">{{ q.priority }}</span>
+              <span class="q-text">{{ q.question }}</span>
+              <span class="q-aud">问{{ q.audience }}</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="disclaimer">{{ profile.disclaimer }}</p>
+      </template>
+    </section>
+
+    <!-- 右栏：处方 -->
+    <section class="col col-rx">
+      <div class="col-head">
+        <h2>运动处方</h2>
+        <button class="btn primary" :disabled="!canPrescribe || loadingRx" @click="runPrescription">
+          {{ loadingRx ? '生成中…' : '生成处方' }}
+        </button>
+      </div>
+
+      <div class="placeholder" v-if="!rx && !rxBlocked && !loadingRx && !rxError">
+        先生成画像，确认安全评估后再生成处方
+      </div>
+
+      <div class="stream" v-if="loadingRx">
+        <div class="loading">{{ rxStatus }}</div>
+        <div class="retry-note" v-if="rxRetry">已触发一次重生成：{{ rxRetry }}</div>
+        <pre class="stream-box" ref="streamBox">{{ rxStream }}</pre>
+      </div>
+
+      <div class="alert-block" v-if="rxBlocked">
+        <div class="alert-title">安全评估判定当前不宜生成可执行处方</div>
+        <ul class="alert-list"><li v-for="r in rxBlocked.referral_advice" :key="r">{{ r }}</li></ul>
+        <ul class="alert-list dim"><li v-for="n in rxBlocked.notes" :key="n">{{ n }}</li></ul>
+      </div>
+
+      <div class="error-block" v-if="rxError">{{ rxError }}</div>
+
+      <template v-if="rx">
+        <!-- 风险提示优先 -->
+        <div class="card risk-first" v-if="rx.risk_notes.length">
+          <div class="card-head"><h3>风险提示</h3></div>
+          <div class="risk-item" v-for="(r, i) in rx.risk_notes" :key="i" :class="'risk-' + riskClass(r.level)">
+            <div class="risk-head"><span class="risk-badge">{{ r.level }}</span><strong>{{ r.item }}</strong></div>
+            <p><span class="label">原因</span>{{ r.reason }}</p>
+            <p><span class="label">应对</span>{{ r.action }}</p>
+          </div>
+        </div>
+
+        <div class="card" v-if="rx.forbidden_or_limited.length">
+          <div class="card-head"><h3>禁止与限制</h3></div>
+          <div class="restrict" v-for="(f, i) in rx.forbidden_or_limited" :key="i">
+            <span class="tag" :class="f.restriction === '禁止' ? 'danger' : 'warn'">{{ f.restriction }}</span>
+            <strong>{{ f.target }}</strong>
+            <span class="src" v-if="f.source">{{ f.source }}</span>
+            <p>{{ f.reason }}</p>
+          </div>
+        </div>
+
+        <!-- FITT-VP -->
+        <div class="card">
+          <div class="card-head">
+            <h3>FITT-VP 要素</h3>
+            <span class="chip ghost" v-if="rx.cycle.current_phase">{{ rx.cycle.current_phase }}</span>
+          </div>
+          <div class="fitt" v-for="(k, label) in fittLabels" :key="k">
+            <span class="fitt-k">{{ label }}</span>
+            <div class="fitt-v">
+              <strong>{{ rx.fitt_vp[k].value }}</strong>
+              <p>{{ rx.fitt_vp[k].detail }}</p>
+            </div>
+            <button class="ref mini" v-if="explainFor('fitt_vp.' + k)" @click="toggleExplain('fitt_vp.' + k)">依据</button>
+          </div>
+          <div class="explain" v-if="openExplain && openExplain.startsWith('fitt_vp.')">
+            <p>{{ explainFor(openExplain).why }}</p>
+            <button class="ref" v-for="r in explainFor(openExplain).knowledge_refs" :key="r" @click="showCard(r)">{{ r }}</button>
+          </div>
+        </div>
+
+        <!-- 强度控制 -->
+        <div class="card">
+          <div class="card-head"><h3>强度控制</h3></div>
+          <div class="hr-zone">
+            <span class="hr-num">{{ rx.intensity_control.target_hr_zone.lower }}–{{ rx.intensity_control.target_hr_zone.upper }}</span>
+            <span class="hr-unit">次/分</span>
+            <span class="chip ghost">RPE {{ rx.intensity_control.rpe_range }}</span>
+          </div>
+          <p class="basis">{{ rx.intensity_control.target_hr_zone.formula_note }}</p>
+          <p><span class="label">谈话测试</span>{{ rx.intensity_control.talk_test }}</p>
+          <div class="stop-signals">
+            <span class="label">立即停止信号</span>
+            <span class="tag danger" v-for="s in rx.intensity_control.stop_signals" :key="s">{{ s }}</span>
+          </div>
+        </div>
+
+        <!-- 周计划 -->
+        <div class="card">
+          <div class="card-head"><h3>周计划</h3></div>
+          <div class="day" v-for="d in rx.weekly_plan" :key="d.day" :class="{ rest: !d.is_training_day }">
+            <div class="day-head">
+              <strong>{{ d.day }}</strong>
+              <span class="day-theme">{{ d.theme }}</span>
+              <span class="day-min" v-if="d.total_minutes">{{ d.total_minutes }} 分钟</span>
+              <button class="ref mini" v-if="explainFor('weekly_plan.' + d.day)" @click="toggleExplain('weekly_plan.' + d.day)">依据</button>
+            </div>
+            <div class="explain" v-if="openExplain === 'weekly_plan.' + d.day">
+              <p>{{ explainFor(openExplain).why }}</p>
+              <button class="ref" v-for="r in explainFor(openExplain).knowledge_refs" :key="r" @click="showCard(r)">{{ r }}</button>
+            </div>
+            <div class="block" v-for="(b, bi) in d.blocks" :key="bi">
+              <div class="block-head">{{ b.phase }}<em v-if="b.minutes">{{ b.minutes }}′</em></div>
+              <div class="item" v-for="(it, ii) in b.items" :key="ii">
+                <button class="item-name" @click="showExercise(it.exercise_id)">
+                  {{ it.name }}<span class="eid">{{ it.exercise_id }}</span>
+                </button>
+                <span class="dosage">{{ it.dosage }}</span>
+                <p class="item-note" v-if="it.notes">{{ it.notes }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 饮食 -->
+        <div class="card">
+          <div class="card-head"><h3>饮食建议</h3></div>
+          <ul><li v-for="p in rx.nutrition.principles" :key="p">{{ p }}</li></ul>
+          <div class="macro">
+            <span>碳水 {{ rx.nutrition.macro_guidance.carbohydrate }}</span>
+            <span>蛋白 {{ rx.nutrition.macro_guidance.protein }}</span>
+            <span>脂肪 {{ rx.nutrition.macro_guidance.fat }}</span>
+          </div>
+          <p><span class="label">训练前</span>{{ rx.nutrition.around_training.pre }}</p>
+          <p><span class="label">训练后</span>{{ rx.nutrition.around_training.post }}</p>
+          <p><span class="label">饮水</span>{{ rx.nutrition.hydration }}</p>
+          <p class="basis" v-for="c in rx.nutrition.cautions" :key="c">{{ c }}</p>
+        </div>
+
+        <!-- 作业 -->
+        <div class="card" v-if="rx.homework && rx.homework.title">
+          <div class="card-head"><h3>{{ rx.homework.title }}</h3></div>
+          <ul><li v-for="t in rx.homework.tasks" :key="t">{{ t }}</li></ul>
+          <p><span class="label">完成标准</span>{{ rx.homework.completion_standard }}</p>
+          <p><span class="label">自评方式</span>{{ rx.homework.self_report }}</p>
+        </div>
+
+        <!-- 全部解释 -->
+        <div class="card" v-if="rx.explanations.length">
+          <div class="card-head"><h3>解释性说明</h3></div>
+          <div class="explain-item" v-for="(e, i) in rx.explanations" :key="i">
+            <code>{{ e.target }}</code>
+            <p>{{ e.why }}</p>
+            <button class="ref" v-for="r in e.knowledge_refs" :key="r" @click="showCard(r)">{{ r }}</button>
+          </div>
+        </div>
+
+        <div class="rx-foot">
+          <span>{{ rx.prescription_id }}</span>
+          <span>{{ rx.generated_at }}</span>
+          <span>动作库 {{ rx.versions.exercise_library }} · 知识库 {{ rx.versions.knowledge_base }} · 模型 {{ rx.versions.model }}</span>
+        </div>
+        <p class="disclaimer">{{ rx.disclaimer }}</p>
+      </template>
+    </section>
+  </main>
+
+  <!-- 弹层：动作详情 / 知识卡片 -->
+  <div class="modal-mask" v-if="modal" @click.self="modal = null">
+    <div class="modal">
+      <button class="modal-close" @click="modal = null">×</button>
+      <template v-if="modal.kind === 'exercise'">
+        <h3>{{ modal.data.name }} <code>{{ modal.data.id }}</code></h3>
+        <div class="modal-tags">
+          <span class="tag">{{ modal.data.category }}</span>
+          <span class="tag">冲击 {{ modal.data.impact_level }}</span>
+          <span class="tag">强度 {{ modal.data.intensity_level }}</span>
+          <span class="tag">{{ modal.data.min_age }} 岁以上</span>
+        </div>
+        <p><span class="label">器械</span>{{ (modal.data.equipment || []).join('、') }}</p>
+        <p><span class="label">场地</span>{{ (modal.data.venue || []).join('、') }}</p>
+        <p><span class="label">剂量参考</span>{{ modal.data.dosage_hint }}</p>
+        <div class="sub-block">
+          <span class="label">动作要领</span>
+          <ul><li v-for="k in modal.data.key_points" :key="k">{{ k }}</li></ul>
+        </div>
+        <div class="sub-block">
+          <span class="label">常见错误</span>
+          <ul><li v-for="k in modal.data.common_errors" :key="k">{{ k }}</li></ul>
+        </div>
+        <div class="sub-block" v-if="(modal.data.contraindication_tags || []).length">
+          <span class="label">风险标签</span>
+          <span class="tag danger" v-for="t in modal.data.contraindication_tags" :key="t">{{ t }}</span>
+        </div>
+        <div class="sub-block" v-if="(modal.data.alternatives || []).length">
+          <span class="label">替代动作</span>
+          <button class="ref" v-for="a in modal.data.alternatives" :key="a" @click="showExercise(a)">{{ a }}</button>
+        </div>
+      </template>
+      <template v-else>
+        <h3>{{ modal.data.title }} <code>{{ modal.data.id }}</code></h3>
+        <div class="modal-tags">
+          <span class="tag">{{ modal.data.domain }}</span>
+          <span class="tag" v-for="a in modal.data.age_scope" :key="a">{{ a }}</span>
+        </div>
+        <p class="card-content">{{ modal.data.content }}</p>
+      </template>
+    </div>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

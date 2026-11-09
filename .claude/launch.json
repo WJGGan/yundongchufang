@@ -1,0 +1,15 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "yundong-chufang",
+      "runtimeExecutable": "uv",
+      "runtimeArgs": [
+        "run", "--directory", "backend",
+        "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8077"
+      ],
+      "port": 8077,
+      "url": "http://localhost:8077"
+    }
+  ]
+}

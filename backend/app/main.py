@@ -1,0 +1,40 @@
+"""服务入口。后端同时托管前端静态页面，开箱即可访问 http://127.0.0.1:8000 。"""
+
+from __future__ import annotations
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
+from app.api.routes import router
+from app.config import FRONTEND_DIR
+
+app = FastAPI(
+    title="青少年运动健康 - 健康档案理解与一人一策运动处方",
+    version="0.1.0",
+    description="健康档案理解与个性化运动处方生成服务。",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(router)
+
+
+@app.get("/health")
+def health() -> dict[str, str]:
+    return {"status": "ok"}
+
+
+if FRONTEND_DIR.is_dir():
+    app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
+
+    @app.get("/", include_in_schema=False)
+    def index() -> FileResponse:
+        return FileResponse(FRONTEND_DIR / "index.html")

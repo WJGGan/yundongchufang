@@ -1,0 +1,216 @@
+"""LLM 接入层。
+
+对外只暴露 complete_json 与 stream_json 两个方法，业务代码不感知具体供应商。
+交付期把本地推理服务配成 openai_compatible 即可，无需改动业务代码。
+"""
+
+from __future__ import annotations
+
+import json
+import re
+from collections.abc import AsyncIterator
+from typing import Any
+
+from app.config import settings
+
+_FENCE_RE = re.compile(r"```(?:json)?\s*(.*?)\s*```", re.DOTALL)
+
+
+class LLMError(RuntimeError):
+    pass
+
+
+def extract_json(text: str) -> dict[str, Any]:
+    """从模型输出中提取 JSON 对象，容忍代码围栏与前后说明文字。"""
+    if not text or not text.strip():
+        raise LLMError("模型返回为空")
+
+    candidates: list[str] = []
+    fenced = _FENCE_RE.search(text)
+    if fenced:
+        candidates.append(fenced.group(1))
+    candidates.append(text.strip())
+
+    start = text.find("{")
+    end = text.rfind("}")
+    if start != -1 and end > start:
+        candidates.append(text[start : end + 1])
+
+    for candidate in candidates:
+        try:
+            parsed = json.loads(candidate)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(parsed, dict):
+            return parsed
+
+    preview = text[:300].replace("\n", " ")
+    raise LLMError(f"模型输出无法解析为 JSON：{preview}")
+
+
+class BaseProvider:
+    name = "base"
+
+    async def complete(self, system: str, user: str) -> str:
+        raise NotImplementedError
+
+    async def stream(self, system: str, user: str) -> AsyncIterator[str]:
+        raise NotImplementedError
+        yield ""  # pragma: no cover
+
+
+class OpenAICompatibleProvider(BaseProvider):
+    """智谱开放平台与任何 OpenAI 兼容服务（含本地部署）共用此实现。"""
+
+    def __init__(self, base_url: str, api_key: str, model: str, name: str) -> None:
+        from openai import AsyncOpenAI
+
+        self.name = name
+        self.model = model
+        self._client = AsyncOpenAI(
+            base_url=base_url,
+            api_key=api_key or "EMPTY",
+            timeout=settings.timeout,
+        )
+
+    def _messages(self, system: str, user: str) -> list[dict[str, str]]:
+        return [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ]
+
+    async def complete(self, system: str, user: str) -> str:
+        response = await self._client.chat.completions.create(
+            model=self.model,
+            messages=self._messages(system, user),
+            temperature=settings.temperature,
+            max_tokens=settings.max_tokens,
+        )
+        return response.choices[0].message.content or ""
+
+    async def stream(self, system: str, user: str) -> AsyncIterator[str]:
+        stream = await self._client.chat.completions.create(
+            model=self.model,
+            messages=self._messages(system, user),
+            temperature=settings.temperature,
+            max_tokens=settings.max_tokens,
+            stream=True,
+        )
+        async for chunk in stream:
+            if not chunk.choices:
+                continue
+            delta = chunk.choices[0].delta
+            if delta and delta.content:
+                yield delta.content
+
+
+class AnthropicCompatibleProvider(BaseProvider):
+    """智谱 Anthropic 兼容端点。
+
+    GLM-4.6 是思考模型，返回的 content 是块列表（thinking 块 + text 块），
+    只取 text 块作为正文；thinking 块仅用于观察，不参与 JSON 解析。
+    """
+
+    name = "anthropic_compatible"
+
+    def __init__(self, base_url: str, api_key: str, model: str) -> None:
+        from anthropic import AsyncAnthropic
+
+        self.model = model
+        self._client = AsyncAnthropic(
+            base_url=base_url,
+            api_key=api_key,
+            timeout=settings.timeout,
+        )
+
+    def _kwargs(self, system: str, user: str) -> dict[str, Any]:
+        kwargs: dict[str, Any] = {
+            "model": self.model,
+            "system": system,
+            "messages": [{"role": "user", "content": user}],
+            "max_tokens": settings.max_tokens,
+        }
+        # 思考模型在开启思考时不接受自定义 temperature
+        if not settings.thinking_enabled:
+            kwargs["temperature"] = settings.temperature
+            kwargs["thinking"] = {"type": "disabled"}
+        return kwargs
+
+    async def complete(self, system: str, user: str) -> str:
+        message = await self._client.messages.create(**self._kwargs(system, user))
+        return "".join(
+            block.text for block in message.content if getattr(block, "type", "") == "text"
+        )
+
+    async def stream(self, system: str, user: str) -> AsyncIterator[str]:
+        async with self._client.messages.stream(**self._kwargs(system, user)) as stream:
+            async for event in stream:
+                if event.type != "content_block_delta":
+                    continue
+                delta = event.delta
+                # 只透出正文增量，thinking 增量不进 JSON 缓冲区
+                if getattr(delta, "type", "") == "text_delta":
+                    yield delta.text
+
+
+class MockProvider(BaseProvider):
+    """离线占位实现，仅供前端联调使用。
+
+    返回的内容带有明显的 [MOCK] 标记，便于区分真实模型输出。
+    """
+
+    name = "mock"
+
+    async def complete(self, system: str, user: str) -> str:
+        from app.llm.mock_payload import build_mock_payload
+
+        return json.dumps(build_mock_payload(system, user), ensure_ascii=False)
+
+    async def stream(self, system: str, user: str) -> AsyncIterator[str]:
+        payload = await self.complete(system, user)
+        step = 160
+        for index in range(0, len(payload), step):
+            yield payload[index : index + step]
+
+
+_provider: BaseProvider | None = None
+
+
+def get_provider() -> BaseProvider:
+    global _provider
+    if _provider is not None:
+        return _provider
+
+    provider = settings.llm_provider
+    if provider == "mock":
+        _provider = MockProvider()
+    elif provider == "anthropic_compatible":
+        if not settings.anthropic_api_key:
+            raise LLMError(
+                "未配置 ANTHROPIC_COMPAT_API_KEY。请在 backend/.env 中填入智谱密钥。"
+            )
+        _provider = AnthropicCompatibleProvider(
+            base_url=settings.anthropic_base_url,
+            api_key=settings.anthropic_api_key,
+            model=settings.anthropic_model,
+        )
+    elif provider == "openai_compatible":
+        _provider = OpenAICompatibleProvider(
+            base_url=settings.compat_base_url,
+            api_key=settings.compat_api_key,
+            model=settings.compat_model,
+            name="openai_compatible",
+        )
+    else:
+        if not settings.zhipu_api_key:
+            raise LLMError(
+                "未配置 ZHIPU_API_KEY。请复制 backend/.env.example 为 backend/.env 并填入密钥，"
+                "或设置 LLM_PROVIDER=mock 以离线联调前端。"
+            )
+        _provider = OpenAICompatibleProvider(
+            base_url=settings.zhipu_base_url,
+            api_key=settings.zhipu_api_key,
+            model=settings.zhipu_model,
+            name="zhipu",
+        )
+    return _provider
