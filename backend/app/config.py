@@ -22,13 +22,13 @@ class Settings:
         "ANTHROPIC_COMPAT_BASE_URL", "https://open.bigmodel.cn/api/anthropic"
     ).strip()
     anthropic_api_key: str = os.getenv("ANTHROPIC_COMPAT_API_KEY", "").strip()
-    anthropic_model: str = os.getenv("ANTHROPIC_COMPAT_MODEL", "glm-4.6").strip()
+    anthropic_model: str = os.getenv("ANTHROPIC_COMPAT_MODEL", "glm-5.3").strip()
 
     zhipu_api_key: str = os.getenv("ZHIPU_API_KEY", "").strip()
     zhipu_base_url: str = os.getenv(
         "ZHIPU_BASE_URL", "https://open.bigmodel.cn/api/paas/v4/"
     ).strip()
-    zhipu_model: str = os.getenv("ZHIPU_MODEL", "glm-4.6").strip()
+    zhipu_model: str = os.getenv("ZHIPU_MODEL", "glm-5.3").strip()
 
     compat_base_url: str = os.getenv(
         "OPENAI_COMPATIBLE_BASE_URL", "http://127.0.0.1:8000/v1"

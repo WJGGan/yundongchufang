@@ -154,10 +154,11 @@ class AnthropicCompatibleProvider(BaseProvider):
             "messages": [{"role": "user", "content": user}],
             "max_tokens": settings.max_tokens,
         }
-        # 思考模型在开启思考时不接受自定义 temperature
         if not settings.thinking_enabled:
-            kwargs["temperature"] = settings.temperature
             kwargs["thinking"] = {"type": "disabled"}
+            # anthropic SDK 2.6 起 messages.create/stream 不再接受顶层 temperature，
+            # 只能经 extra_body 透传给上游；思考开启时上游也不接受自定义 temperature。
+            kwargs["extra_body"] = {"temperature": settings.temperature}
         return kwargs
 
     async def complete(self, system: str, user: str) -> str:

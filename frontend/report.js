@@ -34,11 +34,62 @@ const PREFIX_CATEGORY = {
   FLX: '柔韧', SPD: '速度灵敏', CLD: '放松',
 };
 
+/* 空骨架：没有数据时报告版式照常渲染，字段留白而非整页隐藏 */
+const EMPTY_FITT_ITEM = { value: '', detail: '' };
+const EMPTY_RX = {
+  prescription_id: '',
+  student_id: '',
+  name: '',
+  generated_at: '',
+  versions: {},
+  goals: [],
+  cycle: { total_weeks: null, current_phase: '', next_review: '' },
+  fitt_vp: {
+    frequency: { ...EMPTY_FITT_ITEM }, intensity: { ...EMPTY_FITT_ITEM },
+    time: { ...EMPTY_FITT_ITEM }, type: { ...EMPTY_FITT_ITEM },
+    volume: { ...EMPTY_FITT_ITEM }, progression: { ...EMPTY_FITT_ITEM },
+  },
+  weekly_plan: [],
+  exercise_details: [],
+  intensity_control: {
+    target_hr_zone: { lower: null, upper: null, formula_note: '' },
+    rpe_range: '', talk_test: '', stop_signals: [],
+  },
+  nutrition: {
+    principles: [], macro_guidance: { carbohydrate: '', protein: '', fat: '' },
+    around_training: { pre: '', post: '' }, hydration: '', cautions: [],
+  },
+  risk_notes: [],
+  forbidden_or_limited: [],
+  explanations: [],
+  homework: { title: '', tasks: [], completion_standard: '', self_report: '' },
+  disclaimer: '',
+};
+const EMPTY_PROFILE = {
+  basic: {}, fitness_dimensions: [], overall: { strengths: [], weaknesses: [] },
+  health_focus: [],
+  data_quality: { missing_fields: [], conflicts: [], clarification_questions: [] },
+  safety: {
+    risk_level: '', can_generate_prescription: true, blocked_exercise_tags: [],
+    intensity_ceiling: {}, referral_advice: [], notes: [],
+  },
+};
+
+const clone = (o) => JSON.parse(JSON.stringify(o));
+
 createApp({
   data() {
     return {
-      rx: null,
-      profile: null,
+      rx: clone(EMPTY_RX),
+      profile: clone(EMPTY_PROFILE),
+      hasData: false,
+      students: [],
+      selectedId: '',
+      generating: false,
+      stage: '',
+      genError: '',
+      emergency: null,
+      blocked: null,
       exerciseMap: {},
       zoom: 1,
       fittPrinciple: FITT_PRINCIPLE,
@@ -239,36 +290,142 @@ createApp({
   },
 
   mounted() {
+    // 动作库始终加载：生成前用于空态，生成后用于回填动作要点
+    fetch('/api/v1/exercises')
+      .then((r) => r.json())
+      .then((d) => {
+        (d.exercises || []).forEach((e) => {
+          if (!this.exerciseMap[e.id]) this.exerciseMap[e.id] = e;
+        });
+      })
+      .catch(() => {});
+
+    fetch('/api/v1/students')
+      .then((r) => r.json())
+      .then((list) => {
+        this.students = list;
+        if (!this.selectedId && list.length) this.selectedId = list[0].student_id;
+      })
+      .catch(() => {});
+
+    // 从工作台带数据跳转过来时直接渲染
     const raw = sessionStorage.getItem('rx_report');
     if (raw) {
       try {
         const data = JSON.parse(raw);
-        this.rx = data.rx || null;
-        this.profile = data.profile || null;
+        if (data.rx) this.applyResult(data.rx, data.profile);
       } catch (e) { /* 数据损坏则保持空态 */ }
     }
-    if (this.rx) {
-      (this.rx.exercise_details || []).forEach((e) => { this.exerciseMap[e.id] = e; });
-      fetch('/api/v1/exercises')
-        .then((r) => r.json())
-        .then((d) => {
-          (d.exercises || []).forEach((e) => {
-            if (!this.exerciseMap[e.id]) this.exerciseMap[e.id] = e;
-          });
-        })
-        .catch(() => {})
-        .finally(() => this.scheduleFit());
-      document.title = `${this.rx.name || ''}运动处方报告`;
+
+    window.addEventListener('beforeprint', () => this.fitSheets());
+    window.addEventListener('resize', () => this.scheduleFit());
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => this.scheduleFit());
+    }
+    this.scheduleFit();
+  },
+
+  methods: {
+    /* ---------- 生成流程 ---------- */
+
+    applyResult(rx, profile) {
+      this.rx = rx;
+      if (profile) this.profile = profile;
+      (rx.exercise_details || []).forEach((e) => { this.exerciseMap[e.id] = e; });
+      this.hasData = true;
+      document.title = `${rx.name || ''}运动处方报告`;
       this.scheduleFit();
       if (document.fonts && document.fonts.ready) {
         document.fonts.ready.then(() => this.scheduleFit());
       }
-      window.addEventListener('beforeprint', () => this.fitSheets());
-      window.addEventListener('resize', () => this.scheduleFit());
-    }
-  },
+    },
 
-  methods: {
+    resetState() {
+      this.rx = clone(EMPTY_RX);
+      this.profile = clone(EMPTY_PROFILE);
+      this.hasData = false;
+      this.genError = '';
+      this.emergency = null;
+      this.blocked = null;
+      document.title = '运动处方报告';
+    },
+
+    async generate() {
+      if (!this.selectedId || this.generating) return;
+      this.resetState();
+      this.generating = true;
+      this.stage = '正在读取健康档案…';
+
+      try {
+        const record = await (await fetch(`/api/v1/students/${this.selectedId}`)).json();
+        this.stage = '正在生成体质画像…';
+
+        const res = await fetch('/api/v1/prescription:generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ record }),
+        });
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const frames = buffer.split('\n\n');
+          buffer = frames.pop();
+          frames.forEach((f) => this.handleFrame(f));
+        }
+      } catch (err) {
+        this.genError = `生成失败：${err}`;
+      } finally {
+        this.generating = false;
+        this.stage = '';
+      }
+    },
+
+    handleFrame(frame) {
+      let event = 'message';
+      let data = '';
+      frame.split('\n').forEach((line) => {
+        if (line.startsWith('event: ')) event = line.slice(7).trim();
+        else if (line.startsWith('data: ')) data += line.slice(6);
+      });
+      if (!data) return;
+      let payload;
+      try { payload = JSON.parse(data); } catch { return; }
+
+      switch (event) {
+        case 'status':
+          this.stage = payload.message + '…';
+          break;
+        case 'profile':
+          // 画像先到：报告上半部分（基本信息、目标、风险）可以先填上
+          this.profile = payload;
+          break;
+        case 'token':
+          this.stage = '模型正在编写处方…';
+          break;
+        case 'retry':
+          this.stage = '输出未通过校验，正在重新生成…';
+          break;
+        case 'result':
+          this.applyResult(payload, this.profile);
+          break;
+        case 'emergency':
+          this.emergency = payload;
+          break;
+        case 'blocked':
+          this.blocked = payload;
+          break;
+        case 'error':
+          this.genError = payload.message;
+          break;
+      }
+    },
+
+    /* ---------- 渲染辅助 ---------- */
+
     detailOf(id) { return this.exerciseMap[id] || {}; },
 
     categoryOf(it) {

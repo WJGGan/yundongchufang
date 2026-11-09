@@ -36,10 +36,16 @@ if FRONTEND_DIR.is_dir():
     app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
     @app.get("/", include_in_schema=False)
-    def index() -> FileResponse:
-        return FileResponse(FRONTEND_DIR / "index.html")
-
     @app.get("/report", include_in_schema=False)
     def report() -> FileResponse:
-        """运动处方报告页（A4 双页版式，数据由工作台经 sessionStorage 传入）。"""
+        """运动处方报告页（A4 双页版式）。
+
+        作为默认入口：打开即呈现空白报告版式，选择档案生成后再填充内容。
+        也支持从工作台经 sessionStorage 带数据跳转过来。
+        """
         return FileResponse(FRONTEND_DIR / "report.html")
+
+    @app.get("/workbench", include_in_schema=False)
+    def workbench() -> FileResponse:
+        """调试工作台：分步查看画像、安全评估、处方原始结构与流式过程。"""
+        return FileResponse(FRONTEND_DIR / "index.html")

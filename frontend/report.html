@@ -12,23 +12,46 @@
 
   <!-- 工具条（打印时隐藏） -->
   <div class="toolbar no-print">
-    <a class="tb-btn ghost" href="/">← 返回工作台</a>
-    <span class="tb-title" v-if="rx">{{ rx.name || '—' }} · 运动处方报告</span>
-    <span class="tb-title" v-else>运动处方报告</span>
+    <select class="tb-select" v-model="selectedId" :disabled="generating">
+      <option value="" disabled>选择学生档案…</option>
+      <option v-for="s in students" :key="s.student_id" :value="s.student_id">
+        {{ s.name }} · {{ s.grade }}{{ s.gender }} · {{ s.age }}岁
+      </option>
+    </select>
+    <button class="tb-btn primary" :disabled="!selectedId || generating" @click="generate">
+      {{ generating ? '生成中…' : '生成处方' }}
+    </button>
+    <span class="tb-title" v-if="hasData">{{ rx.name || '—' }} · 运动处方报告</span>
+    <span class="tb-stage" v-else-if="generating">{{ stage }}</span>
     <span class="tb-spacer"></span>
+    <a class="tb-btn ghost" href="/workbench">调试工作台</a>
     <button class="tb-btn" @click="zoomOut">－</button>
     <span class="tb-zoom">{{ Math.round(zoom * 100) }}%</span>
     <button class="tb-btn" @click="zoomIn">＋</button>
-    <button class="tb-btn primary" @click="print">打印 / 导出 PDF</button>
+    <button class="tb-btn primary" :disabled="!hasData" @click="print">打印 / 导出 PDF</button>
   </div>
 
-  <div class="empty-state no-print" v-if="!rx">
-    <h2>没有可渲染的处方数据</h2>
-    <p>请先回到工作台，选择档案 → 生成画像 → 生成处方，再点击「处方报告」。</p>
-    <a class="tb-btn primary" href="/">返回工作台</a>
+  <!-- 生成进度（打印时隐藏） -->
+  <div class="gen-bar no-print" v-if="generating">
+    <div class="gen-track"><i></i></div>
+    <span class="gen-text">{{ stage }}</span>
+    <span class="gen-hint">模型逐字生成中，整条流程约需数分钟，请勿关闭页面</span>
   </div>
 
-  <div class="sheet-wrap" v-if="rx" :style="{ '--zoom': zoom }">
+  <div class="gen-alert no-print" v-if="genError">{{ genError }}</div>
+
+  <div class="gen-alert no-print" v-if="emergency">
+    <strong>{{ emergency.title }}</strong>
+    <p>{{ emergency.message }}</p>
+    <ul><li v-for="a in emergency.immediate_advice" :key="a">{{ a }}</li></ul>
+  </div>
+
+  <div class="gen-alert no-print" v-if="blocked">
+    <strong>安全评估判定当前不宜生成可执行处方</strong>
+    <ul><li v-for="a in blocked.referral_advice" :key="a">{{ a }}</li></ul>
+  </div>
+
+  <div class="sheet-wrap" :class="{ pending: !hasData }" :style="{ '--zoom': zoom }">
 
     <!-- ===================== 第 1 页 ===================== -->
     <div class="sheet">

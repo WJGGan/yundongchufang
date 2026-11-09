@@ -228,7 +228,7 @@ createApp({
         profile: this.profile,
         record: this.record,
       }));
-      window.open('/report', '_blank');
+      window.open("/report", "_blank");
     },
   },
 }).mount('#app');
