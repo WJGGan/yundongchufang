@@ -75,6 +75,8 @@ body {
 .btn:disabled { opacity: .35; cursor: not-allowed; }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 .btn.primary:hover:not(:disabled) { filter: brightness(1.1); color: #fff; }
+.head-actions { display: flex; gap: 6px; }
+.report-btn { width: 100%; margin-top: 10px; padding: 8px; }
 
 /* ---------- 档案列表 ---------- */
 .student-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }

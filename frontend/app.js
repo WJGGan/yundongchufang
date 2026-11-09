@@ -220,5 +220,15 @@ createApp({
       const data = this.knowledgeCache[id];
       if (data) this.modal = { kind: 'knowledge', data };
     },
+
+    openReport() {
+      if (!this.rx) return;
+      sessionStorage.setItem('rx_report', JSON.stringify({
+        rx: this.rx,
+        profile: this.profile,
+        record: this.record,
+      }));
+      window.open('/report', '_blank');
+    },
   },
 }).mount('#app');

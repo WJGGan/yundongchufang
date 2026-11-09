@@ -247,9 +247,12 @@
     <section class="col col-rx">
       <div class="col-head">
         <h2>运动处方</h2>
-        <button class="btn primary" :disabled="!canPrescribe || loadingRx" @click="runPrescription">
-          {{ loadingRx ? '生成中…' : '生成处方' }}
-        </button>
+        <div class="head-actions">
+          <button class="btn" v-if="rx" @click="openReport">处方报告</button>
+          <button class="btn primary" :disabled="!canPrescribe || loadingRx" @click="runPrescription">
+            {{ loadingRx ? '生成中…' : '生成处方' }}
+          </button>
+        </div>
       </div>
 
       <div class="placeholder" v-if="!rx && !rxBlocked && !loadingRx && !rxError">
@@ -392,6 +395,7 @@
           <span>{{ rx.generated_at }}</span>
           <span>动作库 {{ rx.versions.exercise_library }} · 知识库 {{ rx.versions.knowledge_base }} · 模型 {{ rx.versions.model }}</span>
         </div>
+        <button class="btn report-btn" @click="openReport">生成 A4 处方报告（可打印 / 导出 PDF）</button>
         <p class="disclaimer">{{ rx.disclaimer }}</p>
       </template>
     </section>

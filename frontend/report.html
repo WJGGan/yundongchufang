@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>运动处方报告</title>
+<script src="https://unpkg.com/vue@3.4.38/dist/vue.global.prod.js"></script>
+<link rel="stylesheet" href="/static/report.css" />
+</head>
+<body>
+<div id="report">
+
+  <!-- 工具条（打印时隐藏） -->
+  <div class="toolbar no-print">
+    <a class="tb-btn ghost" href="/">← 返回工作台</a>
+    <span class="tb-title" v-if="rx">{{ rx.name || '—' }} · 运动处方报告</span>
+    <span class="tb-title" v-else>运动处方报告</span>
+    <span class="tb-spacer"></span>
+    <button class="tb-btn" @click="zoomOut">－</button>
+    <span class="tb-zoom">{{ Math.round(zoom * 100) }}%</span>
+    <button class="tb-btn" @click="zoomIn">＋</button>
+    <button class="tb-btn primary" @click="print">打印 / 导出 PDF</button>
+  </div>
+
+  <div class="empty-state no-print" v-if="!rx">
+    <h2>没有可渲染的处方数据</h2>
+    <p>请先回到工作台，选择档案 → 生成画像 → 生成处方，再点击「处方报告」。</p>
+    <a class="tb-btn primary" href="/">返回工作台</a>
+  </div>
+
+  <div class="sheet-wrap" v-if="rx" :style="{ '--zoom': zoom }">
+
+    <!-- ===================== 第 1 页 ===================== -->
+    <div class="sheet">
+      <div class="page-no">1/2</div>
+      <div class="sheet-inner">
+
+      <!-- 报头 -->
+      <header class="rpt-head">
+        <div class="logo">
+          <div class="logo-mark">
+            <svg viewBox="0 0 48 48" aria-hidden="true">
+              <circle cx="24" cy="9" r="5"/>
+              <path d="M24 16c-6 0-9 3-9 7v8h4v13h10V31h4v-8c0-4-3-7-9-7z"/>
+            </svg>
+          </div>
+          <div class="logo-text">
+            <strong>青少年</strong>
+            <span>运动健康中心</span>
+          </div>
+        </div>
+
+        <div class="head-title">
+          <h1>青少年运动健康中心</h1>
+          <h2>一人一策运动处方报告</h2>
+          <p class="slogan">科学运动 · 健康成长 · 专业指导 · 持续改善</p>
+        </div>
+
+        <div class="head-meta">
+          <div class="hm-row"><span>处方编号</span><b>{{ rx.prescription_id || '—' }}</b></div>
+          <div class="hm-row"><span>生成日期</span><b>{{ dateOnly(rx.generated_at) }}</b></div>
+          <div class="hm-row"><span>模型版本</span><b>{{ rx.versions.model || '—' }}</b></div>
+          <div class="hm-note">本报告由模型辅助生成<br/>需经专业人员审核后使用</div>
+        </div>
+      </header>
+
+      <!-- 1 基本信息 -->
+      <section class="sec">
+        <div class="sec-head blue"><i>1</i><h3>基本信息</h3></div>
+        <div class="sec-body boxed info-box">
+          <div class="info-grid">
+            <div class="f"><label>姓&nbsp;&nbsp;&nbsp;&nbsp;名</label><u>{{ rx.name || '—' }}</u></div>
+            <div class="f"><label>性&nbsp;&nbsp;&nbsp;&nbsp;别</label>
+              <span class="cks">
+                <em :class="{ on: basic.gender === '男' }">男</em>
+                <em :class="{ on: basic.gender === '女' }">女</em>
+              </span>
+            </div>
+            <div class="f"><label>年&nbsp;&nbsp;&nbsp;&nbsp;龄</label><u>{{ basic.age ?? '—' }}</u><span class="unit">岁</span></div>
+            <div class="f"><label>年&nbsp;&nbsp;&nbsp;&nbsp;级</label><u>{{ basic.grade || '—' }}</u></div>
+
+            <div class="f"><label>身&nbsp;&nbsp;&nbsp;&nbsp;高</label><u>{{ basic.height_cm ?? '—' }}</u><span class="unit">cm</span></div>
+            <div class="f"><label>体&nbsp;&nbsp;&nbsp;&nbsp;重</label><u>{{ basic.weight_kg ?? '—' }}</u><span class="unit">kg</span></div>
+            <div class="f wide"><label>BMI 评价</label><u>{{ basic.bmi ?? '—' }}（{{ basic.bmi_evaluation || '—' }}）</u></div>
+
+            <div class="f"><label>风险等级</label>
+              <span class="cks">
+                <em :class="{ on: riskLevel === '低' }">低</em>
+                <em :class="{ on: riskLevel === '中' }">中</em>
+                <em :class="{ on: riskLevel === '高' }">高</em>
+              </span>
+            </div>
+            <div class="f"><label>处方周期</label><u>{{ rx.cycle.total_weeks ? rx.cycle.total_weeks + ' 周' : '—' }}</u></div>
+            <div class="f wide"><label>处方有效期</label><u>{{ validFrom }} 至 {{ validTo }}</u></div>
+
+            <div class="f wide"><label>当前阶段</label><u>{{ rx.cycle.current_phase || '—' }}</u></div>
+            <div class="f wide"><label>审&nbsp;核&nbsp;人</label><u class="blank"></u><span class="unit">（签名 / 电子章）</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2 运动目的 + FITT-VP 原则 -->
+      <section class="sec two-col">
+        <div class="col-main">
+          <div class="sec-head green"><i>2</i><h3>运动目的</h3></div>
+          <div class="sec-body boxed goal-box">
+            <p class="lead">根据体检结果、体质测试与健康诉求，本次处方优先改善：</p>
+            <div class="goal-grid">
+              <label v-for="g in goalOptions" :key="g.text" :class="{ on: g.on }">
+                <em></em>{{ g.text }}
+              </label>
+            </div>
+            <div class="goal-extra" v-if="extraGoals.length">
+              <span class="label">其他目标</span>
+              <span class="pill" v-for="g in extraGoals" :key="g">{{ g }}</span>
+            </div>
+            <div class="goal-weak" v-if="weaknesses.length">
+              <span class="label">短板排序</span>
+              <span class="rank" v-for="(w, i) in weaknesses" :key="i"><b>{{ i + 1 }}</b>{{ w.dimension }}</span>
+            </div>
+          </div>
+        </div>
+
+        <aside class="col-side">
+          <div class="fitt-panel">
+            <h4>FITT-VP 原则</h4>
+            <div class="fitt-grid">
+              <div class="fitt-row" v-for="p in fittPrinciple" :key="p.k">
+                <span class="fitt-ico" :class="p.cls">{{ p.k }}</span>
+                <div>
+                  <strong>{{ p.title }}</strong>
+                  <p>{{ p.desc }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <!-- 3 运动方案 -->
+      <section class="sec">
+        <div class="sec-head blue"><i>3</i><h3>运动方案（FITT-VP 一览表）</h3></div>
+        <div class="sec-body">
+          <table class="plan-table">
+            <thead><tr><th class="c1">项目</th><th>内容</th></tr></thead>
+            <tbody>
+              <tr v-for="r in planRows" :key="r.label">
+                <th>{{ r.label }}</th>
+                <td>
+                  <div class="pt-main">{{ r.value || '—' }}</div>
+                  <div class="pt-sub" v-if="r.detail">{{ r.detail }}</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 4 详细执行内容 -->
+      <section class="sec">
+        <div class="sec-head blue">
+          <i>4</i><h3>详细执行内容（每周计划 + 具体动作）</h3>
+          <span class="sec-note">当前周期：{{ rx.cycle.current_phase || '—' }}</span>
+        </div>
+
+        <div class="sec-body detail-grid">
+          <!-- 4.1 有氧 -->
+          <div class="dt-box">
+            <div class="dt-head purple">4.1 有氧运动</div>
+            <div class="dt-body">
+              <div class="dt-line">
+                <span>强度 / 时长 / 频率：</span>
+                <b>{{ hrText }} · {{ rx.fitt_vp.time.value || '—' }} · {{ rx.fitt_vp.frequency.value || '—' }}</b>
+              </div>
+              <table class="week-table">
+                <thead>
+                  <tr><th>星期</th><th>运动项目</th><th>靶心率</th><th>时长</th><th>备注</th></tr>
+                </thead>
+                <tbody>
+                  <tr v-for="d in weekRows" :key="d.day" :class="{ rest: d.rest }">
+                    <th>{{ d.day }}</th>
+                    <td>{{ d.items }}</td>
+                    <td class="mono">{{ d.hr }}</td>
+                    <td class="mono">{{ d.minutes }}</td>
+                    <td>{{ d.note }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 4.2 抗阻 + 4.3 柔韧 -->
+          <div class="dt-col">
+            <div class="dt-box">
+              <div class="dt-head purple">4.2 抗阻运动<em v-if="resistanceFreq">（{{ resistanceFreq }}）</em></div>
+              <div class="dt-body">
+                <div class="dt-line" v-if="muscleGroups.length">
+                  <span>主要肌群：</span>
+                  <span class="tagline"><em v-for="m in muscleGroups" :key="m">{{ m }}</em></span>
+                </div>
+                <div class="move" v-for="m in resistanceMoves" :key="m.key">
+                  <div class="move-head">
+                    <strong>{{ m.name }}</strong>
+                    <span class="code">{{ m.id }}</span>
+                    <span class="dose">{{ m.dosage }}</span>
+                  </div>
+                  <p class="move-key" v-if="m.point"><span>要点</span>{{ m.point }}</p>
+                  <p class="move-err" v-if="m.error"><span>避免</span>{{ m.error }}</p>
+                </div>
+                <p class="dt-empty" v-if="!resistanceMoves.length">本周期暂未安排抗阻动作。</p>
+              </div>
+            </div>
+
+            <div class="dt-box">
+              <div class="dt-head purple">4.3 柔韧 / 核心 / 功能训练</div>
+              <div class="dt-body">
+                <div class="mini" v-for="m in flexMoves" :key="m.key">
+                  <strong>{{ m.name }}</strong>
+                  <span class="dose">{{ m.dosage }}</span>
+                  <p v-if="m.point">{{ m.point }}</p>
+                </div>
+                <p class="dt-empty" v-if="!flexMoves.length">本周期暂未安排柔韧/核心动作。</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4.4 运动流程 -->
+          <div class="dt-col">
+            <div class="dt-box">
+              <div class="dt-head purple">4.4 运动流程（每次）</div>
+              <div class="dt-body flow">
+                <div class="flow-row" v-for="f in flowRows" :key="f.name">
+                  <span class="flow-dot" :class="f.cls"></span>
+                  <div>
+                    <strong>{{ f.name }}<em v-if="f.minutes">（{{ f.minutes }} 分钟）</em></strong>
+                    <p>{{ f.desc }}</p>
+                  </div>
+                </div>
+                <div class="flow-foot">
+                  <span>谈话测试</span>{{ rx.intensity_control.talk_test || '—' }}
+                </div>
+              </div>
+            </div>
+
+            <div class="dt-box">
+              <div class="dt-head purple">本阶段要点</div>
+              <div class="dt-body">
+                <div class="dt-line"><span>当前阶段：</span><b>{{ rx.cycle.current_phase || '—' }}</b></div>
+                <div class="dt-line"><span>进阶方式：</span><b>{{ rx.fitt_vp.progression.value || '—' }}</b></div>
+                <div class="dt-line"><span>下次复评：</span><b>{{ rx.cycle.next_review || '—' }}</b></div>
+                <p class="dt-empty">{{ rx.fitt_vp.progression.detail }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="sheet-foot">
+        <span>{{ rx.prescription_id }}</span>
+        <span>第 1 页 / 共 2 页</span>
+      </div>
+      </div>
+    </div>
+
+    <!-- ===================== 第 2 页 ===================== -->
+    <div class="sheet">
+      <div class="page-no">2/2</div>
+      <div class="sheet-inner">
+
+      <!-- 5 注意事项与安全提示 -->
+      <section class="sec">
+        <div class="sec-head orange"><i>5</i><h3>注意事项与安全提示</h3></div>
+        <div class="sec-body boxed warn-box">
+          <div class="warn-grid">
+            <div class="wg">
+              <h4>一般提示</h4>
+              <ol>
+                <li v-for="t in generalTips" :key="t">{{ t }}</li>
+              </ol>
+            </div>
+            <div class="wg">
+              <h4>特殊提示（针对个人风险）</h4>
+              <div class="risk" v-for="(r, i) in rx.risk_notes" :key="i">
+                <span class="lv" :class="'lv-' + riskCls(r.level)">{{ r.level }}</span>
+                <strong>{{ r.item }}</strong>
+                <p>{{ r.action }}</p>
+              </div>
+              <div class="risk" v-for="(f, i) in healthFocus" :key="'h' + i">
+                <span class="lv lv-mid">关注</span>
+                <strong>{{ f.item }}</strong>
+                <p>{{ f.attention }}</p>
+              </div>
+              <p class="dt-empty" v-if="!rx.risk_notes.length && !healthFocus.length">未发现需特别提示的个人风险。</p>
+            </div>
+            <div class="wg">
+              <h4>运动禁忌</h4>
+              <div class="forbid" v-for="(f, i) in rx.forbidden_or_limited" :key="i">
+                <span class="fb" :class="f.restriction === '禁止' ? 'no' : 'limit'">{{ f.restriction }}</span>
+                <div>
+                  <strong>{{ f.target }}</strong>
+                  <p>{{ f.reason }}</p>
+                </div>
+              </div>
+              <div class="forbid" v-if="blockedTags.length">
+                <span class="fb no">禁用</span>
+                <div><strong>禁用动作标签</strong><p>{{ blockedTags.join('、') }}</p></div>
+              </div>
+              <p class="dt-empty" v-if="!rx.forbidden_or_limited.length && !blockedTags.length">无特别禁忌。</p>
+            </div>
+            <div class="wg">
+              <h4>监测建议</h4>
+              <ul class="mon">
+                <li><span>心率监测</span>运动中控制在 {{ hrText }}</li>
+                <li><span>主观感受</span>RPE {{ rx.intensity_control.rpe_range || '—' }} 为宜</li>
+                <li><span>补&nbsp;&nbsp;&nbsp;&nbsp;水</span>{{ rx.nutrition.hydration || '少量多次补水' }}</li>
+                <li><span>训练前后</span>{{ rx.nutrition.around_training.pre || '—' }}；{{ rx.nutrition.around_training.post || '—' }}</li>
+                <li class="stop"><span>立即停止</span>{{ stopSignals }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6 执行与随访 -->
+      <section class="sec">
+        <div class="sec-head blue"><i>6</i><h3>执行与随访</h3></div>
+        <div class="sec-body">
+          <div class="follow-grid">
+            <div class="fg" v-for="f in followCards" :key="f.title">
+              <div class="fg-ico" :class="f.cls"></div>
+              <h4>{{ f.title }}</h4>
+              <p v-for="(l, i) in f.lines" :key="i">{{ l }}</p>
+            </div>
+          </div>
+
+          <div class="homework" v-if="rx.homework && rx.homework.title">
+            <h4>{{ rx.homework.title }}</h4>
+            <ul><li v-for="t in rx.homework.tasks" :key="t">{{ t }}</li></ul>
+            <p><span>完成标准</span>{{ rx.homework.completion_standard || '—' }}</p>
+            <p><span>自评方式</span>{{ rx.homework.self_report || '—' }}</p>
+          </div>
+
+          <h4 class="rec-title">运动记录表（可自行记录或通过 APP 同步）</h4>
+          <table class="rec-table">
+            <thead>
+              <tr>
+                <th>日期</th><th>运动类型</th><th>时长（分钟）</th>
+                <th>平均心率（次/分）</th><th>RPE（自感用力）</th>
+                <th>能量消耗（kcal）</th><th>备注 / 感受</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="n in 8" :key="n"><td v-for="c in 7" :key="c"></td></tr>
+            </tbody>
+          </table>
+
+          <div class="tip-bar">
+            小贴士：循序渐进，坚持记录，逐步提升体能，享受运动带来的健康与活力！
+          </div>
+        </div>
+      </section>
+
+      <!-- 7 处方师签名与依据 -->
+      <section class="sec">
+        <div class="sec-head purple"><i>7</i><h3>处方师签名与依据</h3></div>
+        <div class="sec-body boxed sign-box">
+          <div class="sign-left">
+            <div class="sign-line"><label>处方师 / 审核人签名</label><u></u><span class="unit">（专业人员）</span></div>
+            <div class="sign-line"><label>日&nbsp;&nbsp;&nbsp;&nbsp;期</label><u></u></div>
+            <div class="stamp">处方专用章</div>
+          </div>
+          <div class="sign-right">
+            <h4>生成依据</h4>
+            <ul class="basis-list">
+              <li v-for="(e, i) in topExplanations" :key="i">
+                <span class="code">{{ e.target }}</span>{{ e.why }}
+                <em v-if="e.knowledge_refs && e.knowledge_refs.length">［{{ e.knowledge_refs.join('、') }}］</em>
+              </li>
+            </ul>
+            <div class="ver">
+              动作库 {{ rx.versions.exercise_library || '—' }} ·
+              知识库 {{ rx.versions.knowledge_base || '—' }} ·
+              提示词 {{ rx.versions.prompt || '—' }} ·
+              模型 {{ rx.versions.model || '—' }}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="rpt-bottom">
+        <span class="left">AI 生成辅助 + 科学依据：ACSM 指南、FITT-VP 原则、国家学生体质健康标准等</span>
+        <span class="right">{{ rx.disclaimer || '本处方仅供参考，不能替代医疗建议。如有不适，请及时就医。' }}</span>
+      </div>
+
+      <div class="sheet-foot">
+        <span>{{ rx.prescription_id }}</span>
+        <span>第 2 页 / 共 2 页</span>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/static/report.js"></script>
+</body>
+</html>
