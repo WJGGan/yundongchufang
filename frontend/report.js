@@ -93,7 +93,8 @@ createApp({
       emergency: null,
       blocked: null,
       exerciseMap: {},
-      zoom: 1,
+      // 屏幕上的整体字号倍率（打印时固定为 1，由 A4 等比压缩接管）
+      zoom: 1.2,
       fittPrinciple: FITT_PRINCIPLE,
       generalTips: GENERAL_TIPS,
     };
@@ -324,12 +325,9 @@ createApp({
       } catch (e) { /* 数据损坏则保持空态 */ }
     }
 
-    window.addEventListener('beforeprint', () => this.fitSheets());
-    window.addEventListener('resize', () => this.scheduleFit());
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => this.scheduleFit());
-    }
-    this.scheduleFit();
+    // 只有打印才需要等比压到 A4；屏幕上是流式布局，不做测量与缩放
+    window.addEventListener('beforeprint', () => this.enterPrintLayout());
+    window.addEventListener('afterprint', () => this.exitPrintLayout());
   },
 
   methods: {
@@ -382,9 +380,6 @@ createApp({
       this.hasData = true;
       document.title = `${rx.name || ''}运动处方报告`;
       this.scheduleFit();
-      if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(() => this.scheduleFit());
-      }
     },
 
     resetState() {
@@ -519,15 +514,38 @@ createApp({
       return d ? this.fmtDate(d) : (s || '');
     },
 
-    zoomIn() { this.zoom = Math.min(1.6, +(this.zoom + 0.1).toFixed(2)); },
-    zoomOut() { this.zoom = Math.max(0.5, +(this.zoom - 0.1).toFixed(2)); },
+    zoomIn() { this.zoom = Math.min(2, +(this.zoom + 0.1).toFixed(2)); },
+    zoomOut() { this.zoom = Math.max(0.6, +(this.zoom - 0.1).toFixed(2)); },
     print() { window.print(); },
 
     /* ------------------------------------------------------------------
-       自适应排版：模型输出长度不固定，这里把每页内容等比缩放到正好一张 A4。
-       做法是先把内容层按 1/s 加宽，再整体 scale(s) 还原到纸张宽度，
-       等价于「缩小字号 + 同步放宽行宽」，版式比例不变。
+       屏幕与打印两套排版：
+       屏幕上按流式卡片呈现，宽度随窗口、高度随内容，不做任何缩放；
+       打印时先给 body 加 .printing 把几何切回 A4，再把每页内容等比压到
+       正好一张纸。做法是先把内容层按 1/s 加宽，再整体 scale(s) 还原到纸张
+       宽度，等价于「缩小字号 + 同步放宽行宽」，版式比例不变。
        ------------------------------------------------------------------ */
+    enterPrintLayout() {
+      document.body.classList.add('printing');
+      // 切到 A4 几何后必须同步重排一次，否则下面量到的还是屏幕尺寸
+      void document.body.offsetHeight;
+      this.fitSheets();
+    },
+
+    exitPrintLayout() {
+      this.resetFit();
+      document.body.classList.remove('printing');
+    },
+
+    resetFit() {
+      document.querySelectorAll('.sheet-inner').forEach((inner) => {
+        inner.style.width = '';
+        inner.style.minHeight = '';
+        inner.style.transform = '';
+        delete inner.dataset.fit;
+      });
+    },
+
     fitSheets() {
       document.querySelectorAll('.sheet').forEach((sheet) => {
         const inner = sheet.querySelector('.sheet-inner');
@@ -569,8 +587,8 @@ createApp({
 
     scheduleFit() {
       this.$nextTick(() => {
-        // 等字体与异步回填的动作库数据就绪后再测量
-        requestAnimationFrame(() => this.fitSheets());
+        // 屏幕上无需缩放：内容换新后清掉上一次打印留下的内联尺寸即可
+        requestAnimationFrame(() => this.resetFit());
       });
     },
   },

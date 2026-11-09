@@ -35,7 +35,7 @@ body {
 /* ---------- 工具条 ---------- */
 .toolbar {
   position: sticky; top: 0; z-index: 50;
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
   padding: 10px 18px;
   background: #222835;
   color: #e8ecf4;
@@ -108,27 +108,34 @@ body {
 .empty-state h2 { margin: 0 0 8px; font-size: 18px; }
 .empty-state p { color: var(--ink-3); margin: 0 0 18px; }
 
-/* ---------- 纸张 ---------- */
+/* ---------- 纸张 ----------
+   屏幕上按流式卡片呈现（自适应宽度、高度随内容增长、字号可缩放）；
+   打印与导出 PDF 时才切回 210mm × 297mm 的固定 A4，并由 report.js 等比压到一页。
+   两种形态的几何差异集中在本节与文件末尾的 .printing / @media print。 */
 .sheet-wrap {
   padding: 24px 0 60px;
   display: flex; flex-direction: column; align-items: center; gap: 24px;
 }
 .sheet {
-  width: 210mm;
-  height: 297mm;
-  padding: 11mm 10mm 9mm;
+  /* 屏幕默认：宽度跟随窗口，高度由内容决定 */
+  width: 100%;
+  max-width: 1180px;
+  height: auto;
+  padding: 26px 30px 30px;
   background: #fff;
   box-shadow: 0 6px 28px rgba(0, 0, 0, .35);
+  border-radius: 6px;
   position: relative;
-  overflow: hidden;
-  transform: scale(var(--zoom, 1));
-  transform-origin: top center;
+  /* zoom 会参与重排，比 transform: scale 更适合整体放大字号 */
+  zoom: var(--zoom, 1);
   flex: none;
 }
-/* 内容层：由 report.js 按实际高度等比缩放，保证每页正好一张 A4 */
+/* 内容层：屏幕上不做缩放，打印时才由 report.js 等比压到一张 A4 */
 .sheet-inner {
   display: flex; flex-direction: column;
-  width: 100%; min-height: 100%;
+  width: auto;
+  min-height: 0;
+  transform: none;
   transform-origin: top left;
 }
 .page-no {
@@ -137,6 +144,16 @@ body {
   font-size: 13px; font-weight: 700;
   padding: 5px 14px 6px; border-bottom-right-radius: 10px;
   letter-spacing: .5px;
+}
+
+/* 窄屏：报告本身是密集表格版式，强行压到手机宽度只会把表头和分栏挤散。
+   这里给一个下限宽度，窄于此宽度时整体横向滚动，版式保持完整。 */
+@media screen and (max-width: 820px) {
+  .sheet-wrap { padding: 12px 10px 40px; gap: 14px; }
+  .sheet { padding: 20px 18px 24px; }
+}
+@media screen {
+  .sheet { min-width: 700px; }
 }
 
 /* ---------- 报头 ---------- */
@@ -488,15 +505,40 @@ body {
 /* ---------- 打印 ---------- */
 @page { size: A4; margin: 0; }
 
+/* ---------- 打印 / 导出 PDF ----------
+   .printing 由 report.js 在 beforeprint 时加到 body 上：先把几何切回 A4，
+   再测量并等比压缩内容，否则按屏幕上的流式尺寸测量会算错缩放比。 */
+
+body.printing .sheet {
+  width: 210mm;
+  height: 297mm;
+  max-width: none;
+  padding: 11mm 10mm 9mm;
+  border-radius: 0;
+  overflow: hidden;
+  zoom: 1;
+}
+body.printing .sheet-inner {
+  width: 100%;
+  min-height: 100%;
+}
+
 @media print {
   body { background: #fff; }
   .no-print { display: none !important; }
   .sheet-wrap { padding: 0; gap: 0; }
   .sheet {
     width: 210mm; height: 297mm;
-    box-shadow: none; transform: none;
+    max-width: none;
+    padding: 11mm 10mm 9mm;
+    border-radius: 0;
+    overflow: hidden;
+    box-shadow: none;
+    transform: none;
+    zoom: 1;
     page-break-after: always; break-after: page;
   }
+  .sheet-inner { width: 100%; min-height: 100%; }
   .sheet:last-child { page-break-after: auto; break-after: auto; }
   .sec, .dt-box, .fg, .rec-table { break-inside: avoid; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
