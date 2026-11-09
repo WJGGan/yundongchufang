@@ -19,17 +19,24 @@ cd backend && uv sync
 cd backend && uv run uvicorn app.main:app --reload --port 8077
 ```
 
-打开 http://127.0.0.1:8077 即可使用。接口文档在 http://127.0.0.1:8077/docs 。
+打开 http://127.0.0.1:8077 即是运动处方报告页：顶部选择学生档案、点「生成处方」，
+报告版式先以空白呈现，画像与处方生成后依次填充。
+
+| 路径 | 用途 |
+|---|---|
+| `/` 、`/report` | 运动处方报告（A4 双页版式，可打印导出 PDF） |
+| `/workbench` | 调试工作台：分步查看画像、安全评估、处方原始结构与流式过程 |
+| `/docs` | 接口文档 |
 
 ### 接入模型
 
-当前接的是**智谱 Anthropic 兼容端点**，模型 `glm-4.6`。配置在 `backend/.env`（已 gitignore）：
+当前接的是**智谱 Anthropic 兼容端点**，模型 `glm-5.3`。配置在 `backend/.env`（已 gitignore）：
 
 ```
 LLM_PROVIDER=anthropic_compatible
 ANTHROPIC_COMPAT_BASE_URL=https://open.bigmodel.cn/api/anthropic
 ANTHROPIC_COMPAT_API_KEY=你的密钥
-ANTHROPIC_COMPAT_MODEL=glm-4.6
+ANTHROPIC_COMPAT_MODEL=glm-5.3
 ```
 
 四种 provider 可切，业务代码不感知：
@@ -41,14 +48,23 @@ ANTHROPIC_COMPAT_MODEL=glm-4.6
 | `openai_compatible` | 本地部署或其他 OpenAI 兼容服务，交付期用这个 |
 | `mock` | 离线占位假数据，返回带 `[MOCK]` 标记，仅供前端联调 |
 
-**GLM-4.6 是思考模型**，这一点对配置有实际影响：
+**GLM-5.3 是思考模型**，这一点对配置有实际影响：
 
-- 模型会先产出 thinking 再产出正文，thinking 消耗的 token 计入 `max_tokens`。`LLM_MAX_TOKENS` 默认设为 16384 就是为此预留余量——设成 8192 时一份完整处方容易被截断。
-- Anthropic 端点返回的 `content` 是块列表，provider 只取 `type: "text"` 的块，thinking 块不进 JSON 解析缓冲区。流式同理，只透出 `text_delta`。
-- 开启思考时不能传自定义 `temperature`，provider 会自动省略。要关思考设 `LLM_THINKING=false`，此时 `temperature` 生效。
-- 单次画像或处方调用耗时在分钟级，`LLM_TIMEOUT` 默认 300 秒。
+- 开启思考时约 **80% 的输出 token 花在思考上**，而思考内容你永远看不到。实测同一份档案：
 
----
+  | 阶段 | 思考开 | 思考关 |
+  |---|---|---|
+  | 画像 | 147.9s（出 10231 tok，思考 8260） | 28.8s（出 2021 tok） |
+  | 处方 | 255.9s（出 15843 tok，思考 12389） | 55.2s（出 3404 tok） |
+  | 合计 | 403.8s | 84.0s |
+
+  两者生成速度相同（约 62-70 tok/s），差异全部来自 token 量。**默认 `LLM_THINKING=false`**，
+  内容质量实测接近；需要更严谨推理时改为 `true`。
+- `glm-5.3-flash` 反而更慢（画像 259.2s）：它产出更多思考且速度更低。flash 是便宜，不是快。
+- thinking 消耗的 token 计入 `max_tokens`，默认 65536 为此预留余量。
+- Anthropic 端点返回的 `content` 是块列表，provider 只取 `type: "text"` 的块；流式只透出 `text_delta`。
+- anthropic SDK 2.6 起 `messages.create/stream` 不再接受顶层 `temperature`，provider 经 `extra_body` 透传。
+- 单次调用耗时在分钟级，`LLM_TIMEOUT` 默认 300 秒。
 
 ## 工作流程
 

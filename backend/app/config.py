@@ -39,8 +39,9 @@ class Settings:
     temperature: float = float(os.getenv("LLM_TEMPERATURE", "0.3"))
     max_tokens: int = int(os.getenv("LLM_MAX_TOKENS", "65536"))
     timeout: float = float(os.getenv("LLM_TIMEOUT", "300"))
-    # GLM-4.6 等思考模型：开启思考会先消耗 token 产出推理过程，需预留更大的 max_tokens
-    thinking_enabled: bool = os.getenv("LLM_THINKING", "true").strip().lower() == "true"
+    # 思考模型开关。开启时约 80% 的输出 token 用于思考，一次完整流程从 84s 涨到 404s，
+    # 生成速度相同、差异全在 token 量。默认关闭以保证响应时间。
+    thinking_enabled: bool = os.getenv("LLM_THINKING", "false").strip().lower() == "true"
 
     # 资产版本号，随每份画像与处方一并返回，便于定位是哪一版规则/库产出的结果
     exercise_library_version: str = "v1.0.0"
