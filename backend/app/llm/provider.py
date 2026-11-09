@@ -20,6 +20,14 @@ class LLMError(RuntimeError):
     pass
 
 
+class LLMTruncatedError(LLMError):
+    """输出被 max_tokens 截断。
+
+    与"模型乱写"不同：截断时前半段 JSON 通常是合法的，重试需要让模型精简表述，
+    而不是重复同样的请求。
+    """
+
+
 def extract_json(text: str) -> dict[str, Any]:
     """从模型输出中提取 JSON 对象，容忍代码围栏与前后说明文字。"""
     if not text or not text.strip():
@@ -86,7 +94,13 @@ class OpenAICompatibleProvider(BaseProvider):
             temperature=settings.temperature,
             max_tokens=settings.max_tokens,
         )
-        return response.choices[0].message.content or ""
+        choice = response.choices[0]
+        if choice.finish_reason == "length":
+            raise LLMTruncatedError(
+                f"输出被 max_tokens({settings.max_tokens}) 截断。"
+                "请提高 LLM_MAX_TOKENS 或要求模型精简表述。"
+            )
+        return choice.message.content or ""
 
     async def stream(self, system: str, user: str) -> AsyncIterator[str]:
         stream = await self._client.chat.completions.create(
@@ -96,12 +110,22 @@ class OpenAICompatibleProvider(BaseProvider):
             max_tokens=settings.max_tokens,
             stream=True,
         )
+        finish_reason = None
         async for chunk in stream:
             if not chunk.choices:
                 continue
-            delta = chunk.choices[0].delta
+            choice = chunk.choices[0]
+            if choice.finish_reason:
+                finish_reason = choice.finish_reason
+            delta = choice.delta
             if delta and delta.content:
                 yield delta.content
+
+        if finish_reason == "length":
+            raise LLMTruncatedError(
+                f"输出被 max_tokens({settings.max_tokens}) 截断。"
+                "请提高 LLM_MAX_TOKENS 或要求模型精简表述。"
+            )
 
 
 class AnthropicCompatibleProvider(BaseProvider):
@@ -138,6 +162,11 @@ class AnthropicCompatibleProvider(BaseProvider):
 
     async def complete(self, system: str, user: str) -> str:
         message = await self._client.messages.create(**self._kwargs(system, user))
+        if message.stop_reason == "max_tokens":
+            raise LLMTruncatedError(
+                f"输出被 max_tokens({settings.max_tokens}) 截断，"
+                f"已产出 {message.usage.output_tokens} token。请提高 LLM_MAX_TOKENS 或要求模型精简表述。"
+            )
         return "".join(
             block.text for block in message.content if getattr(block, "type", "") == "text"
         )
@@ -151,6 +180,13 @@ class AnthropicCompatibleProvider(BaseProvider):
                 # 只透出正文增量，thinking 增量不进 JSON 缓冲区
                 if getattr(delta, "type", "") == "text_delta":
                     yield delta.text
+            final = await stream.get_final_message()
+
+        if final.stop_reason == "max_tokens":
+            raise LLMTruncatedError(
+                f"输出被 max_tokens({settings.max_tokens}) 截断，"
+                f"已产出 {final.usage.output_tokens} token。请提高 LLM_MAX_TOKENS 或要求模型精简表述。"
+            )
 
 
 class MockProvider(BaseProvider):

@@ -94,12 +94,22 @@ async def case_profile(student_id: str, label: str) -> None:
     print(flush=True)
 
 
+CASES = {
+    "rx": lambda: case_prescription("BJ2025090314"),        # 李沐阳：哮喘+踝伤+肥胖，完整处方
+    "block": lambda: case_profile("BJ2025140258", "安全拦截用例"),  # 马天宇：血压145/92
+    "conflict": lambda: case_profile("BJ2025170139", "矛盾检测用例"),  # 朱浩宇：身高142 vs 156
+}
+
+
 async def main() -> None:
-    await asyncio.gather(
-        case_prescription("BJ2025090314"),           # 李沐阳：哮喘+踝伤+肥胖，完整处方
-        case_profile("BJ2025140258", "安全拦截用例"),  # 马天宇：血压145/92，预期 can_generate=False
-        case_profile("BJ2025170139", "矛盾检测用例"),  # 朱浩宇：体检身高142 vs 体质身高156
-    )
+    names = sys.argv[1:] or list(CASES)
+    unknown = [n for n in names if n not in CASES]
+    if unknown:
+        print(f"未知用例 {unknown}，可选：{list(CASES)}")
+        return
+    # 串行执行：并发会让单次调用从 4 分钟拖到 14 分钟
+    for name in names:
+        await CASES[name]()
 
 
 if __name__ == "__main__":

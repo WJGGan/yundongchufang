@@ -37,7 +37,7 @@ class Settings:
     compat_model: str = os.getenv("OPENAI_COMPATIBLE_MODEL", "glm-4-9b-chat").strip()
 
     temperature: float = float(os.getenv("LLM_TEMPERATURE", "0.3"))
-    max_tokens: int = int(os.getenv("LLM_MAX_TOKENS", "16384"))
+    max_tokens: int = int(os.getenv("LLM_MAX_TOKENS", "65536"))
     timeout: float = float(os.getenv("LLM_TIMEOUT", "300"))
     # GLM-4.6 等思考模型：开启思考会先消耗 token 产出推理过程，需预留更大的 max_tokens
     thinking_enabled: bool = os.getenv("LLM_THINKING", "true").strip().lower() == "true"

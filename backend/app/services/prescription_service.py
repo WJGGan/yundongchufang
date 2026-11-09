@@ -12,7 +12,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from app.llm.provider import LLMError, extract_json, get_provider
+from app.llm.provider import LLMError, LLMTruncatedError, extract_json, get_provider
 from app.prompts import prescription as prompt
 from app.schemas.prescription import (
     ExerciseAlternative,
@@ -278,16 +278,31 @@ async def stream_prescription(
 
     user_prompt = base_prompt
     last_problems: list[str] = []
+    truncated = False
 
     for attempt in range(2):
         if attempt == 1:
             yield ("retry", "；".join(last_problems))
-            user_prompt = prompt.build_repair_prompt(base_prompt, "\n".join(last_problems))
+            # 截断与"内容不合规"是两类问题：截断要压缩表述，不合规要带问题清单重做
+            user_prompt = (
+                prompt.build_concise_prompt(base_prompt)
+                if truncated
+                else prompt.build_repair_prompt(base_prompt, "\n".join(last_problems))
+            )
 
         buffer: list[str] = []
-        async for chunk in provider.stream(prompt.SYSTEM, user_prompt):
-            buffer.append(chunk)
-            yield ("token", chunk)
+        truncated = False
+        try:
+            async for chunk in provider.stream(prompt.SYSTEM, user_prompt):
+                buffer.append(chunk)
+                yield ("token", chunk)
+        except LLMTruncatedError as exc:
+            truncated = True
+            last_problems = [str(exc)]
+            if attempt == 0:
+                continue
+            yield ("error", f"处方生成失败：{exc}")
+            return
 
         raw = "".join(buffer)
         try:

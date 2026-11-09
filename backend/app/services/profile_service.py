@@ -63,8 +63,8 @@ async def analyze_profile(record: HealthRecord) -> ProfileResult:
         if attempt == 1:
             user_prompt = prompt.build_repair_prompt(record_view, cards, last_error)
 
-        raw = await provider.complete(prompt.SYSTEM, user_prompt)
         try:
+            raw = await provider.complete(prompt.SYSTEM, user_prompt)
             payload = extract_json(raw)
         except LLMError as exc:
             last_error = str(exc)
