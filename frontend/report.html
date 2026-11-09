@@ -28,6 +28,8 @@
     <button class="tb-btn" :class="{ active: showForm }" @click="showForm = !showForm">
       ✎ 自行录入档案
     </button>
+    <button class="tb-btn" :class="{ active: aiOpen }" v-if="aiMessages.length || generating"
+            @click="aiOpen = !aiOpen">AI 过程</button>
     <span class="tb-title" v-if="hasData">
       {{ rx.name || '—' }} · 运动处方报告
       <em class="tb-src" v-if="source">{{ source }}</em>
@@ -489,6 +491,25 @@
         <span>本报告由模型辅助生成，需经专业人员审核后使用</span>
       </div>
       </div>
+    </div>
+  </div>
+  <!-- 右侧 AI 输出抽屉：生成时展示模型实时输出 -->
+  <div class="ai-drawer" :class="{ open: aiOpen }">
+    <div class="ai-head">
+      <span class="ai-dot" :class="{ live: generating }"></span>
+      <strong>AI 生成过程</strong>
+      <span class="ai-sub">{{ generating ? '模型输出中…' : (aiMessages.length ? '已结束' : '') }}</span>
+      <button class="ai-close" @click="aiOpen = false">×</button>
+    </div>
+    <div class="ai-body" ref="aiBody">
+      <p class="ai-empty" v-if="!aiMessages.length">点击「重新生成」后，模型的实时输出会显示在这里。</p>
+      <template v-for="(m, i) in aiMessages" :key="i">
+        <div class="ai-note" v-if="m.kind === 'note'">{{ m.text }}</div>
+        <div class="ai-msg" v-else>
+          <div class="ai-msg-head"><span class="ai-avatar">AI</span><b>{{ m.title }}</b></div>
+          <pre class="ai-text">{{ m.text }}<i class="ai-caret" v-if="generating && i === aiMessages.length - 1"></i></pre>
+        </div>
+      </template>
     </div>
   </div>
 </div>

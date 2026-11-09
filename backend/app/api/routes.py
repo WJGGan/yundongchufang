@@ -204,6 +204,57 @@ def _sse(event: str, data: Any) -> str:
     return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
 
 
+_SSE_HEADERS = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
+
+
+@router.post("/profile:analyze:stream")
+async def analyze_profile_stream(body: ProfileRequest) -> StreamingResponse:
+    """健康档案理解，以 SSE 流式返回模型输出过程。
+
+    事件类型：
+      status     进度说明
+      token      模型原始输出片段（phase=profile）
+      retry      触发了一次重生成
+      emergency  急症熔断
+      result     最终画像 JSON
+      error      生成失败
+      done       流结束
+    """
+
+    async def event_stream():
+        record_dict = body.record.model_dump()
+
+        emergency = check_emergency(record_dict)
+        if emergency is not None:
+            yield _sse("emergency", emergency.model_dump())
+            yield _sse("done", {"ok": False})
+            return
+
+        yield _sse("status", {"message": "正在生成体质画像", "phase": "profile"})
+        try:
+            async for kind, payload in profile_service.stream_profile(body.record):
+                if kind == "token":
+                    yield _sse("token", {"text": payload, "phase": "profile"})
+                elif kind == "retry":
+                    yield _sse("retry", {"problems": payload, "phase": "profile"})
+                elif kind == "result":
+                    yield _sse("result", payload.model_dump())
+                    yield _sse("done", {"ok": True})
+                    return
+                elif kind == "error":
+                    yield _sse("error", {"message": payload})
+                    yield _sse("done", {"ok": False})
+                    return
+        except LLMError as exc:
+            yield _sse("error", {"message": str(exc)})
+
+        yield _sse("done", {"ok": False})
+
+    return StreamingResponse(
+        event_stream(), media_type="text/event-stream", headers=_SSE_HEADERS
+    )
+
+
 @router.post("/prescription:generate")
 async def generate_prescription(body: PrescriptionRequestBody) -> StreamingResponse:
     """一人一策运动处方，以 SSE 流式返回。
@@ -228,11 +279,25 @@ async def generate_prescription(body: PrescriptionRequestBody) -> StreamingRespo
 
         profile = body.profile
         if profile is None:
-            yield _sse("status", {"message": "正在生成体质画像"})
+            yield _sse("status", {"message": "正在生成体质画像", "phase": "profile"})
             try:
-                profile = await profile_service.analyze_profile(body.record)
+                async for kind, payload in profile_service.stream_profile(body.record):
+                    if kind == "token":
+                        yield _sse("token", {"text": payload, "phase": "profile"})
+                    elif kind == "retry":
+                        yield _sse("retry", {"problems": payload, "phase": "profile"})
+                    elif kind == "result":
+                        profile = payload
+                    elif kind == "error":
+                        yield _sse("error", {"message": payload})
+                        yield _sse("done", {"ok": False})
+                        return
             except LLMError as exc:
                 yield _sse("error", {"message": str(exc)})
+                yield _sse("done", {"ok": False})
+                return
+            if profile is None:
+                yield _sse("error", {"message": "画像生成失败"})
                 yield _sse("done", {"ok": False})
                 return
             yield _sse("profile", profile.model_dump())
@@ -250,15 +315,15 @@ async def generate_prescription(body: PrescriptionRequestBody) -> StreamingRespo
             yield _sse("done", {"ok": False})
             return
 
-        yield _sse("status", {"message": "正在生成运动处方"})
+        yield _sse("status", {"message": "正在生成运动处方", "phase": "prescription"})
         try:
             async for kind, payload in prescription_service.stream_prescription(
                 body.record, profile
             ):
                 if kind == "token":
-                    yield _sse("token", {"text": payload})
+                    yield _sse("token", {"text": payload, "phase": "prescription"})
                 elif kind == "retry":
-                    yield _sse("retry", {"problems": payload})
+                    yield _sse("retry", {"problems": payload, "phase": "prescription"})
                 elif kind == "result":
                     yield _sse("result", payload.model_dump())
                     yield _sse("done", {"ok": True})

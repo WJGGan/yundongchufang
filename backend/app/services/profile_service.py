@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import AsyncIterator
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -50,8 +51,12 @@ def _strip_unknown_refs(payload: dict[str, Any]) -> list[str]:
     return sorted(set(dropped))
 
 
-async def analyze_profile(record: HealthRecord) -> ProfileResult:
-    """调用模型生成画像；输出不符合结构时带错误信息重试一次。"""
+async def stream_profile(record: HealthRecord) -> AsyncIterator[tuple[str, Any]]:
+    """流式生成画像。
+
+    产出 ("token", 片段) 供前端实时展示模型输出，("retry", 原因) 表示触发了一次
+    重生成，最后产出 ("result", ProfileResult) 或 ("error", 说明)。
+    """
     provider = get_provider()
     cards = knowledge_cards()
     record_view = record.to_prompt_dict()
@@ -61,11 +66,15 @@ async def analyze_profile(record: HealthRecord) -> ProfileResult:
 
     for attempt in range(2):
         if attempt == 1:
+            yield ("retry", last_error)
             user_prompt = prompt.build_repair_prompt(record_view, cards, last_error)
 
+        buffer: list[str] = []
         try:
-            raw = await provider.complete(prompt.SYSTEM, user_prompt)
-            payload = extract_json(raw)
+            async for chunk in provider.stream(prompt.SYSTEM, user_prompt):
+                buffer.append(chunk)
+                yield ("token", chunk)
+            payload = extract_json("".join(buffer))
         except LLMError as exc:
             last_error = str(exc)
             continue
@@ -91,6 +100,18 @@ async def analyze_profile(record: HealthRecord) -> ProfileResult:
             result.safety.notes.append(
                 "以下知识卡片引用不存在，已移除：" + "、".join(dropped)
             )
-        return result
+        yield ("result", result)
+        return
 
-    raise LLMError(f"画像生成两次均未通过结构校验：{last_error}")
+    yield ("error", f"画像生成两次均未通过结构校验：{last_error}")
+
+
+async def analyze_profile(record: HealthRecord) -> ProfileResult:
+    """非流式入口：消费 stream_profile，供同步端点与脚本使用。"""
+    error = "画像生成失败"
+    async for kind, payload in stream_profile(record):
+        if kind == "result":
+            return payload
+        if kind == "error":
+            error = str(payload)
+    raise LLMError(error)

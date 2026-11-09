@@ -109,6 +109,8 @@ createApp({
       form: clone(EMPTY_FORM),
       formSaving: false,
       formError: '',
+      aiOpen: false,
+      aiMessages: [],
       fittPrinciple: FITT_PRINCIPLE,
       generalTips: GENERAL_TIPS,
     };
@@ -399,6 +401,7 @@ createApp({
       this.emergency = null;
       this.blocked = null;
       this.source = '';
+      this.aiMessages = [];
       document.title = '运动处方报告';
     },
 
@@ -420,6 +423,7 @@ createApp({
     /* 把一份完整档案送入画像 + 处方生成流程（SSE） */
     async streamGenerate(record) {
       this.generating = true;
+      this.aiOpen = true;
       this.stage = '正在生成体质画像…';
       try {
         const res = await fetch('/api/v1/prescription:generate', {
@@ -564,30 +568,67 @@ createApp({
       switch (event) {
         case 'status':
           this.stage = payload.message + '…';
+          this.pushAiNote(payload.message + '…');
           break;
         case 'profile':
           // 画像先到：报告上半部分（基本信息、目标、风险）可以先填上
           this.profile = payload;
           break;
         case 'token':
-          this.stage = '模型正在编写处方…';
+          this.stage = (payload.phase === 'profile')
+            ? '模型正在生成体质画像…'
+            : '模型正在编写处方…';
+          this.appendAi(payload.phase || 'prescription', payload.text);
           break;
         case 'retry':
           this.stage = '输出未通过校验，正在重新生成…';
+          this.pushAiNote('输出未通过校验，正在重新生成…');
           break;
         case 'result':
           this.applyResult(payload, this.profile);
+          this.pushAiNote('运动处方生成完成。');
           break;
         case 'emergency':
           this.emergency = payload;
+          this.pushAiNote('命中急症关键词，已熔断，不再调用模型。');
           break;
         case 'blocked':
           this.blocked = payload;
+          this.pushAiNote('安全评估判定当前不宜生成可执行处方。');
           break;
         case 'error':
           this.genError = payload.message;
+          this.pushAiNote('生成失败：' + payload.message);
           break;
       }
+    },
+
+    /* ---------- 右侧 AI 输出抽屉 ---------- */
+
+    aiTitle(phase) {
+      return phase === 'profile' ? '体质画像 · 模型输出' : '运动处方 · 模型输出';
+    },
+
+    pushAiNote(text) {
+      this.aiMessages.push({ kind: 'note', text });
+      this.scrollAi();
+    },
+
+    appendAi(phase, text) {
+      const last = this.aiMessages[this.aiMessages.length - 1];
+      if (last && last.kind === 'stream' && last.phase === phase) {
+        last.text += text;
+      } else {
+        this.aiMessages.push({ kind: 'stream', phase, title: this.aiTitle(phase), text });
+      }
+      this.scrollAi();
+    },
+
+    scrollAi() {
+      this.$nextTick(() => {
+        const box = this.$refs.aiBody;
+        if (box) box.scrollTop = box.scrollHeight;
+      });
     },
 
     /* ---------- 渲染辅助 ---------- */

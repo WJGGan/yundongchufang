@@ -38,6 +38,8 @@ createApp({
       rxStatus: '',
       rxRetry: '',
       loadingRx: false,
+      aiOpen: false,
+      aiMessages: [],
       modal: null,
       openExplain: null,
       exerciseCache: {},
@@ -99,28 +101,102 @@ createApp({
       this.rxStream = '';
       this.rxRetry = '';
       this.openExplain = null;
+      this.aiMessages = [];
+    },
+
+    /* ---------- 右侧 AI 输出抽屉 ---------- */
+
+    aiTitle(phase) {
+      return phase === 'profile' ? '体质画像 · 模型输出' : '运动处方 · 模型输出';
+    },
+
+    pushAiNote(text) {
+      this.aiMessages.push({ kind: 'note', text });
+      this.scrollAi();
+    },
+
+    appendAi(phase, text) {
+      const last = this.aiMessages[this.aiMessages.length - 1];
+      if (last && last.kind === 'stream' && last.phase === phase) {
+        last.text += text;
+      } else {
+        this.aiMessages.push({ kind: 'stream', phase, title: this.aiTitle(phase), text });
+      }
+      this.scrollAi();
+    },
+
+    scrollAi() {
+      this.$nextTick(() => {
+        const box = this.$refs.aiBody;
+        if (box) box.scrollTop = box.scrollHeight;
+      });
     },
 
     async runProfile() {
       this.resetResults();
       this.loadingProfile = true;
+      this.aiOpen = true;
       try {
-        const res = await fetch('/api/v1/profile:analyze', {
+        const res = await fetch('/api/v1/profile:analyze:stream', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ record: this.record }),
         });
-        const body = await res.json();
         if (!res.ok) {
-          this.rxError = body.detail || '画像生成失败';
+          this.rxError = `画像生成失败：HTTP ${res.status}`;
           return;
         }
-        if (body.emergency) this.emergency = body.emergency;
-        else this.profile = body.profile;
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const frames = buffer.split('\n\n');
+          buffer = frames.pop();
+          for (const frame of frames) this.handleProfileFrame(frame);
+        }
       } catch (err) {
         this.rxError = String(err);
       } finally {
         this.loadingProfile = false;
+      }
+    },
+
+    handleProfileFrame(frame) {
+      let event = 'message';
+      let data = '';
+      for (const line of frame.split('\n')) {
+        if (line.startsWith('event: ')) event = line.slice(7).trim();
+        else if (line.startsWith('data: ')) data += line.slice(6);
+      }
+      if (!data) return;
+      let payload;
+      try { payload = JSON.parse(data); } catch { return; }
+
+      switch (event) {
+        case 'status':
+          this.pushAiNote(payload.message + '…');
+          break;
+        case 'token':
+          this.appendAi(payload.phase || 'profile', payload.text);
+          break;
+        case 'retry':
+          this.pushAiNote('输出未通过结构校验，正在重新生成…');
+          break;
+        case 'emergency':
+          this.emergency = payload;
+          this.pushAiNote('命中急症关键词，已熔断，不再调用模型。');
+          break;
+        case 'result':
+          this.profile = payload;
+          this.pushAiNote('体质画像生成完成。');
+          break;
+        case 'error':
+          this.rxError = payload.message;
+          this.pushAiNote('生成失败：' + payload.message);
+          break;
       }
     },
 
@@ -172,12 +248,14 @@ createApp({
       switch (event) {
         case 'status':
           this.rxStatus = payload.message;
+          this.pushAiNote(payload.message + '…');
           break;
         case 'profile':
           this.profile = payload;
           break;
         case 'token':
           this.rxStream += payload.text;
+          this.appendAi(payload.phase || 'prescription', payload.text);
           this.$nextTick(() => {
             const box = this.$refs.streamBox;
             if (box) box.scrollTop = box.scrollHeight;
@@ -186,9 +264,11 @@ createApp({
         case 'retry':
           this.rxRetry = payload.problems;
           this.rxStream = '';
+          this.pushAiNote('输出未通过校验，正在重新生成…');
           break;
         case 'result':
           this.rx = payload;
+          this.pushAiNote('运动处方生成完成。');
           break;
         case 'blocked':
           this.rxBlocked = payload;
