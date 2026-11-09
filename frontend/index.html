@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>健康档案理解与一人一策运动处方</title>
 <script src="https://unpkg.com/vue@3.4.38/dist/vue.global.prod.js"></script>
+<script src="https://unpkg.com/marked@12.0.2/marked.min.js"></script>
 <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
@@ -85,9 +86,8 @@
     <section class="col col-profile">
       <div class="col-head">
         <h2>体质画像</h2>
-        <button class="btn" :disabled="!record || loadingProfile" @click="runProfile">
-          {{ loadingProfile ? '分析中…' : '生成画像' }}
-        </button>
+        <button class="btn" v-if="!loadingProfile" :disabled="!record" @click="runProfile">生成画像</button>
+        <button class="btn stop" v-else @click="stopStream">■ 停止</button>
       </div>
 
       <div class="placeholder" v-if="!profile && !emergency && !loadingProfile">
@@ -249,9 +249,8 @@
         <h2>运动处方</h2>
         <div class="head-actions">
           <button class="btn" v-if="rx" @click="openReport">处方报告</button>
-          <button class="btn primary" :disabled="!canPrescribe || loadingRx" @click="runPrescription">
-            {{ loadingRx ? '生成中…' : '生成处方' }}
-          </button>
+          <button class="btn primary" v-if="!loadingRx" :disabled="!canPrescribe" @click="runPrescription">生成处方</button>
+          <button class="btn stop" v-else @click="stopStream">■ 停止</button>
         </div>
       </div>
 
@@ -262,7 +261,7 @@
       <div class="stream" v-if="loadingRx">
         <div class="loading">{{ rxStatus }}</div>
         <div class="retry-note" v-if="rxRetry">已触发一次重生成：{{ rxRetry }}</div>
-        <pre class="stream-box" ref="streamBox">{{ rxStream }}</pre>
+        <p class="stream-hint">模型实时输出见右侧「AI 生成过程」面板</p>
       </div>
 
       <div class="alert-block" v-if="rxBlocked">
@@ -414,9 +413,13 @@
       <p class="ai-empty" v-if="!aiMessages.length">点击「生成画像」后，模型的实时输出会显示在这里。</p>
       <template v-for="(m, i) in aiMessages" :key="i">
         <div class="ai-note" v-if="m.kind === 'note'">{{ m.text }}</div>
+        <div class="ai-progress" v-else-if="m.kind === 'progress'">
+          <span class="ai-spin" v-if="(loadingProfile || loadingRx) && i === aiMessages.length - 1"></span>
+          {{ progressText(m) }}
+        </div>
         <div class="ai-msg" v-else>
           <div class="ai-msg-head"><span class="ai-avatar">AI</span><b>{{ m.title }}</b></div>
-          <pre class="ai-text">{{ m.text }}<i class="ai-caret" v-if="(loadingProfile || loadingRx) && i === aiMessages.length - 1"></i></pre>
+          <div class="ai-md" v-html="md(m.text)"></div>
         </div>
       </template>
     </div>

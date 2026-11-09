@@ -111,6 +111,7 @@ createApp({
       formError: '',
       aiOpen: false,
       aiMessages: [],
+      abortCtrl: null,
       fittPrinciple: FITT_PRINCIPLE,
       generalTips: GENERAL_TIPS,
     };
@@ -425,11 +426,13 @@ createApp({
       this.generating = true;
       this.aiOpen = true;
       this.stage = '正在生成体质画像…';
+      this.abortCtrl = new AbortController();
       try {
         const res = await fetch('/api/v1/prescription:generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ record }),
+          signal: this.abortCtrl.signal,
         });
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
@@ -443,11 +446,20 @@ createApp({
           frames.forEach((f) => this.handleFrame(f));
         }
       } catch (err) {
-        this.genError = `生成失败：${err}`;
+        if (err && err.name === 'AbortError') {
+          this.pushAiNote('已手动停止生成。');
+        } else {
+          this.genError = `生成失败：${err}`;
+        }
       } finally {
         this.generating = false;
         this.stage = '';
+        this.abortCtrl = null;
       }
+    },
+
+    stopGenerate() {
+      if (this.abortCtrl) this.abortCtrl.abort();
     },
 
     /* ---------- 自行录入 ---------- */
@@ -574,11 +586,17 @@ createApp({
           // 画像先到：报告上半部分（基本信息、目标、风险）可以先填上
           this.profile = payload;
           break;
+        case 'thinking':
+          this.stage = (payload.phase === 'profile')
+            ? '模型正在分析体质画像…'
+            : '模型正在设计运动处方…';
+          this.appendThink(payload.phase || 'prescription', payload.text);
+          break;
         case 'token':
           this.stage = (payload.phase === 'profile')
-            ? '模型正在生成体质画像…'
-            : '模型正在编写处方…';
-          this.appendAi(payload.phase || 'prescription', payload.text);
+            ? '模型正在输出画像数据…'
+            : '模型正在输出处方数据…';
+          this.bumpProgress(payload.phase || 'prescription', payload.text.length);
           break;
         case 'retry':
           this.stage = '输出未通过校验，正在重新生成…';
@@ -606,7 +624,13 @@ createApp({
     /* ---------- 右侧 AI 输出抽屉 ---------- */
 
     aiTitle(phase) {
-      return phase === 'profile' ? '体质画像 · 模型输出' : '运动处方 · 模型输出';
+      return phase === 'profile' ? '体质画像 · 模型分析' : '运动处方 · 模型分析';
+    },
+
+    /* 把模型输出渲染成 Markdown；先转义尖括号，防止模型输出原始 HTML */
+    md(text) {
+      const safe = (text || '').replace(/</g, '&lt;');
+      try { return marked.parse(safe); } catch (e) { return safe; }
     },
 
     pushAiNote(text) {
@@ -614,14 +638,31 @@ createApp({
       this.scrollAi();
     },
 
-    appendAi(phase, text) {
+    /* 思考过程：自然语言，按 Markdown 渲染 */
+    appendThink(phase, text) {
       const last = this.aiMessages[this.aiMessages.length - 1];
-      if (last && last.kind === 'stream' && last.phase === phase) {
+      if (last && last.kind === 'think' && last.phase === phase) {
         last.text += text;
       } else {
-        this.aiMessages.push({ kind: 'stream', phase, title: this.aiTitle(phase), text });
+        this.aiMessages.push({ kind: 'think', phase, title: this.aiTitle(phase), text });
       }
       this.scrollAi();
+    },
+
+    /* 结构化 JSON 不直接展示，只显示写入进度 */
+    bumpProgress(phase, chars) {
+      const last = this.aiMessages[this.aiMessages.length - 1];
+      if (last && last.kind === 'progress' && last.phase === phase) {
+        last.chars += chars;
+      } else {
+        this.aiMessages.push({ kind: 'progress', phase, chars });
+      }
+      this.scrollAi();
+    },
+
+    progressText(m) {
+      const what = m.phase === 'profile' ? '画像' : '处方';
+      return `正在写入结构化${what}数据… 已接收 ${m.chars} 字符`;
     },
 
     scrollAi() {

@@ -253,8 +253,8 @@ async def stream_prescription(
 ) -> AsyncIterator[tuple[str, Any]]:
     """流式生成处方。
 
-    产出 ("token", 片段) 供前端展示进度，最后产出 ("result", PrescriptionResult)
-    或 ("error", 说明)。
+    产出 ("thinking", 片段) / ("token", 片段) 供前端展示进度，最后产出
+    ("result", PrescriptionResult) 或 ("error", 说明)。
     """
     provider = get_provider()
     request = record.prescription_request.model_dump()
@@ -293,7 +293,10 @@ async def stream_prescription(
         buffer: list[str] = []
         truncated = False
         try:
-            async for chunk in provider.stream(prompt.SYSTEM, user_prompt):
+            async for kind, chunk in provider.stream(prompt.SYSTEM, user_prompt):
+                if kind == "thinking":
+                    yield ("thinking", chunk)
+                    continue
                 buffer.append(chunk)
                 yield ("token", chunk)
         except LLMTruncatedError as exc:

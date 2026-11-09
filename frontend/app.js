@@ -40,6 +40,7 @@ createApp({
       loadingRx: false,
       aiOpen: false,
       aiMessages: [],
+      abortCtrl: null,
       modal: null,
       openExplain: null,
       exerciseCache: {},
@@ -107,7 +108,13 @@ createApp({
     /* ---------- 右侧 AI 输出抽屉 ---------- */
 
     aiTitle(phase) {
-      return phase === 'profile' ? '体质画像 · 模型输出' : '运动处方 · 模型输出';
+      return phase === 'profile' ? '体质画像 · 模型分析' : '运动处方 · 模型分析';
+    },
+
+    /* 把模型输出渲染成 Markdown；先转义尖括号，防止模型输出原始 HTML */
+    md(text) {
+      const safe = (text || '').replace(/</g, '&lt;');
+      try { return marked.parse(safe); } catch (e) { return safe; }
     },
 
     pushAiNote(text) {
@@ -115,14 +122,35 @@ createApp({
       this.scrollAi();
     },
 
-    appendAi(phase, text) {
+    /* 思考过程：自然语言，按 Markdown 渲染 */
+    appendThink(phase, text) {
       const last = this.aiMessages[this.aiMessages.length - 1];
-      if (last && last.kind === 'stream' && last.phase === phase) {
+      if (last && last.kind === 'think' && last.phase === phase) {
         last.text += text;
       } else {
-        this.aiMessages.push({ kind: 'stream', phase, title: this.aiTitle(phase), text });
+        this.aiMessages.push({ kind: 'think', phase, title: this.aiTitle(phase), text });
       }
       this.scrollAi();
+    },
+
+    /* 结构化 JSON 不直接展示，只显示写入进度 */
+    bumpProgress(phase, chars) {
+      const last = this.aiMessages[this.aiMessages.length - 1];
+      if (last && last.kind === 'progress' && last.phase === phase) {
+        last.chars += chars;
+      } else {
+        this.aiMessages.push({ kind: 'progress', phase, chars });
+      }
+      this.scrollAi();
+    },
+
+    progressText(m) {
+      const what = m.phase === 'profile' ? '画像' : '处方';
+      return `正在写入结构化${what}数据… 已接收 ${m.chars} 字符`;
+    },
+
+    stopStream() {
+      if (this.abortCtrl) this.abortCtrl.abort();
     },
 
     scrollAi() {
@@ -136,11 +164,13 @@ createApp({
       this.resetResults();
       this.loadingProfile = true;
       this.aiOpen = true;
+      this.abortCtrl = new AbortController();
       try {
         const res = await fetch('/api/v1/profile:analyze:stream', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ record: this.record }),
+          signal: this.abortCtrl.signal,
         });
         if (!res.ok) {
           this.rxError = `画像生成失败：HTTP ${res.status}`;
@@ -158,9 +188,11 @@ createApp({
           for (const frame of frames) this.handleProfileFrame(frame);
         }
       } catch (err) {
-        this.rxError = String(err);
+        if (err && err.name === 'AbortError') this.pushAiNote('已手动停止生成。');
+        else this.rxError = String(err);
       } finally {
         this.loadingProfile = false;
+        this.abortCtrl = null;
       }
     },
 
@@ -179,8 +211,11 @@ createApp({
         case 'status':
           this.pushAiNote(payload.message + '…');
           break;
+        case 'thinking':
+          this.appendThink(payload.phase || 'profile', payload.text);
+          break;
         case 'token':
-          this.appendAi(payload.phase || 'profile', payload.text);
+          this.bumpProgress(payload.phase || 'profile', payload.text.length);
           break;
         case 'retry':
           this.pushAiNote('输出未通过结构校验，正在重新生成…');
@@ -208,12 +243,15 @@ createApp({
       this.rxRetry = '';
       this.rxStatus = '正在连接模型…';
       this.loadingRx = true;
+      this.aiOpen = true;
+      this.abortCtrl = new AbortController();
 
       try {
         const res = await fetch('/api/v1/prescription:generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ record: this.record, profile: this.profile }),
+          signal: this.abortCtrl.signal,
         });
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
@@ -228,9 +266,11 @@ createApp({
           for (const frame of frames) this.handleFrame(frame);
         }
       } catch (err) {
-        this.rxError = String(err);
+        if (err && err.name === 'AbortError') this.pushAiNote('已手动停止生成。');
+        else this.rxError = String(err);
       } finally {
         this.loadingRx = false;
+        this.abortCtrl = null;
       }
     },
 
@@ -253,17 +293,14 @@ createApp({
         case 'profile':
           this.profile = payload;
           break;
+        case 'thinking':
+          this.appendThink(payload.phase || 'prescription', payload.text);
+          break;
         case 'token':
-          this.rxStream += payload.text;
-          this.appendAi(payload.phase || 'prescription', payload.text);
-          this.$nextTick(() => {
-            const box = this.$refs.streamBox;
-            if (box) box.scrollTop = box.scrollHeight;
-          });
+          this.bumpProgress(payload.phase || 'prescription', payload.text.length);
           break;
         case 'retry':
           this.rxRetry = payload.problems;
-          this.rxStream = '';
           this.pushAiNote('输出未通过校验，正在重新生成…');
           break;
         case 'result':

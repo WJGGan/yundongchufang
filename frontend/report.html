@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>运动处方报告</title>
 <script src="https://unpkg.com/vue@3.4.38/dist/vue.global.prod.js"></script>
+<script src="https://unpkg.com/marked@12.0.2/marked.min.js"></script>
 <link rel="stylesheet" href="/static/report.css" />
 </head>
 <body>
@@ -22,9 +23,10 @@
             :title="isCached ? '直接载入已生成的结果，无需等待模型' : '该学生暂无预生成结果'">
       {{ isCached ? '★ 载入已有结果' : '无已有结果' }}
     </button>
-    <button class="tb-btn primary" :disabled="!selectedId || generating" @click="generate">
-      {{ generating ? '生成中…' : '重新生成' }}
+    <button class="tb-btn primary" v-if="!generating" :disabled="!selectedId" @click="generate">
+      重新生成
     </button>
+    <button class="tb-btn danger" v-else @click="stopGenerate">■ 停止生成</button>
     <button class="tb-btn" :class="{ active: showForm }" @click="showForm = !showForm">
       ✎ 自行录入档案
     </button>
@@ -505,9 +507,13 @@
       <p class="ai-empty" v-if="!aiMessages.length">点击「重新生成」后，模型的实时输出会显示在这里。</p>
       <template v-for="(m, i) in aiMessages" :key="i">
         <div class="ai-note" v-if="m.kind === 'note'">{{ m.text }}</div>
+        <div class="ai-progress" v-else-if="m.kind === 'progress'">
+          <span class="ai-spin" v-if="generating && i === aiMessages.length - 1"></span>
+          {{ progressText(m) }}
+        </div>
         <div class="ai-msg" v-else>
           <div class="ai-msg-head"><span class="ai-avatar">AI</span><b>{{ m.title }}</b></div>
-          <pre class="ai-text">{{ m.text }}<i class="ai-caret" v-if="generating && i === aiMessages.length - 1"></i></pre>
+          <div class="ai-md" v-html="md(m.text)"></div>
         </div>
       </template>
     </div>

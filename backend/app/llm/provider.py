@@ -95,9 +95,14 @@ class BaseProvider:
     async def complete(self, system: str, user: str) -> str:
         raise NotImplementedError
 
-    async def stream(self, system: str, user: str) -> AsyncIterator[str]:
+    async def stream(self, system: str, user: str) -> AsyncIterator[tuple[str, str]]:
+        """流式输出。产出 ("thinking", 片段) 或 ("text", 片段)。
+
+        thinking 片段是思考模型的自然语言推理过程，仅供前端展示；
+        text 片段是正文（JSON），参与结构解析。
+        """
         raise NotImplementedError
-        yield ""  # pragma: no cover
+        yield ("text", "")  # pragma: no cover
 
 
 class OpenAICompatibleProvider(BaseProvider):
@@ -135,7 +140,7 @@ class OpenAICompatibleProvider(BaseProvider):
             )
         return choice.message.content or ""
 
-    async def stream(self, system: str, user: str) -> AsyncIterator[str]:
+    async def stream(self, system: str, user: str) -> AsyncIterator[tuple[str, str]]:
         stream = await self._client.chat.completions.create(
             model=self.model,
             messages=self._messages(system, user),
@@ -151,8 +156,14 @@ class OpenAICompatibleProvider(BaseProvider):
             if choice.finish_reason:
                 finish_reason = choice.finish_reason
             delta = choice.delta
-            if delta and delta.content:
-                yield delta.content
+            if delta is None:
+                continue
+            # 智谱 OpenAI 兼容端点把思考放在 reasoning_content 里
+            reasoning = getattr(delta, "reasoning_content", None)
+            if reasoning:
+                yield ("thinking", reasoning)
+            if delta.content:
+                yield ("text", delta.content)
 
         if finish_reason == "length":
             raise LLMTruncatedError(
@@ -205,15 +216,18 @@ class AnthropicCompatibleProvider(BaseProvider):
             block.text for block in message.content if getattr(block, "type", "") == "text"
         )
 
-    async def stream(self, system: str, user: str) -> AsyncIterator[str]:
+    async def stream(self, system: str, user: str) -> AsyncIterator[tuple[str, str]]:
         async with self._client.messages.stream(**self._kwargs(system, user)) as stream:
             async for event in stream:
                 if event.type != "content_block_delta":
                     continue
                 delta = event.delta
-                # 只透出正文增量，thinking 增量不进 JSON 缓冲区
-                if getattr(delta, "type", "") == "text_delta":
-                    yield delta.text
+                kind = getattr(delta, "type", "")
+                if kind == "thinking_delta":
+                    yield ("thinking", delta.thinking)
+                elif kind == "text_delta":
+                    # 正文增量才进 JSON 缓冲区
+                    yield ("text", delta.text)
             final = await stream.get_final_message()
 
         if final.stop_reason == "max_tokens":
@@ -236,11 +250,12 @@ class MockProvider(BaseProvider):
 
         return json.dumps(build_mock_payload(system, user), ensure_ascii=False)
 
-    async def stream(self, system: str, user: str) -> AsyncIterator[str]:
+    async def stream(self, system: str, user: str) -> AsyncIterator[tuple[str, str]]:
+        yield ("thinking", "[MOCK] 正在根据档案做离线占位推理，以下输出为假数据，仅供前端联调。")
         payload = await self.complete(system, user)
         step = 160
         for index in range(0, len(payload), step):
-            yield payload[index : index + step]
+            yield ("text", payload[index : index + step])
 
 
 _provider: BaseProvider | None = None

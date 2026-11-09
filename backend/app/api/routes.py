@@ -233,7 +233,9 @@ async def analyze_profile_stream(body: ProfileRequest) -> StreamingResponse:
         yield _sse("status", {"message": "正在生成体质画像", "phase": "profile"})
         try:
             async for kind, payload in profile_service.stream_profile(body.record):
-                if kind == "token":
+                if kind == "thinking":
+                    yield _sse("thinking", {"text": payload, "phase": "profile"})
+                elif kind == "token":
                     yield _sse("token", {"text": payload, "phase": "profile"})
                 elif kind == "retry":
                     yield _sse("retry", {"problems": payload, "phase": "profile"})
@@ -282,7 +284,9 @@ async def generate_prescription(body: PrescriptionRequestBody) -> StreamingRespo
             yield _sse("status", {"message": "正在生成体质画像", "phase": "profile"})
             try:
                 async for kind, payload in profile_service.stream_profile(body.record):
-                    if kind == "token":
+                    if kind == "thinking":
+                        yield _sse("thinking", {"text": payload, "phase": "profile"})
+                    elif kind == "token":
                         yield _sse("token", {"text": payload, "phase": "profile"})
                     elif kind == "retry":
                         yield _sse("retry", {"problems": payload, "phase": "profile"})
@@ -320,7 +324,9 @@ async def generate_prescription(body: PrescriptionRequestBody) -> StreamingRespo
             async for kind, payload in prescription_service.stream_prescription(
                 body.record, profile
             ):
-                if kind == "token":
+                if kind == "thinking":
+                    yield _sse("thinking", {"text": payload, "phase": "prescription"})
+                elif kind == "token":
                     yield _sse("token", {"text": payload, "phase": "prescription"})
                 elif kind == "retry":
                     yield _sse("retry", {"problems": payload, "phase": "prescription"})

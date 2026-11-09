@@ -54,8 +54,9 @@ def _strip_unknown_refs(payload: dict[str, Any]) -> list[str]:
 async def stream_profile(record: HealthRecord) -> AsyncIterator[tuple[str, Any]]:
     """流式生成画像。
 
-    产出 ("token", 片段) 供前端实时展示模型输出，("retry", 原因) 表示触发了一次
-    重生成，最后产出 ("result", ProfileResult) 或 ("error", 说明)。
+    产出 ("thinking", 片段) / ("token", 片段) 供前端实时展示模型输出，
+    ("retry", 原因) 表示触发了一次重生成，最后产出 ("result", ProfileResult)
+    或 ("error", 说明)。
     """
     provider = get_provider()
     cards = knowledge_cards()
@@ -71,7 +72,10 @@ async def stream_profile(record: HealthRecord) -> AsyncIterator[tuple[str, Any]]
 
         buffer: list[str] = []
         try:
-            async for chunk in provider.stream(prompt.SYSTEM, user_prompt):
+            async for kind, chunk in provider.stream(prompt.SYSTEM, user_prompt):
+                if kind == "thinking":
+                    yield ("thinking", chunk)
+                    continue
                 buffer.append(chunk)
                 yield ("token", chunk)
             payload = extract_json("".join(buffer))
