@@ -23,12 +23,12 @@
   --poor: #d9534f;
   --unknown: #69758c;
 
-  --fs-xs: 13px;   /* 地板：编号、代码、脚注 */
-  --fs-sm: 14px;   /* 辅助说明、标签 */
-  --fs-md: 15px;   /* 紧凑正文、表格、按钮 */
-  --fs-base: 16px; /* 正文基准 */
-  --fs-lg: 18px;   /* 卡片标题 */
-  --fs-xl: 20px;   /* 页头标题 */
+  --fs-xs: 14px;   /* 地板：编号、代码、脚注 */
+  --fs-sm: 15px;   /* 辅助说明、标签 */
+  --fs-md: 16px;   /* 紧凑正文、表格、按钮 */
+  --fs-base: 17px; /* 正文基准 */
+  --fs-lg: 19px;   /* 卡片标题 */
+  --fs-xl: 22px;   /* 页头标题 */
 }
 
 * { box-sizing: border-box; }
@@ -292,7 +292,7 @@ ol.weakness span { color: var(--dim); }
 .explain p { margin: 0 0 6px; }
 
 .hr-zone { display: flex; align-items: baseline; gap: 9px; margin-bottom: 5px; }
-.hr-num { font-size: 32px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--accent); }
+.hr-num { font-size: 34px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--accent); }
 .hr-unit { color: var(--dim); font-size: var(--fs-sm); }
 .stop-signals { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; margin-top: 8px; }
 
@@ -353,7 +353,7 @@ ol.weakness span { color: var(--dim); }
 .modal-close {
   position: absolute; top: 12px; right: 14px;
   background: none; border: none; color: var(--faint);
-  font-size: 22px; cursor: pointer; line-height: 1;
+  font-size: 24px; cursor: pointer; line-height: 1;
 }
 .modal-close:hover { color: var(--text); }
 
@@ -395,7 +395,7 @@ ol.weakness span { color: var(--dim); }
 .ai-close {
   margin-left: auto;
   border: 0; background: transparent; color: var(--dim);
-  font-size: 20px; line-height: 1; cursor: pointer; padding: 2px 6px;
+  font-size: 22px; line-height: 1; cursor: pointer; padding: 2px 6px;
 }
 .ai-close:hover { color: var(--text); }
 
