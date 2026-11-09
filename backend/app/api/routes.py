@@ -23,7 +23,9 @@ from app.services.data_loader import (
     find_student,
     knowledge_base,
     knowledge_cards,
+    load_pregenerated,
     mock_students,
+    pregenerated_ids,
 )
 from app.services.safety import check_emergency
 
@@ -134,6 +136,41 @@ def get_knowledge(card_id: str) -> dict[str, Any]:
         if card["id"] == card_id:
             return card
     raise HTTPException(status_code=404, detail=f"未找到知识卡片 {card_id}")
+
+
+@router.get("/pregenerated")
+def list_pregenerated() -> dict[str, Any]:
+    """已预生成结果的学生清单，供前端标出哪些可以秒开。"""
+    items = []
+    for student_id in pregenerated_ids():
+        data = load_pregenerated(student_id)
+        if data is None:
+            continue
+        items.append(
+            {
+                "student_id": student_id,
+                "name": data.get("name", ""),
+                "generated_at": data.get("generated_at", ""),
+                "model": data.get("model", ""),
+                "thinking": data.get("thinking"),
+                "elapsed": data.get("elapsed"),
+                "has_prescription": data.get("prescription") is not None,
+                "emergency": data.get("emergency") is not None,
+                "blocked": data.get("blocked") is not None,
+            }
+        )
+    return {"count": len(items), "items": items}
+
+
+@router.get("/pregenerated/{student_id}")
+def get_pregenerated(student_id: str) -> dict[str, Any]:
+    """读取预生成的画像与处方，不调用模型。"""
+    data = load_pregenerated(student_id)
+    if data is None:
+        raise HTTPException(
+            status_code=404, detail=f"{student_id} 尚无预生成结果，请点「生成处方」实时生成"
+        )
+    return data
 
 
 @router.post("/profile:analyze")

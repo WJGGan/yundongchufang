@@ -307,6 +307,14 @@ async def stream_prescription(
         raw = "".join(buffer)
         try:
             payload = extract_json(raw)
+        except LLMTruncatedError as exc:
+            # 上游未报 max_tokens，但 JSON 没写完：同样按"太长"处理，重试要求精简
+            truncated = True
+            last_problems = [str(exc)]
+            if attempt == 0:
+                continue
+            yield ("error", f"处方生成失败：{exc}")
+            return
         except LLMError as exc:
             last_problems = [str(exc)]
             continue

@@ -21,11 +21,38 @@ class LLMError(RuntimeError):
 
 
 class LLMTruncatedError(LLMError):
-    """输出被 max_tokens 截断。
+    """输出不完整：被 max_tokens 截断，或模型自行在 JSON 写完前停止。
 
-    与"模型乱写"不同：截断时前半段 JSON 通常是合法的，重试需要让模型精简表述，
-    而不是重复同样的请求。
+    与"模型乱写"不同：输出不完整时前半段通常是合法 JSON，重试要让模型精简表述，
+    而不是原样重复请求。上游未必把提前终止报成 max_tokens，因此除了看终止原因，
+    也按括号是否闭合来判定。
     """
+
+
+def _looks_truncated(text: str) -> bool:
+    """JSON 对象起了头但括号没闭合，判定为输出不完整。"""
+    start = text.find("{")
+    if start == -1:
+        return False
+    depth = 0
+    in_string = False
+    escaped = False
+    for ch in text[start:]:
+        if escaped:
+            escaped = False
+            continue
+        if ch == "\\":
+            escaped = True
+        elif ch == '"':
+            in_string = not in_string
+        elif not in_string:
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    return False
+    return depth > 0
 
 
 def extract_json(text: str) -> dict[str, Any]:
@@ -51,6 +78,12 @@ def extract_json(text: str) -> dict[str, Any]:
             continue
         if isinstance(parsed, dict):
             return parsed
+
+    if _looks_truncated(text):
+        raise LLMTruncatedError(
+            f"模型输出在 JSON 写完前中断（已产出约 {len(text)} 字符，括号未闭合）。"
+            "需要让模型精简表述后重试。"
+        )
 
     preview = text[:300].replace("\n", " ")
     raise LLMError(f"模型输出无法解析为 JSON：{preview}")

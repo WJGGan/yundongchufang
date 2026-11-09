@@ -19,8 +19,12 @@ cd backend && uv sync
 cd backend && uv run uvicorn app.main:app --reload --port 8077
 ```
 
-打开 http://127.0.0.1:8077 即是运动处方报告页：顶部选择学生档案、点「生成处方」，
-报告版式先以空白呈现，画像与处方生成后依次填充。
+打开 http://127.0.0.1:8077 即是运动处方报告页。顶部选择学生档案后有两种方式：
+
+- **★ 载入已有结果**：读取预生成的画像与处方，**3 毫秒出结果**，不调用模型。
+  下拉里带 ★ 的学生表示已有预生成结果（默认 5 份）。
+- **重新生成**：实时调用模型，约 80 秒。报告版式先以空白呈现，画像先到先填基本信息与风险，
+  处方到达后补齐周计划与执行内容。
 
 | 路径 | 用途 |
 |---|---|
@@ -111,6 +115,8 @@ LLM 真正不可靠的地方才用代码兜住，其余交给模型：
 | GET | `/api/v1/meta` | 版本、模型、资产规模 |
 | GET | `/api/v1/students` | mock 档案列表（摘要） |
 | GET | `/api/v1/students/{id}` | 单份完整档案 |
+| GET | `/api/v1/pregenerated` | 已预生成结果的学生清单 |
+| GET | `/api/v1/pregenerated/{id}` | 读取预生成的画像与处方（不调用模型） |
 | GET | `/api/v1/exercises` | 动作库全量 |
 | GET | `/api/v1/exercises/{id}` | 单个动作详情 |
 | GET | `/api/v1/knowledge` | 知识卡片全量 |
@@ -170,6 +176,7 @@ curl -s -X POST http://127.0.0.1:8077/api/v1/profile:analyze \
 | `app/data/knowledge.json` | 34 张知识卡片，带 ID 供处方引用溯源 | v1.0.0 |
 | `app/data/mock_students.json` | 20 份模拟档案 | v1.0.0 |
 | `app/data/emergency_keywords.json` | 24 个急症关键词与固定返回模板 | v1.0.0 |
+| `app/data/pregenerated/*.json` | 5 份预生成的画像与处方，供前端秒开演示 | glm-5.3 |
 
 动作库与知识卡片是**第一版通识内容，待首都体育学院专家审核替换**。替换时保留 ID，否则已生成的处方引用会失效。每份画像与处方都会带上所用资产的版本号。
 
@@ -180,6 +187,20 @@ curl -s -X POST http://127.0.0.1:8077/api/v1/profile:analyze \
 画像的 `safety.blocked_exercise_tags` 从这个词表取值，代码据此过滤候选集。扩充禁忌判断能力时改这个词表，不需要改代码。
 
 器械字段中的瑜伽垫按舒适性器材处理（标为「无」并在要领中说明），否则没有垫子的学生会被筛掉全部核心与柔韧动作。
+
+### 预生成结果
+
+`app/data/pregenerated/` 下每个学生一个文件，含完整画像与处方、生成耗时、所用模型与思考开关。
+重新生成：
+
+```bash
+cd backend && uv run python -u scripts/pregenerate.py
+```
+
+默认生成 5 份（李沐阳、陈若溪、王子轩、黄俊豪、刘星月），覆盖不同学段、性别、体能水平与约束类型。
+`--all` 生成全部 20 份，也可指定学号。**串行执行**：并发会触发上游限流，单次调用会从 1 分钟拖到十几分钟。
+
+模型或 prompt 改动后这些结果即过期，需重跑；文件里记录了 `model` 与 `generated_at` 便于判断。
 
 ### mock 档案覆盖面
 

@@ -52,9 +52,16 @@ body {
 .tb-btn:hover { background: #3a4354; }
 .tb-btn.primary { background: var(--blue-2); border-color: var(--blue-2); color: #fff; }
 .tb-btn.ghost { background: transparent; }
+.tb-btn.accent { background: #2a7d5f; border-color: #2a7d5f; color: #fff; }
+.tb-btn.accent:hover:not(:disabled) { background: #31916d; }
+.tb-btn.accent:disabled:hover { background: #2a7d5f; }
 .tb-btn:disabled { opacity: .4; cursor: not-allowed; }
 .tb-btn:disabled:hover { background: #2e3645; }
 .tb-btn.primary:disabled:hover { background: var(--blue-2); }
+.tb-src {
+  font-style: normal; font-weight: 400; font-size: 11px;
+  color: #8fd4b4; margin-left: 8px;
+}
 
 .tb-select {
   padding: 5px 10px; border-radius: 6px;

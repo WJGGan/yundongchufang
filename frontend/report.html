@@ -15,13 +15,20 @@
     <select class="tb-select" v-model="selectedId" :disabled="generating">
       <option value="" disabled>选择学生档案…</option>
       <option v-for="s in students" :key="s.student_id" :value="s.student_id">
-        {{ s.name }} · {{ s.grade }}{{ s.gender }} · {{ s.age }}岁
+        {{ cached[s.student_id] ? '★ ' : '' }}{{ s.name }} · {{ s.grade }}{{ s.gender }} · {{ s.age }}岁
       </option>
     </select>
-    <button class="tb-btn primary" :disabled="!selectedId || generating" @click="generate">
-      {{ generating ? '生成中…' : '生成处方' }}
+    <button class="tb-btn accent" :disabled="!isCached || generating" @click="loadCached"
+            :title="isCached ? '直接载入已生成的结果，无需等待模型' : '该学生暂无预生成结果'">
+      {{ isCached ? '★ 载入已有结果' : '无已有结果' }}
     </button>
-    <span class="tb-title" v-if="hasData">{{ rx.name || '—' }} · 运动处方报告</span>
+    <button class="tb-btn primary" :disabled="!selectedId || generating" @click="generate">
+      {{ generating ? '生成中…' : '重新生成' }}
+    </button>
+    <span class="tb-title" v-if="hasData">
+      {{ rx.name || '—' }} · 运动处方报告
+      <em class="tb-src" v-if="source">{{ source }}</em>
+    </span>
     <span class="tb-stage" v-else-if="generating">{{ stage }}</span>
     <span class="tb-spacer"></span>
     <a class="tb-btn ghost" href="/workbench">调试工作台</a>

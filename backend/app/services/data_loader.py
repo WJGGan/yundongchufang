@@ -52,3 +52,33 @@ def find_student(student_id: str) -> dict[str, Any] | None:
         if student["student_id"] == student_id:
             return student
     return None
+
+
+PREGENERATED_DIR = DATA_DIR / "pregenerated"
+
+
+def _safe_student_id(student_id: str) -> str | None:
+    """只接受档案库中真实存在的学号，避免用户输入拼进文件路径。"""
+    return student_id if find_student(student_id) is not None else None
+
+
+def pregenerated_ids() -> list[str]:
+    """已预生成结果的学号列表。不做缓存，脚本随时可能写入新文件。"""
+    if not PREGENERATED_DIR.is_dir():
+        return []
+    ids = []
+    for path in PREGENERATED_DIR.glob("*.json"):
+        if _safe_student_id(path.stem):
+            ids.append(path.stem)
+    return sorted(ids)
+
+
+def load_pregenerated(student_id: str) -> dict[str, Any] | None:
+    safe_id = _safe_student_id(student_id)
+    if safe_id is None:
+        return None
+    path = PREGENERATED_DIR / f"{safe_id}.json"
+    if not path.is_file():
+        return None
+    with path.open(encoding="utf-8") as handle:
+        return json.load(handle)

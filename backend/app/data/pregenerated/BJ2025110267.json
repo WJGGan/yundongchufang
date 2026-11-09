@@ -1,0 +1,1443 @@
+{
+  "student_id": "BJ2025110267",
+  "name": "刘星月",
+  "generated_at": "2026-11-09T17:56:16+08:00",
+  "model": "glm-5.3",
+  "thinking": false,
+  "profile": {
+    "student_id": "BJ2025110267",
+    "name": "刘星月",
+    "generated_at": "2026-11-09T17:57:08+08:00",
+    "versions": {
+      "exercise_library": "v1.0.0",
+      "knowledge_base": "v1.0.0",
+      "prompt": "v1.0.0",
+      "model": "glm-5.3"
+    },
+    "basic": {
+      "grade": "初二",
+      "age": 14,
+      "gender": "女",
+      "height_cm": 158.0,
+      "weight_kg": 47.0,
+      "bmi": 18.8,
+      "bmi_evaluation": "正常",
+      "bmi_basis": "BMI=47.0÷1.58²≈18.8，按中国14岁女生年龄性别BMI界值处于正常范围，体格发育基本匀称",
+      "growth_note": "青春期中段，身高体重发育协调；每日久坐约10小时偏长，需注意课间碎片化活动"
+    },
+    "fitness_dimensions": [
+      {
+        "dimension": "心肺耐力",
+        "indicators": [
+          {
+            "name": "肺活量",
+            "raw": "2400ml",
+            "level": "良好"
+          },
+          {
+            "name": "800米跑",
+            "raw": "免测",
+            "level": "数据不足"
+          }
+        ],
+        "level": "良好",
+        "basis": "肺活量2400ml对初二女生处于良好水平；但800米免测，缺乏耐力跑直接证据，等级判断存在不确定性，待补测后修正",
+        "knowledge_refs": [
+          "GUIDE-08",
+          "GUIDE-26"
+        ]
+      },
+      {
+        "dimension": "肌肉力量",
+        "indicators": [
+          {
+            "name": "一分钟仰卧起坐",
+            "raw": "28次",
+            "level": "及格"
+          },
+          {
+            "name": "引体向上",
+            "raw": "（女生不测，正常空值）",
+            "level": "数据不足"
+          }
+        ],
+        "level": "及格",
+        "basis": "仰卧起坐28次对初二女生属及格水平，核心与上肢力量储备一般；女生不测引体向上属正常",
+        "knowledge_refs": [
+          "GUIDE-11"
+        ]
+      },
+      {
+        "dimension": "柔韧性",
+        "indicators": [
+          {
+            "name": "坐位体前屈",
+            "raw": "11.0cm",
+            "level": "及格"
+          }
+        ],
+        "level": "及格",
+        "basis": "坐位体前屈11.0cm对初二女生接近及格线偏上，柔韧性一般，仍有提升空间",
+        "knowledge_refs": [
+          "GUIDE-09",
+          "GUIDE-29"
+        ]
+      },
+      {
+        "dimension": "速度",
+        "indicators": [
+          {
+            "name": "50米跑",
+            "raw": "10.2秒",
+            "level": "及格"
+          }
+        ],
+        "level": "及格",
+        "basis": "50米10.2秒对初二女生处于及格至良好边缘，速度素质中等",
+        "knowledge_refs": [
+          "GUIDE-27"
+        ]
+      },
+      {
+        "dimension": "爆发力",
+        "indicators": [
+          {
+            "name": "立定跳远",
+            "raw": "155cm",
+            "level": "及格"
+          }
+        ],
+        "level": "及格",
+        "basis": "立定跳远155cm对初二女生属及格水平，下肢爆发力中等偏低；当前膝伤恢复期需先恢复功能再加强跳跃类练习",
+        "knowledge_refs": [
+          "GUIDE-31",
+          "GUIDE-07"
+        ]
+      }
+    ],
+    "overall": {
+      "level": "及格",
+      "summary": "各维度均为及格或良好，体质总体处于中等水平，无明显短板但缺乏突出优势；主要制约因素是左膝髌股关节疼痛恢复期，影响下肢力量与爆发力训练安排",
+      "strengths": [
+        "肺活量达良好水平，有氧基础尚可",
+        "BMI正常，身体成分健康",
+        "睡眠规律、早餐规律，生活方式基础较好"
+      ],
+      "weaknesses": [
+        {
+          "rank": 1,
+          "dimension": "肌肉力量",
+          "reason": "仰卧起坐仅及格，且因左膝疼痛已暂停健美操训练，力量训练中断，是当前目标（力量与耐力提升）的直接瓶颈"
+        },
+        {
+          "rank": 2,
+          "dimension": "心肺耐力",
+          "reason": "800米免测缺少直接证据，运动频率仅每周2次且以散步为主，与学生心肺提升目标有差距"
+        },
+        {
+          "rank": 3,
+          "dimension": "爆发力",
+          "reason": "立定跳远仅及格，膝伤恢复期暂不能进行跳跃训练，需先完成康复性力量准备"
+        },
+        {
+          "rank": 4,
+          "dimension": "柔韧性",
+          "reason": "坐位体前屈接近及格线，柔韧性一般，久坐时间长加重下肢紧张"
+        }
+      ]
+    },
+    "health_focus": [
+      {
+        "item": "左膝髌股关节疼痛（恢复期）",
+        "type": "伤病史",
+        "impact": "限制深屈膝、跳跃与高强度下肢训练，是处方设计的核心约束",
+        "attention": "遵循医嘱避免深蹲至平行以下、跳跃与下坡跑；加强臀中肌与股四头肌力量；出现持续疼痛、肿胀或打软腿及时复诊"
+      },
+      {
+        "item": "久坐起身左膝发僵",
+        "type": "近期症状",
+        "impact": "提示膝关节活动度与循环仍受影响",
+        "attention": "久坐30至60分钟起身活动并做简单伸展，避免连续静坐"
+      },
+      {
+        "item": "双眼远视力4.8（轻度下降）",
+        "type": "视力情况",
+        "impact": "近视防控需重视，运动本身不受限",
+        "attention": "保证每日累计2小时以上户外光照活动；运动时眼镜可用防脱落装置"
+      }
+    ],
+    "data_quality": {
+      "missing_fields": [
+        {
+          "field": "BBMCJ（800米跑）",
+          "why_needed": "800米免测导致心肺耐力等级只能靠肺活量间接推断，影响心肺处方强度设定",
+          "priority": "中"
+        }
+      ],
+      "conflicts": [],
+      "clarification_questions": [
+        {
+          "question": "孩子800米这次是为什么免测？是膝盖疼痛的原因，还是有其他身体状况？",
+          "field": "BBMCJ",
+          "priority": "中",
+          "audience": "家长与学生"
+        },
+        {
+          "question": "孩子左膝现在上下楼梯还疼吗？医生说大概什么时候可以恢复跳跃和跑步？",
+          "field": "injury_history",
+          "priority": "高",
+          "audience": "家长与学生"
+        }
+      ]
+    },
+    "safety": {
+      "risk_level": "中",
+      "can_generate_prescription": true,
+      "blocked_exercise_tags": [
+        "膝关节高负荷",
+        "高冲击"
+      ],
+      "intensity_ceiling": {
+        "hr_max_percent": 70,
+        "rpe_max": 6,
+        "basis": "无系统训练经历（校队已因膝痛暂停），按初学者处理，心率上限不超过最大心率70%、RPE不超过6；膝伤恢复期中避免引发疼痛的动作"
+      },
+      "referral_advice": [],
+      "notes": [
+        "深屈膝（深蹲至大腿平行以下）、跳跃、跳绳、下坡跑等动作在膝痛完全恢复并经医生许可前不纳入训练",
+        "若训练中左膝出现锐痛、肿胀或打软腿，立即停止并就医",
+        "游泳为适宜的低冲击项目，且为学生喜好，可作为心肺训练主体"
+      ]
+    },
+    "disclaimer": "本画像由 AI 基于所提供档案生成，仅供参考，不作为医疗诊断依据。"
+  },
+  "prescription": {
+    "prescription_id": "RX-20261109-BJ2025110267-7768",
+    "student_id": "BJ2025110267",
+    "name": "刘星月",
+    "generated_at": "2026-11-09T17:57:50+08:00",
+    "versions": {
+      "exercise_library": "v1.0.0",
+      "knowledge_base": "v1.0.0",
+      "prompt": "v1.0.0",
+      "model": "glm-5.3"
+    },
+    "goals": [
+      "心肺耐力提升",
+      "肌肉力量与耐力"
+    ],
+    "cycle": {
+      "total_weeks": 8,
+      "current_phase": "第一阶段：膝伤恢复期基础重建",
+      "next_review": "第4周末"
+    },
+    "fitt_vp": {
+      "frequency": {
+        "value": "每周4次训练+3天主动恢复",
+        "detail": "周一三五日训练，其余日碎片活动与拉伸"
+      },
+      "intensity": {
+        "value": "中低强度，心率120-140次/分",
+        "detail": "上限为最大心率70%，RPE≤6，左膝疼痛即降量"
+      },
+      "time": {
+        "value": "每次35分钟",
+        "detail": "热身10+主体20+放松5分钟"
+      },
+      "type": {
+        "value": "低冲击有氧+康复性抗阻",
+        "detail": "快走有氧配合臀腿核心徒手及弹力带训练"
+      },
+      "volume": {
+        "value": "有氧约70分钟/周，抗阻3次/周",
+        "detail": "同一肌群间隔48小时，周总量增幅≤10%"
+      },
+      "progression": {
+        "value": "先延长时间再提强度",
+        "detail": "第5周起主体加5分钟，膝无痛且复诊许可后再进阶跳跃"
+      }
+    },
+    "weekly_plan": [
+      {
+        "day": "周一",
+        "theme": "有氧基础（低冲击）",
+        "total_minutes": 35,
+        "is_training_day": true,
+        "blocks": [
+          {
+            "phase": "热身",
+            "minutes": 10,
+            "items": [
+              {
+                "exercise_id": "WUP-001",
+                "name": "关节活动组合",
+                "dosage": "3分钟，每关节8-10次",
+                "notes": "膝部无痛范围内活动"
+              },
+              {
+                "exercise_id": "WUP-003",
+                "name": "原地快走摆臂",
+                "dosage": "3分钟",
+                "notes": "节奏渐快"
+              },
+              {
+                "exercise_id": "WUP-002",
+                "name": "动态拉伸组合",
+                "dosage": "4分钟，每侧8次",
+                "notes": "避免深弓步下压"
+              }
+            ]
+          },
+          {
+            "phase": "主体",
+            "minutes": 20,
+            "items": [
+              {
+                "exercise_id": "AER-014",
+                "name": "快走",
+                "dosage": "20分钟连续，室内原地踏步亦可",
+                "notes": "能说完整句子强度，RPE4-5"
+              }
+            ]
+          },
+          {
+            "phase": "放松",
+            "minutes": 5,
+            "items": [
+              {
+                "exercise_id": "CLD-001",
+                "name": "慢走放松",
+                "dosage": "2分钟",
+                "notes": ""
+              },
+              {
+                "exercise_id": "FLX-007",
+                "name": "小腿拉伸",
+                "dosage": "每侧30秒×2组",
+                "notes": "膝微屈不锁死"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "day": "周二",
+        "theme": "休息（主动恢复）",
+        "total_minutes": 0,
+        "is_training_day": false,
+        "blocks": []
+      },
+      {
+        "day": "周三",
+        "theme": "下肢康复力量+核心",
+        "total_minutes": 35,
+        "is_training_day": true,
+        "blocks": [
+          {
+            "phase": "热身",
+            "minutes": 10,
+            "items": [
+              {
+                "exercise_id": "WUP-001",
+                "name": "关节活动组合",
+                "dosage": "3分钟",
+                "notes": ""
+              },
+              {
+                "exercise_id": "WUP-003",
+                "name": "原地快走摆臂",
+                "dosage": "3分钟",
+                "notes": ""
+              },
+              {
+                "exercise_id": "WUP-002",
+                "name": "动态拉伸组合",
+                "dosage": "4分钟",
+                "notes": "髋部动态为主"
+              }
+            ]
+          },
+          {
+            "phase": "主体",
+            "minutes": 20,
+            "items": [
+              {
+                "exercise_id": "RES-008",
+                "name": "蚌式开合",
+                "dosage": "每侧15次×3组",
+                "notes": "臀中肌激活，针对膝痛"
+              },
+              {
+                "exercise_id": "RES-009",
+                "name": "侧卧抬腿",
+                "dosage": "每侧15次×3组",
+                "notes": ""
+              },
+              {
+                "exercise_id": "RES-002",
+                "name": "靠墙静蹲",
+                "dosage": "30秒×3组",
+                "notes": "无痛浅蹲角度，疼痛即停"
+              },
+              {
+                "exercise_id": "COR-003",
+                "name": "死虫式",
+                "dosage": "每侧10次×3组",
+                "notes": "腰部贴垫"
+              }
+            ]
+          },
+          {
+            "phase": "放松",
+            "minutes": 5,
+            "items": [
+              {
+                "exercise_id": "CLD-001",
+                "name": "慢走放松",
+                "dosage": "2分钟",
+                "notes": ""
+              },
+              {
+                "exercise_id": "FLX-004",
+                "name": "髋屈肌拉伸",
+                "dosage": "每侧30秒×2组",
+                "notes": "久坐人群重点"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "day": "周四",
+        "theme": "休息（碎片活动）",
+        "total_minutes": 0,
+        "is_training_day": false,
+        "blocks": []
+      },
+      {
+        "day": "周五",
+        "theme": "有氧+上肢拉推力量",
+        "total_minutes": 35,
+        "is_training_day": true,
+        "blocks": [
+          {
+            "phase": "热身",
+            "minutes": 10,
+            "items": [
+              {
+                "exercise_id": "WUP-001",
+                "name": "关节活动组合",
+                "dosage": "3分钟",
+                "notes": "肩关节充分活动"
+              },
+              {
+                "exercise_id": "WUP-003",
+                "name": "原地快走摆臂",
+                "dosage": "3分钟",
+                "notes": ""
+              },
+              {
+                "exercise_id": "WUP-002",
+                "name": "动态拉伸组合",
+                "dosage": "4分钟",
+                "notes": ""
+              }
+            ]
+          },
+          {
+            "phase": "主体",
+            "minutes": 20,
+            "items": [
+              {
+                "exercise_id": "AER-014",
+                "name": "快走",
+                "dosage": "12分钟连续",
+                "notes": "RPE4-5"
+              },
+              {
+                "exercise_id": "RES-013",
+                "name": "弹力带坐姿划船",
+                "dosage": "12-15次×3组",
+                "notes": "建立上肢拉力"
+              },
+              {
+                "exercise_id": "RES-011",
+                "name": "跪姿俯卧撑",
+                "dosage": "10-15次×3组",
+                "notes": "核心收紧不塌腰"
+              }
+            ]
+          },
+          {
+            "phase": "放松",
+            "minutes": 5,
+            "items": [
+              {
+                "exercise_id": "CLD-001",
+                "name": "慢走放松",
+                "dosage": "2分钟",
+                "notes": ""
+              },
+              {
+                "exercise_id": "FLX-006",
+                "name": "肩部后侧拉伸",
+                "dosage": "每侧30秒×2组",
+                "notes": ""
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "day": "周六",
+        "theme": "休息（柔韧自助练习）",
+        "total_minutes": 0,
+        "is_training_day": false,
+        "blocks": []
+      },
+      {
+        "day": "周日",
+        "theme": "全身力量+柔韧提升",
+        "total_minutes": 35,
+        "is_training_day": true,
+        "blocks": [
+          {
+            "phase": "热身",
+            "minutes": 10,
+            "items": [
+              {
+                "exercise_id": "WUP-001",
+                "name": "关节活动组合",
+                "dosage": "3分钟",
+                "notes": ""
+              },
+              {
+                "exercise_id": "WUP-003",
+                "name": "原地快走摆臂",
+                "dosage": "3分钟",
+                "notes": ""
+              },
+              {
+                "exercise_id": "WUP-002",
+                "name": "动态拉伸组合",
+                "dosage": "4分钟",
+                "notes": ""
+              }
+            ]
+          },
+          {
+            "phase": "主体",
+            "minutes": 20,
+            "items": [
+              {
+                "exercise_id": "RES-007",
+                "name": "弹力带侧向行走",
+                "dosage": "每方向12步×3组",
+                "notes": "无痛角度，膝不内扣"
+              },
+              {
+                "exercise_id": "RES-004",
+                "name": "臀桥",
+                "dosage": "15次×3组",
+                "notes": "顶部停2秒"
+              },
+              {
+                "exercise_id": "RES-006",
+                "name": "提踵",
+                "dosage": "15次×3组",
+                "notes": "扶墙保持平衡"
+              },
+              {
+                "exercise_id": "COR-004",
+                "name": "鸟狗式",
+                "dosage": "每侧10次×3组",
+                "notes": "躯干稳定"
+              }
+            ]
+          },
+          {
+            "phase": "放松",
+            "minutes": 5,
+            "items": [
+              {
+                "exercise_id": "CLD-003",
+                "name": "腹式呼吸放松",
+                "dosage": "2分钟",
+                "notes": ""
+              },
+              {
+                "exercise_id": "FLX-001",
+                "name": "坐位体前屈拉伸",
+                "dosage": "30秒×2组",
+                "notes": "微屈膝，不弓背强够"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "exercise_details": [
+      {
+        "id": "WUP-001",
+        "name": "关节活动组合",
+        "category": "热身",
+        "impact_level": "无",
+        "equipment": [
+          "无"
+        ],
+        "venue": [
+          "家庭",
+          "小区空地",
+          "学校操场",
+          "体育馆",
+          "健身房"
+        ],
+        "key_points": [
+          "自颈、肩、肘、腕、髋、膝、踝自上而下依次活动",
+          "每个关节绕环 8 至 10 次，幅度由小到大",
+          "动作缓慢可控，不追求速度"
+        ],
+        "common_errors": [
+          "幅度过大过快",
+          "跳过踝关节与腕关节"
+        ],
+        "dosage_hint": "2 至 3 分钟，每个关节 8 至 10 次",
+        "alternatives": [
+          {
+            "id": "WUP-002",
+            "name": "动态拉伸组合",
+            "why": "低冲击的同类替代动作"
+          }
+        ]
+      },
+      {
+        "id": "WUP-003",
+        "name": "原地快走摆臂",
+        "category": "热身",
+        "impact_level": "无",
+        "equipment": [
+          "无"
+        ],
+        "venue": [
+          "家庭",
+          "小区空地",
+          "学校操场",
+          "体育馆"
+        ],
+        "key_points": [
+          "步频逐渐加快",
+          "手臂自然摆动至肩高",
+          "心率升至 100 次/分以上即可"
+        ],
+        "common_errors": [
+          "时间过短未达到升温效果"
+        ],
+        "dosage_hint": "2 至 4 分钟",
+        "alternatives": [
+          {
+            "id": "WUP-004",
+            "name": "原地慢跑",
+            "why": "低冲击的同类替代动作"
+          },
+          {
+            "id": "AER-014",
+            "name": "快走",
+            "why": "无冲击的同类替代动作"
+          }
+        ]
+      },
+      {
+        "id": "WUP-002",
+        "name": "动态拉伸组合",
+        "category": "热身",
+        "impact_level": "低",
+        "equipment": [
+          "无"
+        ],
+        "venue": [
+          "家庭",
+          "小区空地",
+          "学校操场",
+          "体育馆"
+        ],
+        "key_points": [
+          "包含正踢腿、侧踢腿、弓步转体、手臂绕环",
+          "在可控幅度内移动，不在末端停留",
+          "配合呼吸，不憋气"
+        ],
+        "common_errors": [
+          "用弹振方式强行加大幅度",
+          "动作过快失去控制"
+        ],
+        "dosage_hint": "3 至 5 分钟，每个动作每侧 8 次",
+        "alternatives": [
+          {
+            "id": "WUP-001",
+            "name": "关节活动组合",
+            "why": "无冲击的同类替代动作"
+          },
+          {
+            "id": "WUP-003",
+            "name": "原地快走摆臂",
+            "why": "无冲击的同类替代动作"
+          }
+        ]
+      },
+      {
+        "id": "AER-014",
+        "name": "快走",
+        "category": "有氧",
+        "impact_level": "无",
+        "equipment": [
+          "无"
+        ],
+        "venue": [
+          "家庭",
+          "小区空地",
+          "学校操场",
+          "户外"
+        ],
+        "key_points": [
+          "步频加快而非步幅加大",
+          "手臂屈肘摆动助力",
+          "保持能连续说话的强度"
+        ],
+        "common_errors": [
+          "速度过慢达不到有效强度",
+          "步幅过大造成髋部不适"
+        ],
+        "dosage_hint": "20 至 45 分钟连续进行",
+        "alternatives": [
+          {
+            "id": "AER-005",
+            "name": "快走慢跑交替",
+            "why": "低冲击的同类替代动作"
+          },
+          {
+            "id": "AER-011",
+            "name": "骑行",
+            "why": "无冲击的同类替代动作"
+          }
+        ]
+      },
+      {
+        "id": "CLD-001",
+        "name": "慢走放松",
+        "category": "放松",
+        "impact_level": "无",
+        "equipment": [
+          "无"
+        ],
+        "venue": [
+          "家庭",
+          "学校操场",
+          "小区空地",
+          "体育馆"
+        ],
+        "key_points": [
+          "训练后立即慢走而非直接坐下",
+          "配合深呼吸",
+          "持续至心率降至 100 次/分以下"
+        ],
+        "common_errors": [
+          "训练结束立刻静坐",
+          "放松时间不足"
+        ],
+        "dosage_hint": "3 至 5 分钟",
+        "alternatives": [
+          {
+            "id": "CLD-003",
+            "name": "腹式呼吸放松",
+            "why": "无冲击的同类替代动作"
+          }
+        ]
+      },
+      {
+        "id": "FLX-007",
+        "name": "小腿拉伸",
+        "category": "柔韧",
+        "impact_level": "无",
+        "equipment": [
+          "无"
+        ],
+        "venue": [
+          "家庭",
+          "学校",
+          "体育馆",
+          "健身房"
+        ],
+        "key_points": [
+          "面墙弓步，后腿伸直脚跟踩实",
+          "身体重心前移",
+          "脚尖朝正前方"
+        ],
+        "common_errors": [
+          "后脚跟离地",
+          "脚尖外八"
+        ],
+        "dosage_hint": "每侧 30 秒 × 2 组；跳绳与跑步后必做",
+        "alternatives": [
+          {
+            "id": "FLX-001",
+            "name": "坐位体前屈拉伸",
+            "why": "无冲击的同类替代动作"
+          }
+        ]
+      },
+      {
+        "id": "RES-008",
+        "name": "蚌式开合",
+        "category": "抗阻",
+        "impact_level": "无",
+        "equipment": [
+          "无",
+          "弹力带"
+        ],
+        "venue": [
+          "家庭",
+          "体育馆",
+          "健身房"
+        ],
+        "key_points": [
+          "侧卧屈膝，双脚并拢",
+          "上侧膝向上打开，骨盆不后翻",
+          "顶点停留后缓慢回落",
+          "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+        ],
+        "common_errors": [
+          "骨盆向后翻转代偿",
+          "幅度过大"
+        ],
+        "dosage_hint": "每侧 15 次 × 3 组",
+        "alternatives": [
+          {
+            "id": "RES-007",
+            "name": "弹力带侧向行走",
+            "why": "无冲击的同类替代动作"
+          },
+          {
+            "id": "RES-009",
+            "name": "侧卧抬腿",
+            "why": "无冲击的同类替代动作"
+          }
+        ]
+      },
+      {
+        "id": "RES-009",
+        "name": "侧卧抬腿",
+        "category": "抗阻",
+        "impact_level": "无",
+        "equipment": [
+          "无"
+        ],
+        "venue": [
+          "家庭",
+          "体育馆",
+          "健身房"
+        ],
+        "key_points": [
+          "侧卧身体成一条直线",
+          "上侧腿伸直向上抬起约 45 度",
+          "脚尖略向内不外翻",
+          "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+        ],
+        "common_errors": [
+          "身体向后倾倒",
+          "抬腿过高用腰代偿"
+        ],
+        "dosage_hint": "每侧 15 次 × 3 组",
+        "alternatives": [
+          {
+            "id": "RES-008",
+            "name": "蚌式开合",
+            "why": "无冲击的同类替代动作"
+          },
+          {
+            "id": "RES-007",
+            "name": "弹力带侧向行走",
+            "why": "无冲击的同类替代动作"
+          }
+        ]
+      },
+      {
+        "id": "RES-002",
+        "name": "靠墙静蹲",
+        "category": "抗阻",
+        "impact_level": "无",
+        "equipment": [
+          "无"
+        ],
+        "venue": [
+          "家庭",
+          "学校",
+          "体育馆"
+        ],
+        "key_points": [
+          "背部贴墙，膝角保持 90 至 120 度",
+          "膝盖不超过脚尖",
+          "正常呼吸不憋气"
+        ],
+        "common_errors": [
+          "膝角过小造成髌骨压力过大",
+          "憋气"
+        ],
+        "dosage_hint": "每组 30 至 60 秒，3 组",
+        "alternatives": [
+          {
+            "id": "RES-001",
+            "name": "徒手深蹲",
+            "why": "低冲击的同类替代动作"
+          },
+          {
+            "id": "RES-004",
+            "name": "臀桥",
+            "why": "无冲击的同类替代动作"
+          }
+        ]
+      },
+      {
+        "id": "COR-003",
+        "name": "死虫式",
+        "category": "核心",
+        "impact_level": "无",
+        "equipment": [
+          "无"
+        ],
+        "venue": [
+          "家庭",
+          "体育馆",
+          "健身房"
+        ],
+        "key_points": [
+          "仰卧，腰部贴地不留空隙",
+          "对侧手脚同时缓慢伸出",
+          "全程腰椎保持不动",
+          "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+        ],
+        "common_errors": [
+          "腰部离地拱起",
+          "动作过快",
+          "伸展幅度超出控制范围"
+        ],
+        "dosage_hint": "每侧 10 至 12 次 × 3 组",
+        "alternatives": [
+          {
+            "id": "COR-004",
+            "name": "鸟狗式",
+            "why": "无冲击的同类替代动作"
+          },
+          {
+            "id": "COR-001",
+            "name": "平板支撑",
+            "why": "无冲击的同类替代动作"
+          }
+        ]
+      },
+      {
+        "id": "FLX-004",
+        "name": "髋屈肌拉伸",
+        "category": "柔韧",
+        "impact_level": "无",
+        "equipment": [
+          "无"
+        ],
+        "venue": [
+          "家庭",
+          "体育馆",
+          "健身房"
+        ],
+        "key_points": [
+          "跪姿弓步，后侧膝着地",
+          "骨盆后倾并向前送髋",
+          "躯干保持直立",
+          "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+        ],
+        "common_errors": [
+          "腰部反弓代偿",
+          "前膝超过脚尖"
+        ],
+        "dosage_hint": "每侧 30 秒 × 2 组；久坐人群建议每日进行",
+        "alternatives": [
+          {
+            "id": "FLX-003",
+            "name": "股四头肌拉伸",
+            "why": "无冲击的同类替代动作"
+          }
+        ]
+      },
+      {
+        "id": "RES-013",
+        "name": "弹力带坐姿划船",
+        "category": "抗阻",
+        "impact_level": "无",
+        "equipment": [
+          "弹力带"
+        ],
+        "venue": [
+          "家庭",
+          "体育馆",
+          "健身房"
+        ],
+        "key_points": [
+          "弹力带固定于前方稳固物",
+          "肩胛先后缩再屈肘拉动",
+          "躯干保持直立不后倒"
+        ],
+        "common_errors": [
+          "用躯干后摆借力",
+          "耸肩",
+          "只屈肘不动肩胛"
+        ],
+        "dosage_hint": "12 至 15 次 × 3 组",
+        "alternatives": [
+          {
+            "id": "RES-015",
+            "name": "斜身引体",
+            "why": "低冲击的同类替代动作"
+          },
+          {
+            "id": "RES-016",
+            "name": "引体向上",
+            "why": "低冲击的同类替代动作"
+          }
+        ]
+      },
+      {
+        "id": "RES-011",
+        "name": "跪姿俯卧撑",
+        "category": "抗阻",
+        "impact_level": "低",
+        "equipment": [
+          "无"
+        ],
+        "venue": [
+          "家庭",
+          "学校",
+          "体育馆",
+          "健身房"
+        ],
+        "key_points": [
+          "膝着地，躯干与大腿成一条直线",
+          "下放节奏可控",
+          "肩胛稳定不耸肩",
+          "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+        ],
+        "common_errors": [
+          "臀部后坐",
+          "塌腰"
+        ],
+        "dosage_hint": "10 至 15 次 × 3 组",
+        "alternatives": [
+          {
+            "id": "RES-012",
+            "name": "上斜俯卧撑",
+            "why": "低冲击的同类替代动作"
+          },
+          {
+            "id": "RES-010",
+            "name": "标准俯卧撑",
+            "why": "低冲击的同类替代动作"
+          }
+        ]
+      },
+      {
+        "id": "FLX-006",
+        "name": "肩部后侧拉伸",
+        "category": "柔韧",
+        "impact_level": "无",
+        "equipment": [
+          "无"
+        ],
+        "venue": [
+          "家庭",
+          "学校",
+          "体育馆",
+          "健身房"
+        ],
+        "key_points": [
+          "一臂横过胸前，另一手在肘上方施加轻压",
+          "肩部下沉不耸肩",
+          "保持呼吸"
+        ],
+        "common_errors": [
+          "按压在肘关节上",
+          "耸肩代偿"
+        ],
+        "dosage_hint": "每侧 30 秒 × 2 组",
+        "alternatives": [
+          {
+            "id": "FLX-005",
+            "name": "胸椎旋转",
+            "why": "无冲击的同类替代动作"
+          }
+        ]
+      },
+      {
+        "id": "RES-007",
+        "name": "弹力带侧向行走",
+        "category": "抗阻",
+        "impact_level": "无",
+        "equipment": [
+          "弹力带"
+        ],
+        "venue": [
+          "家庭",
+          "体育馆",
+          "健身房"
+        ],
+        "key_points": [
+          "弹力带套于膝上或踝上",
+          "半蹲姿态侧向移动",
+          "全程保持膝不内扣"
+        ],
+        "common_errors": [
+          "上身左右摆动",
+          "步幅过小没有张力"
+        ],
+        "dosage_hint": "每方向 10 至 15 步 × 3 组",
+        "alternatives": [
+          {
+            "id": "RES-008",
+            "name": "蚌式开合",
+            "why": "无冲击的同类替代动作"
+          },
+          {
+            "id": "RES-009",
+            "name": "侧卧抬腿",
+            "why": "无冲击的同类替代动作"
+          }
+        ]
+      },
+      {
+        "id": "RES-004",
+        "name": "臀桥",
+        "category": "抗阻",
+        "impact_level": "无",
+        "equipment": [
+          "无"
+        ],
+        "venue": [
+          "家庭",
+          "体育馆",
+          "健身房"
+        ],
+        "key_points": [
+          "仰卧屈膝，脚跟距臀约一掌",
+          "臀部发力顶起至躯干与大腿成直线",
+          "顶点停留 1 至 2 秒后缓慢落下",
+          "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+        ],
+        "common_errors": [
+          "用腰部代偿顶起",
+          "顶起高度不足",
+          "膝关节外展"
+        ],
+        "dosage_hint": "15 至 20 次 × 3 组",
+        "alternatives": [
+          {
+            "id": "RES-005",
+            "name": "单腿臀桥",
+            "why": "无冲击的同类替代动作"
+          },
+          {
+            "id": "RES-002",
+            "name": "靠墙静蹲",
+            "why": "无冲击的同类替代动作"
+          }
+        ]
+      },
+      {
+        "id": "RES-006",
+        "name": "提踵",
+        "category": "抗阻",
+        "impact_level": "无",
+        "equipment": [
+          "无"
+        ],
+        "venue": [
+          "家庭",
+          "学校",
+          "体育馆",
+          "健身房"
+        ],
+        "key_points": [
+          "缓慢提起脚跟至最高点",
+          "顶点停留 1 秒",
+          "下落时控制速度不坠落"
+        ],
+        "common_errors": [
+          "借惯性弹起",
+          "身体前后晃动"
+        ],
+        "dosage_hint": "15 至 20 次 × 3 组",
+        "alternatives": [
+          {
+            "id": "RES-002",
+            "name": "靠墙静蹲",
+            "why": "无冲击的同类替代动作"
+          }
+        ]
+      },
+      {
+        "id": "COR-004",
+        "name": "鸟狗式",
+        "category": "核心",
+        "impact_level": "无",
+        "equipment": [
+          "无"
+        ],
+        "venue": [
+          "家庭",
+          "体育馆",
+          "健身房"
+        ],
+        "key_points": [
+          "四点支撑，背部保持中立",
+          "对侧手脚同时伸出至水平",
+          "骨盆不旋转",
+          "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+        ],
+        "common_errors": [
+          "腰部塌陷",
+          "抬腿过高导致腰椎反弓",
+          "骨盆歪斜"
+        ],
+        "dosage_hint": "每侧 10 至 12 次 × 3 组",
+        "alternatives": [
+          {
+            "id": "COR-003",
+            "name": "死虫式",
+            "why": "无冲击的同类替代动作"
+          }
+        ]
+      },
+      {
+        "id": "CLD-003",
+        "name": "腹式呼吸放松",
+        "category": "放松",
+        "impact_level": "无",
+        "equipment": [
+          "无"
+        ],
+        "venue": [
+          "家庭",
+          "学校",
+          "体育馆"
+        ],
+        "key_points": [
+          "一手置于腹部感受起伏",
+          "用鼻吸气 4 秒，腹部鼓起；用口呼气 6 秒",
+          "全程肩部放松不上提"
+        ],
+        "common_errors": [
+          "胸式呼吸肩部起伏",
+          "刻意延长憋气时间"
+        ],
+        "dosage_hint": "5 至 10 分钟；属极低风险活动，适用于高风险人群或需要停止运动时的替代方案",
+        "alternatives": [
+          {
+            "id": "CLD-004",
+            "name": "渐进式肌肉放松",
+            "why": "无冲击的同类替代动作"
+          },
+          {
+            "id": "FLX-009",
+            "name": "婴儿式",
+            "why": "无冲击的同类替代动作"
+          }
+        ]
+      },
+      {
+        "id": "FLX-001",
+        "name": "坐位体前屈拉伸",
+        "category": "柔韧",
+        "impact_level": "无",
+        "equipment": [
+          "无"
+        ],
+        "venue": [
+          "家庭",
+          "学校",
+          "体育馆"
+        ],
+        "key_points": [
+          "坐姿双腿伸直并拢，脚尖向上",
+          "从髋部开始前屈而非弓背",
+          "在轻微牵拉感处停留，不追求疼痛",
+          "保持均匀呼吸不憋气",
+          "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+        ],
+        "common_errors": [
+          "弓背低头凑距离",
+          "弹振式反复下压",
+          "屈膝代偿"
+        ],
+        "dosage_hint": "每次 30 秒 × 2 至 3 组，训练后或洗澡后进行效果更好",
+        "alternatives": [
+          {
+            "id": "FLX-002",
+            "name": "腘绳肌静态拉伸",
+            "why": "无冲击的同类替代动作"
+          },
+          {
+            "id": "FLX-007",
+            "name": "小腿拉伸",
+            "why": "无冲击的同类替代动作"
+          }
+        ]
+      }
+    ],
+    "intensity_control": {
+      "target_hr_zone": {
+        "lower": 120,
+        "upper": 140,
+        "formula_note": "按青少年最大心率约195-205次/分估算，取200×60%-70%为区间，此为估算值，以实际耐受与RPE校正"
+      },
+      "rpe_range": "4-6",
+      "talk_test": "能说完整句子但不能唱歌为合适强度，只能短句即降速",
+      "stop_signals": [
+        "胸闷胸痛",
+        "呼吸困难或无法说话",
+        "头晕、眼前发黑、恶心",
+        "心跳明显不规则",
+        "左膝锐痛、肿胀或打软腿"
+      ]
+    },
+    "nutrition": {
+      "principles": [
+        "三餐规律，吃好早餐，不节食",
+        "每日奶类300ml以上，充足蔬果",
+        "限制含糖饮料、油炸食品与高盐零食",
+        "蛋白质分配到三餐而非集中一餐"
+      ],
+      "macro_guidance": {
+        "carbohydrate": "供能50%-65%，谷薯类为主",
+        "protein": "每公斤体重约1.2g，鱼蛋奶瘦肉豆制品",
+        "fat": "供能20%-30%，优质来源适量"
+      },
+      "around_training": {
+        "pre": "训练前1-2小时易消化碳水，如香蕉、面包，前30分钟不大量进食",
+        "post": "训练后30-60分钟碳水+蛋白组合，如牛奶加面包、酸奶加水果"
+      },
+      "hydration": "运动前2小时补水300-500ml，运动中每15-20分钟补100-150ml，白水即可",
+      "cautions": [
+        "生长发育期不采用限能量减重方案",
+        "不使用蛋白粉等补剂"
+      ]
+    },
+    "risk_notes": [
+      {
+        "level": "高",
+        "item": "左膝髌股关节疼痛加重",
+        "reason": "恢复期膝痛是核心约束，静蹲角度不当或量过大易诱发",
+        "action": "所有下肢动作在无痛角度进行，出现锐痛、肿胀、打软腿立即停止并就医复诊"
+      },
+      {
+        "level": "中",
+        "item": "过早恢复跳跃类训练",
+        "reason": "立定跳远是短板，但膝伤未愈前跳跃会加重髌股关节负荷",
+        "action": "跳跃、跳绳、下坡跑暂不纳入，需医生许可后第5周评估引入"
+      },
+      {
+        "level": "中",
+        "item": "久坐后膝发僵与训练衔接",
+        "reason": "每日久坐约10小时，直接训练易不适",
+        "action": "久坐30-60分钟起身活动3-5分钟，训练前热身做满10分钟"
+      },
+      {
+        "level": "低",
+        "item": "训练强度超上限",
+        "reason": "初学者心率上限为最大心率70%",
+        "action": "用谈话测试与RPE自查，超6即减速，不追强度"
+      }
+    ],
+    "forbidden_or_limited": [
+      {
+        "target": "跳绳",
+        "restriction": "限制",
+        "reason": "学生不喜欢；且属高冲击，膝伤恢复期不适宜，以快走替代",
+        "source": "偏好"
+      },
+      {
+        "target": "健美操",
+        "restriction": "限制",
+        "reason": "学生喜好但含跳跃动作，膝痛恢复期暂停，以徒手操化训练替代",
+        "source": "安全"
+      },
+      {
+        "target": "游泳",
+        "restriction": "限制",
+        "reason": "学生喜好且适宜，但场地与课时不稳定，鼓励周末自行补充30分钟",
+        "source": "偏好"
+      }
+    ],
+    "explanations": [
+      {
+        "target": "weekly_plan.周三.主体",
+        "why": "力量为第一短板且因膝痛中断训练。以臀中肌（蚌式、侧卧抬腿、侧向行走）与无痛角度静蹲为主，是膝前痛康复的首选方案，兼顾力量补强",
+        "knowledge_refs": [
+          "GUIDE-19",
+          "GUIDE-11"
+        ]
+      },
+      {
+        "target": "weekly_plan.周一.主体",
+        "why": "心肺为目标且800米免测缺直接证据，先用快走建立有氧基础，低冲击保护左膝，符合基础薄弱者走跑渐进原则",
+        "knowledge_refs": [
+          "GUIDE-08",
+          "GUIDE-12"
+        ]
+      },
+      {
+        "target": "intensity_control.target_hr_zone",
+        "why": "学生无系统训练经历，按初学者处理，上限为最大心率70%；采用青少年约195-205次/分估算而非220减年龄",
+        "knowledge_refs": [
+          "GUIDE-04"
+        ]
+      },
+      {
+        "target": "weekly_plan.周日.放松",
+        "why": "坐位体前屈仅及格，柔韧提升需持续低强度练习，安排在训练后肌肉温度升高时进行效果好，不弓背凑距离",
+        "knowledge_refs": [
+          "GUIDE-29",
+          "GUIDE-09"
+        ]
+      },
+      {
+        "target": "fitt_vp.frequency",
+        "why": "每周4次训练覆盖力量与心肺双目标，抗阻间隔48小时利于恢复；休息日结合碎片活动应对每日约10小时久坐",
+        "knowledge_refs": [
+          "GUIDE-01",
+          "GUIDE-25",
+          "GUIDE-03"
+        ]
+      },
+      {
+        "target": "fitt_vp.progression",
+        "why": "遵循单一变量递增，先延长时间再提强度，周总量增幅不超10%；膝无痛且复诊许可后再评估引入跳跃",
+        "knowledge_refs": [
+          "GUIDE-13"
+        ]
+      }
+    ],
+    "homework": {
+      "title": "8周基础重建打卡",
+      "tasks": [
+        "每日记录训练完成情况与左膝疼痛（0-10分）",
+        "非训练日做坐位体前屈拉伸30秒×2组",
+        "久坐每45分钟起身活动3分钟，累计户外光照2小时/日",
+        "周末家长陪同游泳或快走30分钟"
+      ],
+      "completion_standard": "每周训练打卡≥4次，膝痛评分≤3分且无加重，4周末复测仰卧起坐与坐位体前屈",
+      "self_report": "每周日晚填写：完成次数、膝痛情况、疲劳与睡眠质量，异常提前反馈"
+    },
+    "unknown_exercise_ids": [],
+    "disclaimer": "本运动处方由 AI 生成，仅供参考，不作为医疗诊断依据。执行中出现不适请立即停止并咨询专业人员。"
+  },
+  "emergency": null,
+  "blocked": null,
+  "elapsed": {
+    "profile": 51.8,
+    "prescription": 41.9
+  }
+}

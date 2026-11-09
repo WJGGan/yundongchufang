@@ -84,6 +84,8 @@ createApp({
       profile: clone(EMPTY_PROFILE),
       hasData: false,
       students: [],
+      cached: {},
+      source: '',
       selectedId: '',
       generating: false,
       stage: '',
@@ -98,6 +100,9 @@ createApp({
   },
 
   computed: {
+    isCached() {
+      return !!this.cached[this.selectedId];
+    },
     basic() {
       return (this.profile && this.profile.basic) || {};
     },
@@ -308,6 +313,8 @@ createApp({
       })
       .catch(() => {});
 
+    this.refreshCached();
+
     // 从工作台带数据跳转过来时直接渲染
     const raw = sessionStorage.getItem('rx_report');
     if (raw) {
@@ -326,7 +333,47 @@ createApp({
   },
 
   methods: {
-    /* ---------- 生成流程 ---------- */
+    /* ---------- 预生成结果 ---------- */
+
+    refreshCached() {
+      return fetch('/api/v1/pregenerated')
+        .then((r) => r.json())
+        .then((d) => {
+          const map = {};
+          (d.items || []).forEach((it) => { map[it.student_id] = it; });
+          this.cached = map;
+        })
+        .catch(() => {});
+    },
+
+    async loadCached() {
+      if (!this.isCached || this.generating) return;
+      this.resetState();
+      try {
+        const res = await fetch(`/api/v1/pregenerated/${this.selectedId}`);
+        if (!res.ok) {
+          this.genError = `载入失败：${(await res.json()).detail || res.status}`;
+          return;
+        }
+        const data = await res.json();
+
+        if (data.emergency) { this.emergency = data.emergency; }
+        if (data.blocked) { this.blocked = data.blocked; }
+        if (data.profile) { this.profile = data.profile; }
+
+        if (data.prescription) {
+          this.applyResult(data.prescription, data.profile);
+          const when = (data.generated_at || '').slice(0, 16).replace('T', ' ');
+          this.source = `已有结果 · ${data.model || ''} · ${when}`;
+        } else if (!data.emergency && !data.blocked) {
+          this.genError = '该学生的预生成结果不含处方内容';
+        }
+      } catch (err) {
+        this.genError = `载入失败：${err}`;
+      }
+    },
+
+    /* ---------- 实时生成 ---------- */
 
     applyResult(rx, profile) {
       this.rx = rx;
@@ -347,6 +394,7 @@ createApp({
       this.genError = '';
       this.emergency = null;
       this.blocked = null;
+      this.source = '';
       document.title = '运动处方报告';
     },
 
