@@ -205,6 +205,50 @@
             <div class="f wide"><label>当前阶段</label><u>{{ rx.cycle.current_phase || '—' }}</u></div>
             <div class="f wide"><label>审&nbsp;核&nbsp;人</label><u class="blank"></u><span class="unit">（签名 / 电子章）</span></div>
           </div>
+
+          <!-- 1.1 体检数据 -->
+          <div class="sub-sec">
+            <h4 class="sub-title">体检数据</h4>
+            <div class="info-grid">
+              <div class="f" v-for="r in examRows" :key="r.label" :class="{ wide: r.wide }">
+                <label>{{ r.label }}</label>
+                <u :class="{ warn: r.warn }">{{ r.value || '—' }}</u>
+                <span class="unit" v-if="r.unit">{{ r.unit }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 1.2 体质测试成绩与等级 -->
+          <div class="sub-sec">
+            <h4 class="sub-title">体质测试成绩与等级</h4>
+            <div class="fit-grid" v-if="fitnessRows.length">
+              <div class="fit-item" v-for="r in fitnessRows" :key="r.name">
+                <span class="fit-name">{{ r.name }}</span>
+                <b class="fit-score">{{ r.value }}</b>
+                <span class="lv-badge" :class="levelCls(r.level)">{{ r.level || '—' }}</span>
+              </div>
+            </div>
+            <p class="sub-empty" v-else>暂无体质测试成绩记录。</p>
+          </div>
+
+          <!-- 1.3 运动史 / 伤病史 -->
+          <div class="sub-sec two">
+            <div>
+              <h4 class="sub-title">运动史</h4>
+              <div class="info-grid half">
+                <div class="f" v-for="r in exerciseRows" :key="r.label" :class="{ wide: r.wide }">
+                  <label>{{ r.label }}</label><u>{{ r.value || '—' }}</u>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h4 class="sub-title">伤病史</h4>
+              <ul class="injury-list" v-if="injuryRows.length">
+                <li v-for="(t, i) in injuryRows" :key="i">{{ t }}</li>
+              </ul>
+              <p class="sub-empty" v-else>无伤病史记录。</p>
+            </div>
+          </div>
         </div>
       </section>
 

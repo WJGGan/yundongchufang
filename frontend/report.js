@@ -21,6 +21,20 @@ const FITT_PRINCIPLE = [
   { k: 'P', cls: 'p', title: '个体化 (Personalization)', desc: '结合个人健康状况与目标' },
 ];
 
+/* 体质测试项目：key 对应档案 fitness_test 字段，kw 用于在画像 fitness_dimensions 里匹配等级 */
+const FITNESS_ITEMS = [
+  { key: 'FHLCJ', label: '肺活量', unit: 'ml', kw: ['肺活量'] },
+  { key: 'WSMCJ', label: '50米跑', unit: '秒', kw: ['50米'], exclude: ['往返', '×8', 'x8'] },
+  { key: 'LDTYCJ', label: '立定跳远', unit: 'cm', kw: ['立定跳远'] },
+  { key: 'ZWTQQCJ', label: '坐位体前屈', unit: 'cm', kw: ['体前屈'] },
+  { key: 'WSMWFPCJ', label: '50米×8往返跑', unit: '秒', kw: ['往返'] },
+  { key: 'YFZTSCJ', label: '一分钟跳绳', unit: '个', kw: ['跳绳'] },
+  { key: 'BBMCJ', label: '800米跑', unit: '', kw: ['800'] },
+  { key: 'YQMCJ', label: '1000米跑', unit: '', kw: ['1000'] },
+  { key: 'YWQZCJ', label: '一分钟仰卧起坐', unit: '个', kw: ['仰卧起坐'] },
+  { key: 'YTXSCJ', label: '引体向上', unit: '个', kw: ['引体'] },
+];
+
 const GENERAL_TIPS = [
   '运动前充分热身，运动后做好拉伸。',
   '抗阻训练时避免憋气，保持均匀呼吸。',
@@ -103,6 +117,7 @@ createApp({
     return {
       rx: clone(EMPTY_RX),
       profile: clone(EMPTY_PROFILE),
+      record: null,
       hasData: false,
       students: [],
       cached: {},
@@ -144,6 +159,77 @@ createApp({
     },
     weaknesses() {
       return (this.profile && this.profile.overall && this.profile.overall.weaknesses) || [];
+    },
+
+    /* ---------- 1 基本信息：原始档案（体检 / 体测 / 运动史 / 伤病史） ---------- */
+
+    rawExam() {
+      return (this.record && this.record.physical_exam) || {};
+    },
+    rawFitness() {
+      return (this.record && this.record.fitness_test) || {};
+    },
+    rawHealth() {
+      return (this.record && this.record.health_profile) || {};
+    },
+
+    /* 体检数据：血压、心率、肺活量、视力、脊柱筛查 */
+    examRows() {
+      const e = this.rawExam;
+      const v = this.rawHealth.vitals || {};
+      const pair = (l, r) => (l || r ? `左 ${l || '—'} / 右 ${r || '—'}` : '');
+      const jz = (e.JZ || '').trim();
+      return [
+        { label: '血压', value: v.blood_pressure, unit: 'mmHg' },
+        { label: '安静心率', value: v.resting_heart_rate, unit: '次/分' },
+        { label: '肺活量', value: e.FHL, unit: 'ml' },
+        { label: '远视力', value: pair(e.ZYSL, e.YYSL) },
+        { label: '近视力', value: pair(e.ZYJSL, e.YYJSL) },
+        { label: '视力评价', value: e.JSLPJ },
+        { label: '脊柱筛查', value: jz, wide: true, warn: !!jz && !jz.includes('未见异常') },
+      ];
+    },
+
+    /* 体测成绩：成绩取自档案 fitness_test，等级取自画像 fitness_dimensions */
+    fitnessRows() {
+      const ft = this.rawFitness;
+      const rows = [];
+      FITNESS_ITEMS.forEach((it) => {
+        const raw = String(ft[it.key] ?? '').trim();
+        if (!raw) return;
+        rows.push({
+          name: it.label,
+          value: it.unit && /^[\d.]+$/.test(raw) ? `${raw} ${it.unit}` : raw,
+          level: this.levelOf(it),
+        });
+      });
+      return rows;
+    },
+
+    /* 运动史 */
+    exerciseRows() {
+      const h = this.rawHealth.exercise_history || {};
+      const num = (n, suffix) => (n !== '' && n != null ? `${n} ${suffix}` : '');
+      return [
+        { label: '每周运动', value: num(h.weekly_frequency, '次') },
+        { label: '每次时长', value: num(h.typical_duration_min, '分钟') },
+        { label: '每日久坐', value: num(h.sedentary_hours_per_day, '小时') },
+        { label: '训练经历', value: h.training_experience || '' },
+        { label: '常做运动', value: (h.main_activities || []).join('、'), wide: true },
+      ];
+    },
+
+    /* 伤病史：兼容结构化条目与纯文本录入 */
+    injuryRows() {
+      return (this.rawHealth.injury_history || [])
+        .map((it) => {
+          if (typeof it === 'string') return it;
+          const head = `${it.site || ''}${it.type || ''}`;
+          const meta = [it.date, it.status].filter(Boolean).join('，');
+          return [head || it.note || '', meta && `（${meta}）`, head && it.note ? ` ${it.note}` : '']
+            .filter(Boolean).join('').trim();
+        })
+        .filter(Boolean);
     },
 
     validFrom() {
@@ -347,7 +433,9 @@ createApp({
     if (raw) {
       try {
         const data = JSON.parse(raw);
+        if (data.record) this.record = data.record;
         if (data.rx) this.applyResult(data.rx, data.profile);
+        if (!data.record && data.rx && data.rx.student_id) this.fetchRecord(data.rx.student_id);
       } catch (e) { /* 数据损坏则保持空态 */ }
     }
   },
@@ -369,6 +457,8 @@ createApp({
     async loadCached() {
       if (!this.isCached || this.generating) return;
       this.resetState();
+      // 原始档案单独拉取：报告头部的体检 / 体测 / 运动史 / 伤病史直接展示档案原文
+      this.fetchRecord(this.selectedId);
       try {
         const res = await fetch(`/api/v1/pregenerated/${this.selectedId}`);
         if (!res.ok) {
@@ -395,6 +485,14 @@ createApp({
 
     /* ---------- 实时生成 ---------- */
 
+    fetchRecord(studentId) {
+      if (!studentId) return;
+      fetch(`/api/v1/students/${studentId}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((rec) => { if (rec) this.record = rec; })
+        .catch(() => {});
+    },
+
     applyResult(rx, profile) {
       this.rx = rx;
       if (profile) this.profile = profile;
@@ -406,6 +504,7 @@ createApp({
     resetState() {
       this.rx = clone(EMPTY_RX);
       this.profile = clone(EMPTY_PROFILE);
+      this.record = null;
       this.hasData = false;
       this.genError = '';
       this.emergency = null;
@@ -422,6 +521,7 @@ createApp({
       this.stage = '正在读取健康档案…';
       try {
         const record = await (await fetch(`/api/v1/students/${this.selectedId}`)).json();
+        this.record = record;
         await this.streamGenerate(record);
       } catch (err) {
         this.genError = `生成失败：${err}`;
@@ -572,6 +672,7 @@ createApp({
       this.selectedId = saved.student_id;
       this.showForm = false;
       this.resetState();
+      this.record = saved;
       await this.streamGenerate(saved);
     },
 
@@ -713,6 +814,30 @@ createApp({
     },
 
     riskCls(level) { return { 高: 'high', 中: 'mid', 低: 'low' }[level] || 'mid'; },
+
+    /* 在画像 fitness_dimensions 的指标里找某个体测项目的等级 */
+    levelOf(item) {
+      const dims = (this.profile && this.profile.fitness_dimensions) || [];
+      for (const d of dims) {
+        for (const ind of d.indicators || []) {
+          const name = ind.name || '';
+          if (item.kw.some((k) => name.includes(k))
+              && !(item.exclude || []).some((k) => name.includes(k))) {
+            return ind.level || '';
+          }
+        }
+      }
+      return '';
+    },
+
+    levelCls(level) {
+      if (!level) return '';
+      if (level.includes('优')) return 'lv-exc';
+      if (level.includes('良')) return 'lv-good';
+      if (level.includes('不及格')) return 'lv-fail';
+      return 'lv-pass';
+    },
+
 
     parseDate(s) {
       if (!s) return null;
