@@ -13,7 +13,8 @@ from app.llm.provider import LLMError, extract_json, get_provider
 from app.prompts import profile as prompt
 from app.schemas.profile import ProfileResult, Versions
 from app.schemas.record import HealthRecord
-from app.services.data_loader import knowledge_cards
+from app.services import rag
+from app.services.data_loader import knowledge_cards, save_profile_result
 
 CST = timezone(timedelta(hours=8))
 
@@ -59,8 +60,9 @@ async def stream_profile(record: HealthRecord) -> AsyncIterator[tuple[str, Any]]
     或 ("error", 说明)。
     """
     provider = get_provider()
-    cards = knowledge_cards()
     record_view = record.to_prompt_dict()
+    # RAG：只把按学段与健康情况检索出的知识卡片注入 prompt，而非全量知识库
+    cards = await rag.retrieve_knowledge_for_profile(record_view)
 
     user_prompt = prompt.build_user_prompt(record_view, cards)
     last_error = ""
@@ -104,6 +106,13 @@ async def stream_profile(record: HealthRecord) -> AsyncIterator[tuple[str, Any]]
             result.safety.notes.append(
                 "以下知识卡片引用不存在，已移除：" + "、".join(dropped)
             )
+
+        try:
+            save_profile_result(result.model_dump())
+        except OSError:
+            # 落盘只是旁路留档，磁盘问题不应中断画像返回
+            pass
+
         yield ("result", result)
         return
 

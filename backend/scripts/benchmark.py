@@ -18,7 +18,8 @@ from app.config import settings  # noqa: E402
 from app.prompts import prescription as rx_prompt  # noqa: E402
 from app.prompts import profile as pf_prompt  # noqa: E402
 from app.schemas.record import HealthRecord  # noqa: E402
-from app.services.data_loader import find_student, knowledge_cards  # noqa: E402
+from app.services import rag  # noqa: E402
+from app.services.data_loader import find_student  # noqa: E402
 from app.services.prescription_service import filter_candidates  # noqa: E402
 
 STUDENT_ID = "BJ2025090314"
@@ -30,14 +31,15 @@ MATRIX = [
 ]
 
 
-def build_profile_prompt() -> tuple[str, str]:
+async def build_profile_prompt() -> tuple[str, str]:
     record = HealthRecord.model_validate(find_student(STUDENT_ID))
-    return pf_prompt.SYSTEM, pf_prompt.build_user_prompt(
-        record.to_prompt_dict(), knowledge_cards()
-    )
+    record_view = record.to_prompt_dict()
+    # 与 profile_service 保持一致：知识卡片走 RAG 检索，基准才能反映真实输入量
+    cards = await rag.retrieve_knowledge_for_profile(record_view)
+    return pf_prompt.SYSTEM, pf_prompt.build_user_prompt(record_view, cards)
 
 
-def build_prescription_prompt() -> tuple[str, str]:
+async def build_prescription_prompt() -> tuple[str, str]:
     """用一份固定的最小画像构造处方 prompt，避免每次基准都先跑一遍画像。"""
     record = HealthRecord.model_validate(find_student(STUDENT_ID))
     stub_profile = {
@@ -57,18 +59,22 @@ def build_prescription_prompt() -> tuple[str, str]:
             "intensity_ceiling": {"hr_max_percent": 70, "rpe_max": 6, "basis": "初学者"},
         },
     }
+    request = record.prescription_request.model_dump()
     candidates = filter_candidates(
         age=14,
         blocked_tags=stub_profile["safety"]["blocked_exercise_tags"],
         equipment=record.prescription_request.equipment,
         venue=record.prescription_request.venue,
     )
+    # 与 prescription_service 保持一致：候选排序截断 + 知识卡片检索
+    candidates = await rag.rank_exercises(candidates, stub_profile, request)
+    cards = await rag.retrieve_knowledge_for_prescription(stub_profile, request)
     return rx_prompt.SYSTEM, rx_prompt.build_user_prompt(
         profile=stub_profile,
-        request=record.prescription_request.model_dump(),
+        request=request,
         age=14,
         candidates=candidates,
-        knowledge_cards=knowledge_cards(),
+        knowledge_cards=cards,
     )
 
 
@@ -130,8 +136,8 @@ async def main() -> None:
         timeout=settings.timeout,
     )
 
-    pf_sys, pf_user = build_profile_prompt()
-    rx_sys, rx_user = build_prescription_prompt()
+    pf_sys, pf_user = await build_profile_prompt()
+    rx_sys, rx_user = await build_prescription_prompt()
     print(f"画像 prompt 约 {len(pf_sys) + len(pf_user)} 字符；"
           f"处方 prompt 约 {len(rx_sys) + len(rx_user)} 字符\n")
 

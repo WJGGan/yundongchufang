@@ -6,7 +6,7 @@
 <title>运动处方报告</title>
 <script src="https://unpkg.com/vue@3.4.38/dist/vue.global.prod.js"></script>
 <script src="https://unpkg.com/marked@12.0.2/marked.min.js"></script>
-<link rel="stylesheet" href="/static/report.css" />
+<link rel="stylesheet" href="/static/report.css?v=20261110" />
 </head>
 <body>
 <div id="report">
@@ -20,11 +20,11 @@
       </option>
     </select>
     <button class="tb-btn accent" :disabled="!isCached || generating" @click="loadCached"
-            :title="isCached ? '直接载入已生成的结果，无需等待模型' : '该学生暂无预生成结果'">
+            :title="isCached ? '直接载入已生成的结果，无需等待模型' : '该学生还没有生成过结果'">
       {{ isCached ? '★ 载入已有结果' : '无已有结果' }}
     </button>
     <button class="tb-btn primary" v-if="!generating" :disabled="!selectedId" @click="generate">
-      重新生成
+      {{ isCached ? '重新生成' : '生成处方' }}
     </button>
     <button class="tb-btn danger" v-else @click="stopGenerate">■ 停止生成</button>
     <button class="tb-btn" :class="{ active: showForm }" @click="showForm = !showForm">
@@ -563,6 +563,6 @@
   </div>
 </div>
 
-<script src="/static/report.js"></script>
+<script src="/static/report.js?v=20261110"></script>
 </body>
 </html>

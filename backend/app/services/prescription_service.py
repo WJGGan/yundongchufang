@@ -22,7 +22,13 @@ from app.schemas.prescription import (
 )
 from app.schemas.profile import ProfileResult
 from app.schemas.record import HealthRecord
-from app.services.data_loader import exercise_index, exercise_library, knowledge_cards
+from app.services import rag
+from app.services.data_loader import (
+    exercise_index,
+    exercise_library,
+    knowledge_cards,
+    save_prescription_result,
+)
 from app.services.profile_service import current_versions, now_iso
 
 DISCLAIMER = (
@@ -258,6 +264,7 @@ async def stream_prescription(
     """
     provider = get_provider()
     request = record.prescription_request.model_dump()
+    profile_dict = profile.model_dump()
     age = profile.basic.age
 
     candidates = filter_candidates(
@@ -266,14 +273,20 @@ async def stream_prescription(
         equipment=record.prescription_request.equipment,
         venue=record.prescription_request.venue,
     )
+    # 校验边界用安全硬过滤后的全集：候选截断只是 prompt 瘦身，
+    # 模型只要用了安全集合内的动作就不算违规
     candidate_ids = {item["id"] for item in candidates}
 
+    # RAG：候选动作按短板/目标/偏好排序截断，知识卡片检索相关子集
+    candidates = await rag.rank_exercises(candidates, profile_dict, request)
+    cards = await rag.retrieve_knowledge_for_prescription(profile_dict, request)
+
     base_prompt = prompt.build_user_prompt(
-        profile=profile.model_dump(),
+        profile=profile_dict,
         request=request,
         age=age,
         candidates=candidates,
-        knowledge_cards=knowledge_cards(),
+        knowledge_cards=cards,
     )
 
     user_prompt = base_prompt
@@ -350,6 +363,13 @@ async def stream_prescription(
                     action="建议由专业人员复核相关条目",
                 )
             )
+
+        try:
+            save_prescription_result(result.model_dump())
+        except OSError:
+            # 落盘只是旁路留档，磁盘问题不应中断处方返回
+            pass
+
         yield ("result", result)
         return
 

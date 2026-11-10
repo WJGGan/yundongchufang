@@ -10,6 +10,17 @@
       ],
       "port": 8077,
       "url": "http://localhost:8077"
+    },
+    {
+      "name": "yundong-chufang-mock",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "LLM_PROVIDER=mock",
+        "uv", "run", "--directory", "backend",
+        "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8078"
+      ],
+      "port": 8078,
+      "url": "http://localhost:8078"
     }
   ]
 }

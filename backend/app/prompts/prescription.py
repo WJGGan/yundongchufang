@@ -98,9 +98,10 @@ def build_user_prompt(
     )
     exercises = "\n".join(_format_exercise(item) for item in candidates)
     return (
-        "可引用的知识卡片：\n"
+        "可引用的知识卡片（已按该学生的短板、目标与健康情况检索出的相关子集）：\n"
         f"{cards}\n\n"
-        "可用动作候选集（已按该学生的安全约束、器械、场地与年龄过滤，只能从中选择）：\n"
+        "可用动作候选集（已按该学生的安全约束、器械、场地与年龄过滤，"
+        "并按短板与目标检索排序，只能从中选择）：\n"
         f"{exercises}\n\n"
         f"学生年龄：{age if age is not None else '未知'}\n\n"
         "学生体质画像与安全评估：\n"

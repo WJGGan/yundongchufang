@@ -36,6 +36,26 @@ class Settings:
     compat_api_key: str = os.getenv("OPENAI_COMPATIBLE_API_KEY", "EMPTY").strip()
     compat_model: str = os.getenv("OPENAI_COMPATIBLE_MODEL", "glm-4-9b-chat").strip()
 
+    # RAG 检索：知识卡片与动作候选不再全量拼入 prompt，改为按学生情况检索子集。
+    # 关闭开关即可回到全量拼接，便于 A/B 对比效果与耗时。
+    rag_enabled: bool = os.getenv("RAG_ENABLED", "true").strip().lower() == "true"
+    # 画像阶段与处方阶段分开配置：处方输出结构固定要引用营养/强度/框架等多领域卡片，
+    # 需要更大的子集；画像阶段只做评估引用，取量可以更小
+    rag_profile_top_k: int = int(os.getenv("RAG_PROFILE_TOP_K", "3"))
+    rag_knowledge_top_k: int = int(os.getenv("RAG_KNOWLEDGE_TOP_K", "12"))
+    rag_exercise_limit: int = int(os.getenv("RAG_EXERCISE_LIMIT", "30"))
+
+    # 嵌入服务，默认复用智谱 OpenAI 兼容端点与密钥；可独立指向其他服务
+    embedding_base_url: str = os.getenv(
+        "EMBEDDING_BASE_URL", "https://open.bigmodel.cn/api/paas/v4/"
+    ).strip()
+    embedding_api_key: str = (
+        os.getenv("EMBEDDING_API_KEY", "").strip() or os.getenv("ZHIPU_API_KEY", "").strip()
+    )
+    embedding_model: str = os.getenv("EMBEDDING_MODEL", "embedding-3").strip()
+    embedding_dimensions: int = int(os.getenv("EMBEDDING_DIMENSIONS", "1024"))
+    embedding_timeout: float = float(os.getenv("EMBEDDING_TIMEOUT", "15"))
+
     temperature: float = float(os.getenv("LLM_TEMPERATURE", "0.3"))
     max_tokens: int = int(os.getenv("LLM_MAX_TOKENS", "65536"))
     timeout: float = float(os.getenv("LLM_TIMEOUT", "300"))
@@ -46,7 +66,7 @@ class Settings:
     # 资产版本号，随每份画像与处方一并返回，便于定位是哪一版规则/库产出的结果
     exercise_library_version: str = "v1.0.0"
     knowledge_base_version: str = "v1.0.0"
-    prompt_version: str = "v1.0.0"
+    prompt_version: str = "v1.1.0"
 
     @property
     def active_model(self) -> str:

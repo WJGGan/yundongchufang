@@ -33,7 +33,18 @@ def health() -> dict[str, str]:
 
 
 if FRONTEND_DIR.is_dir():
-    app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
+
+    class NoCacheStaticFiles(StaticFiles):
+        """静态资源强制走协商缓存（304），避免浏览器用启发式缓存拿到旧 JS 配新 HTML。"""
+
+        def file_response(self, *args, **kwargs):  # type: ignore[override]
+            response = super().file_response(*args, **kwargs)
+            response.headers["Cache-Control"] = "no-cache"
+            return response
+
+    app.mount("/static", NoCacheStaticFiles(directory=FRONTEND_DIR), name="static")
+
+    _NO_CACHE = {"Cache-Control": "no-cache"}
 
     @app.get("/", include_in_schema=False)
     @app.get("/report", include_in_schema=False)
@@ -43,9 +54,9 @@ if FRONTEND_DIR.is_dir():
         作为默认入口：打开即呈现空白报告版式，选择档案生成后再填充内容。
         也支持从工作台经 sessionStorage 带数据跳转过来。
         """
-        return FileResponse(FRONTEND_DIR / "report.html")
+        return FileResponse(FRONTEND_DIR / "report.html", headers=_NO_CACHE)
 
     @app.get("/workbench", include_in_schema=False)
     def workbench() -> FileResponse:
         """调试工作台：分步查看画像、安全评估、处方原始结构与流式过程。"""
-        return FileResponse(FRONTEND_DIR / "index.html")
+        return FileResponse(FRONTEND_DIR / "index.html", headers=_NO_CACHE)

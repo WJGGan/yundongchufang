@@ -3,4 +3,8 @@ __pycache__/
 .venv/
 .env
 .DS_Store
+.~*
 backend/app/data/custom_students/
+backend/app/data/generated/
+backend/app/data/profiles/
+backend/app/data/prescriptions/

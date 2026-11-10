@@ -16,7 +16,7 @@ from app.config import settings
 from app.llm.provider import LLMError
 from app.schemas.profile import ProfileResult
 from app.schemas.record import HealthRecord
-from app.services import prescription_service, profile_service
+from app.services import prescription_service, profile_service, rag
 from app.services.data_loader import (
     all_students,
     exercise_index,
@@ -24,9 +24,10 @@ from app.services.data_loader import (
     find_student,
     knowledge_base,
     knowledge_cards,
-    load_pregenerated,
-    pregenerated_ids,
+    load_saved_result,
+    record_generated_result,
     save_custom_student,
+    saved_result_ids,
 )
 from app.services.safety import check_emergency
 
@@ -79,6 +80,7 @@ def get_meta() -> dict[str, Any]:
         "knowledge_card_count": len(knowledge_cards()),
         "student_count": len(all_students()),
         "contraindication_tags": exercise_library()["contraindication_tag_vocabulary"],
+        "rag": rag.status(),
     }
 
 
@@ -149,11 +151,11 @@ def get_knowledge(card_id: str) -> dict[str, Any]:
 
 
 @router.get("/pregenerated")
-def list_pregenerated() -> dict[str, Any]:
-    """已预生成结果的学生清单，供前端标出哪些可以秒开。"""
+def list_saved_results() -> dict[str, Any]:
+    """已有生成结果可直接加载的学生清单（线上生成的快照 ∪ 脚本预生成）。"""
     items = []
-    for student_id in pregenerated_ids():
-        data = load_pregenerated(student_id)
+    for student_id in saved_result_ids():
+        data = load_saved_result(student_id)
         if data is None:
             continue
         items.append(
@@ -173,12 +175,12 @@ def list_pregenerated() -> dict[str, Any]:
 
 
 @router.get("/pregenerated/{student_id}")
-def get_pregenerated(student_id: str) -> dict[str, Any]:
-    """读取预生成的画像与处方，不调用模型。"""
-    data = load_pregenerated(student_id)
+def get_saved_result(student_id: str) -> dict[str, Any]:
+    """读取已保存的画像与处方（线上生成或预生成），不调用模型。"""
+    data = load_saved_result(student_id)
     if data is None:
         raise HTTPException(
-            status_code=404, detail=f"{student_id} 尚无预生成结果，请点「生成处方」实时生成"
+            status_code=404, detail=f"{student_id} 还没有生成过结果，请点「生成处方」实时生成"
         )
     return data
 
@@ -190,6 +192,9 @@ async def analyze_profile(body: ProfileRequest) -> dict[str, Any]:
 
     emergency = check_emergency(record_dict)
     if emergency is not None:
+        record_generated_result(
+            body.record.student_id, name=body.record.name, emergency=emergency.model_dump()
+        )
         return {"emergency": emergency.model_dump(), "profile": None}
 
     try:
@@ -197,6 +202,9 @@ async def analyze_profile(body: ProfileRequest) -> dict[str, Any]:
     except LLMError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
+    record_generated_result(
+        body.record.student_id, name=body.record.name, profile=profile.model_dump()
+    )
     return {"emergency": None, "profile": profile.model_dump()}
 
 
@@ -226,6 +234,9 @@ async def analyze_profile_stream(body: ProfileRequest) -> StreamingResponse:
 
         emergency = check_emergency(record_dict)
         if emergency is not None:
+            record_generated_result(
+                body.record.student_id, name=body.record.name, emergency=emergency.model_dump()
+            )
             yield _sse("emergency", emergency.model_dump())
             yield _sse("done", {"ok": False})
             return
@@ -240,6 +251,11 @@ async def analyze_profile_stream(body: ProfileRequest) -> StreamingResponse:
                 elif kind == "retry":
                     yield _sse("retry", {"problems": payload, "phase": "profile"})
                 elif kind == "result":
+                    record_generated_result(
+                        body.record.student_id,
+                        name=body.record.name,
+                        profile=payload.model_dump(),
+                    )
                     yield _sse("result", payload.model_dump())
                     yield _sse("done", {"ok": True})
                     return
@@ -275,6 +291,9 @@ async def generate_prescription(body: PrescriptionRequestBody) -> StreamingRespo
 
         emergency = check_emergency(record_dict)
         if emergency is not None:
+            record_generated_result(
+                body.record.student_id, name=body.record.name, emergency=emergency.model_dump()
+            )
             yield _sse("emergency", emergency.model_dump())
             yield _sse("done", {"ok": False})
             return
@@ -306,6 +325,11 @@ async def generate_prescription(body: PrescriptionRequestBody) -> StreamingRespo
                 return
             yield _sse("profile", profile.model_dump())
 
+        # 画像一确定就先保存一次：即使后续处方失败或被安全拦截，画像也可再次加载
+        record_generated_result(
+            body.record.student_id, name=body.record.name, profile=profile.model_dump()
+        )
+
         if not profile.safety.can_generate_prescription:
             yield _sse(
                 "blocked",
@@ -331,6 +355,12 @@ async def generate_prescription(body: PrescriptionRequestBody) -> StreamingRespo
                 elif kind == "retry":
                     yield _sse("retry", {"problems": payload, "phase": "prescription"})
                 elif kind == "result":
+                    record_generated_result(
+                        body.record.student_id,
+                        name=body.record.name,
+                        profile=profile.model_dump(),
+                        prescription=payload.model_dump(),
+                    )
                     yield _sse("result", payload.model_dump())
                     yield _sse("done", {"ok": True})
                     return

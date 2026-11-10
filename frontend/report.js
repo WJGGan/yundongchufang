@@ -407,6 +407,16 @@ createApp({
     },
   },
 
+  watch: {
+    /* 切换学生：有已生成结果就直接载入，没有就清空版面等待生成。
+       录入新档案或工作台跳转时 selectedId 由代码设置，由各自流程处理，这里跳过 */
+    selectedId(id) {
+      if (!id || this.generating) return;
+      if (this.hasData && this.rx.student_id === id) return;
+      this.onStudentChange();
+    },
+  },
+
   mounted() {
     // 动作库始终加载：生成前用于空态，生成后用于回填动作要点
     fetch('/api/v1/exercises')
@@ -418,15 +428,18 @@ createApp({
       })
       .catch(() => {});
 
-    fetch('/api/v1/students')
+    // 学生列表与已有结果清单都到位后再定位默认学生，
+    // 这样首个学生有已生成结果时能直接自动载入
+    const studentsReady = fetch('/api/v1/students')
       .then((r) => r.json())
-      .then((list) => {
-        this.students = list;
-        if (!this.selectedId && list.length) this.selectedId = list[0].student_id;
-      })
+      .then((list) => { this.students = list; })
       .catch(() => {});
 
-    this.refreshCached();
+    Promise.all([studentsReady, this.refreshCached()]).then(() => {
+      if (!this.selectedId && this.students.length) {
+        this.selectedId = this.students[0].student_id;
+      }
+    });
 
     // 从工作台带数据跳转过来时直接渲染
     const raw = sessionStorage.getItem('rx_report');
@@ -435,13 +448,20 @@ createApp({
         const data = JSON.parse(raw);
         if (data.record) this.record = data.record;
         if (data.rx) this.applyResult(data.rx, data.profile);
+        if (data.rx && data.rx.student_id) this.selectedId = data.rx.student_id;
         if (!data.record && data.rx && data.rx.student_id) this.fetchRecord(data.rx.student_id);
       } catch (e) { /* 数据损坏则保持空态 */ }
     }
   },
 
   methods: {
-    /* ---------- 预生成结果 ---------- */
+    /* ---------- 切换学生 / 预生成结果 ---------- */
+
+    onStudentChange() {
+      this.showForm = false;
+      if (this.isCached) this.loadCached();
+      else this.resetState();
+    },
 
     refreshCached() {
       return fetch('/api/v1/pregenerated')
@@ -456,6 +476,8 @@ createApp({
 
     async loadCached() {
       if (!this.isCached || this.generating) return;
+      // 报告版面挂在 v-if="!showForm" 下：先收起录入表单，结果才看得见
+      this.showForm = false;
       this.resetState();
       // 原始档案单独拉取：报告头部的体检 / 体测 / 运动史 / 伤病史直接展示档案原文
       this.fetchRecord(this.selectedId);
@@ -475,8 +497,11 @@ createApp({
           this.applyResult(data.prescription, data.profile);
           const when = (data.generated_at || '').slice(0, 16).replace('T', ' ');
           this.source = `已有结果 · ${data.model || ''} · ${when}`;
+        } else if (data.profile) {
+          // 只生成过画像（如在调试工作台单独跑了档案理解）：画像照常展示
+          this.genError = '该学生只生成过体质画像，尚无处方，可点「重新生成」补齐';
         } else if (!data.emergency && !data.blocked) {
-          this.genError = '该学生的预生成结果不含处方内容';
+          this.genError = '该学生的已有结果不含处方内容';
         }
       } catch (err) {
         this.genError = `载入失败：${err}`;
@@ -516,6 +541,8 @@ createApp({
 
     async generate() {
       if (!this.selectedId || this.generating) return;
+      // 报告版面挂在 v-if="!showForm" 下：先收起录入表单，结果才看得见
+      this.showForm = false;
       this.resetState();
       this.generating = true;
       this.stage = '正在读取健康档案…';
@@ -564,6 +591,8 @@ createApp({
         this.generating = false;
         this.stage = '';
         this.abortCtrl = null;
+        // 生成结果已在后端落盘：刷新 ★ 标记与「载入已有结果」按钮状态
+        this.refreshCached();
       }
     },
 

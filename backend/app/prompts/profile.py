@@ -66,7 +66,7 @@ def build_user_prompt(record: dict[str, Any], knowledge_cards: list[dict[str, An
         for card in knowledge_cards
     )
     return (
-        "可引用的知识卡片：\n"
+        "可引用的知识卡片（已按该学生的学段与健康情况检索出的相关子集）：\n"
         f"{cards}\n\n"
         "待评估的学生健康档案：\n"
         f"{json.dumps(record, ensure_ascii=False, indent=2)}\n\n"
