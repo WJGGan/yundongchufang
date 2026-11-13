@@ -351,14 +351,21 @@ def _pick_with_quota(
     ranked: list[dict[str, Any]],
     quota: dict[str, int],
     top_k: int,
+    pinned_ids: set[str] | None = None,
 ) -> list[dict[str, Any]]:
-    """先按领域配额保底（域内取相似度最高者），再按总分补满名额。"""
+    """先放强制入选项，再按领域配额保底（域内取相似度最高者），最后按总分补满。"""
     picked: list[dict[str, Any]] = []
     picked_ids: set[str] = set()
-    for domain, count in quota.items():
-        for card in [item for item in ranked if item.get("domain") == domain][:count]:
+    for card in ranked:
+        if pinned_ids and card["id"] in pinned_ids:
             picked.append(card)
             picked_ids.add(card["id"])
+    for domain, count in quota.items():
+        taken = sum(1 for item in picked if item.get("domain") == domain)
+        for card in [item for item in ranked if item.get("domain") == domain][: max(count - taken, 0)]:
+            if card["id"] not in picked_ids:
+                picked.append(card)
+                picked_ids.add(card["id"])
     for card in ranked:
         if len(picked) >= top_k:
             break
@@ -377,6 +384,25 @@ def _health_quota(has_chronic: bool, has_injury: bool) -> dict[str, int]:
     if has_injury:
         quota["损伤与恢复"] = 1
     return quota
+
+
+def _goal_pinned_ids(pool: list[dict[str, Any]], goals: list[Any]) -> set[str]:
+    """目标点名的体测专项卡强制入选。
+
+    如目标「体测专项提升:50米跑」必须召回《50米跑训练方法》；语义排序下
+    同域其他卡（1000米、立定跳远等）可能得分更高而把点名卡挤出名额。
+    """
+    pinned: set[str] = set()
+    for goal in goals or []:
+        token = str(goal).replace("：", ":").split(":")[-1].strip()
+        if not token:
+            continue
+        for card in pool:
+            if card.get("domain") == "体测专项" and (
+                token in card["title"] or card["title"] in token
+            ):
+                pinned.add(card["id"])
+    return pinned
 
 
 async def retrieve_knowledge_for_prescription(
@@ -408,7 +434,8 @@ async def retrieve_knowledge_for_prescription(
             has_injury="伤病史" in focus_types,
         )
     )
-    return _pick_with_quota(ranked, quota, top_k)
+    pinned = _goal_pinned_ids(pool, request.get("goals") or [])
+    return _pick_with_quota(ranked, quota, top_k, pinned_ids=pinned)
 
 
 # 体质短板 → 动作类别的结构化加权，使排序不完全依赖嵌入质量

@@ -108,7 +108,9 @@ async def stream_profile(record: HealthRecord) -> AsyncIterator[tuple[str, Any]]
             )
 
         try:
-            save_profile_result(result.model_dump())
+            # mock 占位结果不落盘，避免污染 data/profiles 的真实画像留档
+            if provider.name != "mock":
+                save_profile_result(result.model_dump())
         except OSError:
             # 落盘只是旁路留档，磁盘问题不应中断画像返回
             pass
