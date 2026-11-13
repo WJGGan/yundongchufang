@@ -1,0 +1,529 @@
+{
+  "version": "v2.1.0",
+  "purpose": "体质画像理解能力注入：输入原始档案（不解释字段含义），输出自然语言理解，不约束输出格式",
+  "sample_count": 20,
+  "samples": [
+    {
+      "messages": [
+        {
+          "role": "system",
+          "content": "你是青少年运动健康领域的体质评估专家。下面是一名中国中小学生的健康档案，包含体检数据、体质测试成绩和健康扩展信息。请读懂这份档案，用一段自然的话说出你对这名学生体质状况的理解。"
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"physical_exam\": {\n    \"YEARSTART\": \"2025\",\n    \"YEAREND\": \"2026\",\n    \"XB\": \"男\",\n    \"NL\": \"14\",\n    \"SG\": \"168.5\",\n    \"TZ\": \"72.3\",\n    \"FHL\": \"2680\",\n    \"ZYSL\": \"4.6\",\n    \"YYSL\": \"4.7\",\n    \"ZYJSL\": \"5.0\",\n    \"YYJSL\": \"5.0\",\n    \"JSLPJ\": \"轻度近视\",\n    \"JZ\": \"未见异常\",\n    \"UP_TIME\": \"2025-09-18\",\n    \"SCHOOL_GRADE\": \"初二\"\n  },\n  \"fitness_test\": {\n    \"NJ\": \"初二\",\n    \"XB\": \"男\",\n    \"SGCJ\": \"168.5\",\n    \"TZCJ\": \"72.3\",\n    \"FHLCJ\": \"2680\",\n    \"WSMCJ\": \"8.9\",\n    \"LDTYCJ\": \"185\",\n    \"ZWTQQCJ\": \"4.2\",\n    \"WSMWFPCJ\": \"\",\n    \"YFZTSCJ\": \"\",\n    \"BBMCJ\": \"\",\n    \"YWQZCJ\": \"\",\n    \"YQMCJ\": \"4分32秒\",\n    \"YTXSCJ\": \"3\"\n  },\n  \"health_profile\": {\n    \"chronic_conditions\": [\n      \"哮喘（轻度间歇性，近一年未急性发作）\"\n    ],\n    \"medications\": [\n      \"沙丁胺醇气雾剂（按需使用）\"\n    ],\n    \"injury_history\": [\n      {\n        \"site\": \"右踝\",\n        \"type\": \"韧带扭伤\",\n        \"date\": \"2025-04\",\n        \"status\": \"已恢复\",\n        \"note\": \"剧烈变向时偶有酸胀\"\n      }\n    ],\n    \"recent_symptoms\": [],\n    \"family_history\": [\n      \"父亲高血压\"\n    ],\n    \"vitals\": {\n      \"resting_heart_rate\": \"\",\n      \"blood_pressure\": \"\"\n    },\n    \"exercise_history\": {\n      \"weekly_frequency\": 2,\n      \"typical_duration_min\": 40,\n      \"main_activities\": [\n        \"校内体育课\",\n        \"周末骑行\"\n      ],\n      \"training_experience\": \"无系统训练经历\",\n      \"sedentary_hours_per_day\": 9\n    },\n    \"lifestyle\": {\n      \"sleep_hours\": 7.0,\n      \"screen_time_hours\": 3.5,\n      \"breakfast_regular\": true\n    }\n  }\n}"
+        },
+        {
+          "role": "assistant",
+          "content": "这是一名14岁的初二男生，身高168.5cm、体重72.3kg，BMI约25.4，按中国同龄男生的界值已属于超重，身体成分是他目前最突出的问题。心肺方面，肺活量2680ml对14岁男生来说明显偏低，1000米4分32秒大致在及格线附近，心肺耐力整体偏弱；他还有轻度间歇性哮喘（近一年未发作，按需使用沙丁胺醇气雾剂），哮喘控制良好不妨碍运动，但和偏弱的心肺功能放在一起看，更说明有氧能力需要温和渐进地改善。力量与爆发方面，引体向上只能完成3次，上肢力量处于及格边缘；立定跳远185cm叠加超重的体重，相对下肢爆发力也偏弱；50米8.9秒属于中游水平。坐位体前屈只有4.2cm，明显低于初二男生的及格水平，柔韧性是仅次于体重和心肺的短板。体测表里往返跑、跳绳、800米、仰卧起坐为空，这是初二男生正常的项目设置，不是数据缺失。健康方面还要留意三点：右踝半年前韧带扭伤虽标注已恢复，但剧烈变向仍偶有酸胀，说明踝关节稳定性没有完全恢复，跳跃和急停变向类负荷要谨慎；父亲有高血压，而档案里恰好缺本人的血压和静息心率，叠加超重，运动强度定档前最好补测；双眼轻度近视（远视力4.6/4.7）对球类活动的空间判断略有影响。生活方式上，他每周只运动2次、每天久坐约9小时、睡眠仅7小时（初中生建议9小时），都是维持现状会继续变差的因素，好在他有周末骑行的习惯和规律早餐。总体来看，这是一个超重、心肺与柔韧性偏弱、带哮喘史和陈旧踝伤的\"运动不足型\"初中男生，综合体质在及格偏下水平，改善重点依次是体重管理、心肺耐力和柔韧性，所有安排都应兼顾哮喘诱发风险与右踝安全。"
+        }
+      ],
+      "meta": {
+        "student_id": "BJ2025090314",
+        "case_tags": [
+          "初中",
+          "男",
+          "超重",
+          "哮喘",
+          "陈旧踝伤"
+        ],
+        "source": "pregenerated(glm-5.3)+待专家修订"
+      }
+    },
+    {
+      "messages": [
+        {
+          "role": "system",
+          "content": "你是青少年运动健康领域的体质评估专家。下面是一名中国中小学生的健康档案，包含体检数据、体质测试成绩和健康扩展信息。请读懂这份档案，用一段自然的话说出你对这名学生体质状况的理解。"
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"physical_exam\": {\n    \"YEARSTART\": \"2025\",\n    \"YEAREND\": \"2026\",\n    \"XB\": \"女\",\n    \"NL\": \"16\",\n    \"SG\": \"162.0\",\n    \"TZ\": \"48.5\",\n    \"FHL\": \"2600\",\n    \"ZYSL\": \"4.9\",\n    \"YYSL\": \"5.0\",\n    \"ZYJSL\": \"5.0\",\n    \"YYJSL\": \"5.0\",\n    \"JSLPJ\": \"正常\",\n    \"JZ\": \"未见异常\",\n    \"UP_TIME\": \"2025-09-22\",\n    \"SCHOOL_GRADE\": \"高一\"\n  },\n  \"fitness_test\": {\n    \"NJ\": \"高一\",\n    \"XB\": \"女\",\n    \"SGCJ\": \"162.0\",\n    \"TZCJ\": \"48.5\",\n    \"FHLCJ\": \"2600\",\n    \"WSMCJ\": \"9.8\",\n    \"LDTYCJ\": \"165\",\n    \"ZWTQQCJ\": \"19.0\",\n    \"WSMWFPCJ\": \"\",\n    \"YFZTSCJ\": \"\",\n    \"BBMCJ\": \"4分25秒\",\n    \"YWQZCJ\": \"32\",\n    \"YQMCJ\": \"\",\n    \"YTXSCJ\": \"\"\n  },\n  \"health_profile\": {\n    \"chronic_conditions\": [],\n    \"medications\": [],\n    \"injury_history\": [],\n    \"recent_symptoms\": [\n      \"跑步 400 米后明显气促，需停下步行\"\n    ],\n    \"family_history\": [],\n    \"vitals\": {\n      \"resting_heart_rate\": \"78\",\n      \"blood_pressure\": \"105/68\"\n    },\n    \"exercise_history\": {\n      \"weekly_frequency\": 1,\n      \"typical_duration_min\": 45,\n      \"main_activities\": [\n        \"校内体育课\"\n      ],\n      \"training_experience\": \"小学学过三年舞蹈，近三年无规律运动\",\n      \"sedentary_hours_per_day\": 10\n    },\n    \"lifestyle\": {\n      \"sleep_hours\": 7.5,\n      \"screen_time_hours\": 2.0,\n      \"breakfast_regular\": false\n    }\n  }\n}"
+        },
+        {
+          "role": "assistant",
+          "content": "这是一名16岁的高一女生，身高162.0cm、体重48.5kg，BMI约18.5，在同龄女生的正常范围内偏瘦一侧。她最值得注意的是主观症状与客观数据的互相印证：档案记录跑400米后就明显气促需要停下步行，而肺活量2600ml对高一女生只算中等，800米4分25秒也只在及格区间，加上近三年无规律运动、每周只有一次体育课、每天久坐约10小时，心肺耐力偏弱的判断是一致的；好在静息心率78、血压105/68都正常，没有慢性病和伤病史，属于典型的\"缺练\"而非病理问题。她的亮点是柔韧性：坐位体前屈19.0cm在高一女生中处于良好水平，应与小学三年舞蹈基础有关；立定跳远165cm、50米9.8秒、仰卧起坐32次都在及格偏上的中游。体测表中1000米、引体向上为空是女生的项目设置使然，跳绳与往返跑为空也是高中学段的正常安排。生活方式上睡眠7.5小时略低于高中生8小时的建议，早餐不规律值得纠正。总体看，这是一名身体成分正常、柔韧突出、心肺明显偏弱的高一女生，改善的核心是把有氧运动量从几乎为零逐步建立起来，起点强度要低，以能持续说话的配速为宜，她喜欢的舞蹈和羽毛球都可以作为切入点。"
+        }
+      ],
+      "meta": {
+        "student_id": "BJ2025070221",
+        "case_tags": [
+          "高中",
+          "女",
+          "心肺偏弱",
+          "柔韧优势",
+          "运动不足"
+        ],
+        "source": "pregenerated(claude-fable-5)+待专家修订"
+      }
+    },
+    {
+      "messages": [
+        {
+          "role": "system",
+          "content": "你是青少年运动健康领域的体质评估专家。下面是一名中国中小学生的健康档案，包含体检数据、体质测试成绩和健康扩展信息。请读懂这份档案，用一段自然的话说出你对这名学生体质状况的理解。"
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"physical_exam\": {\n    \"YEARSTART\": \"2025\",\n    \"YEAREND\": \"2026\",\n    \"XB\": \"男\",\n    \"NL\": \"11\",\n    \"SG\": \"145.0\",\n    \"TZ\": \"38.2\",\n    \"FHL\": \"1950\",\n    \"ZYSL\": \"5.0\",\n    \"YYSL\": \"5.0\",\n    \"ZYJSL\": \"5.0\",\n    \"YYJSL\": \"5.0\",\n    \"JSLPJ\": \"正常\",\n    \"JZ\": \"未见异常\",\n    \"UP_TIME\": \"2025-09-12\",\n    \"SCHOOL_GRADE\": \"小学五年级\"\n  },\n  \"fitness_test\": {\n    \"NJ\": \"小学五年级\",\n    \"XB\": \"男\",\n    \"SGCJ\": \"145.0\",\n    \"TZCJ\": \"38.2\",\n    \"FHLCJ\": \"1950\",\n    \"WSMCJ\": \"9.5\",\n    \"LDTYCJ\": \"\",\n    \"ZWTQQCJ\": \"7.0\",\n    \"WSMWFPCJ\": \"110.0\",\n    \"YFZTSCJ\": \"125\",\n    \"BBMCJ\": \"\",\n    \"YWQZCJ\": \"32\",\n    \"YQMCJ\": \"\",\n    \"YTXSCJ\": \"\"\n  },\n  \"health_profile\": {\n    \"chronic_conditions\": [],\n    \"medications\": [],\n    \"injury_history\": [],\n    \"recent_symptoms\": [],\n    \"family_history\": [\n      \"父亲身高 172cm\",\n      \"母亲身高 160cm\"\n    ],\n    \"vitals\": {\n      \"resting_heart_rate\": \"82\",\n      \"blood_pressure\": \"100/62\"\n    },\n    \"exercise_history\": {\n      \"weekly_frequency\": 3,\n      \"typical_duration_min\": 50,\n      \"main_activities\": [\n        \"校内体育课\",\n        \"课间跳绳\",\n        \"周末足球\"\n      ],\n      \"training_experience\": \"校足球兴趣班一年\",\n      \"sedentary_hours_per_day\": 6\n    },\n    \"lifestyle\": {\n      \"sleep_hours\": 9.5,\n      \"screen_time_hours\": 1.5,\n      \"breakfast_regular\": true\n    }\n  }\n}"
+        },
+        {
+          "role": "assistant",
+          "content": "这是一名11岁的小学五年级男生，身高145.0cm、体重38.2kg，BMI约18.2，在正常范围。整体是一份比较健康的档案：没有慢性病、用药和伤病史，静息心率82、血压100/62正常，每周运动3次、有一年校足球兴趣班经历，睡眠9.5小时、久坐6小时、屏幕1.5小时，生活方式在同龄人中相当好。体测方面，一分钟跳绳125次对五年级男生接近优秀，是明显强项；一分钟仰卧起坐32次大约在良好水平，核心力量不错；50米×8往返跑110秒、50米跑9.5秒、坐位体前屈7.0cm都处于及格到良好之间的中游；相对最弱的是肺活量，1950ml对11岁男生只在及格上下。立定跳远、800米、1000米、引体向上为空属于小学学段不设这些项目的正常情况，不是缺测。家族史栏记录的是父亲172cm、母亲160cm的身高信息，结合他\"身高促进与骨骼发育\"的目标，遗传潜力中等，运动端可以多安排跳跃与悬垂牵拉类练习并保证睡眠。总体而言，这是一个发育正常、运动习惯良好、正处于速度协调敏感期的五年级男生，体质中等偏上，突破点在心肺（肺活量），同时继续发挥跳绳和足球的优势。"
+        }
+      ],
+      "meta": {
+        "student_id": "BJ2025050137",
+        "case_tags": [
+          "小学",
+          "男",
+          "发育正常",
+          "运动习惯良好"
+        ],
+        "source": "pregenerated(claude-fable-5)+待专家修订"
+      }
+    },
+    {
+      "messages": [
+        {
+          "role": "system",
+          "content": "你是青少年运动健康领域的体质评估专家。下面是一名中国中小学生的健康档案，包含体检数据、体质测试成绩和健康扩展信息。请读懂这份档案，用一段自然的话说出你对这名学生体质状况的理解。"
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"physical_exam\": {\n    \"YEARSTART\": \"2025\",\n    \"YEAREND\": \"2026\",\n    \"XB\": \"女\",\n    \"NL\": \"15\",\n    \"SG\": \"160.5\",\n    \"TZ\": \"50.0\",\n    \"FHL\": \"2750\",\n    \"ZYSL\": \"4.8\",\n    \"YYSL\": \"4.6\",\n    \"ZYJSL\": \"5.0\",\n    \"YYJSL\": \"5.0\",\n    \"JSLPJ\": \"轻度近视\",\n    \"JZ\": \"疑似胸段侧弯，建议专科复查\",\n    \"UP_TIME\": \"2025-09-20\",\n    \"SCHOOL_GRADE\": \"初三\"\n  },\n  \"fitness_test\": {\n    \"NJ\": \"初三\",\n    \"XB\": \"女\",\n    \"SGCJ\": \"160.5\",\n    \"TZCJ\": \"50.0\",\n    \"FHLCJ\": \"2750\",\n    \"WSMCJ\": \"9.5\",\n    \"LDTYCJ\": \"170\",\n    \"ZWTQQCJ\": \"14.0\",\n    \"WSMWFPCJ\": \"\",\n    \"YFZTSCJ\": \"\",\n    \"BBMCJ\": \"4分10秒\",\n    \"YWQZCJ\": \"35\",\n    \"YQMCJ\": \"\",\n    \"YTXSCJ\": \"\"\n  },\n  \"health_profile\": {\n    \"chronic_conditions\": [],\n    \"medications\": [],\n    \"injury_history\": [],\n    \"recent_symptoms\": [\n      \"长时间坐姿后右侧肩背酸痛\"\n    ],\n    \"family_history\": [],\n    \"vitals\": {\n      \"resting_heart_rate\": \"74\",\n      \"blood_pressure\": \"108/70\"\n    },\n    \"exercise_history\": {\n      \"weekly_frequency\": 2,\n      \"typical_duration_min\": 45,\n      \"main_activities\": [\n        \"校内体育课\",\n        \"课间操\"\n      ],\n      \"training_experience\": \"无系统训练经历\",\n      \"sedentary_hours_per_day\": 11\n    },\n    \"lifestyle\": {\n      \"sleep_hours\": 7.0,\n      \"screen_time_hours\": 2.0,\n      \"breakfast_regular\": true\n    }\n  }\n}"
+        },
+        {
+          "role": "assistant",
+          "content": "这是一名15岁的初三女生，身高160.5cm、体重50.0kg，BMI约19.4，属正常范围。这份档案里最需要优先对待的不是体测成绩，而是体检的脊柱栏：筛查提示疑似胸段侧弯、建议专科复查，而她近期恰好有长时间坐姿后右侧肩背酸痛的症状，每天久坐长达11小时，三者相互印证，应尽快完成专科确诊；在明确分级之前，运动安排要回避单侧负重、不对称的投掷挥拍类大量练习和脊柱高冲击动作，多做对称性运动（她喜欢的游泳正合适）与核心稳定练习。体测本身并不差：800米4分10秒、仰卧起坐35次在初三女生中处于及格偏上，立定跳远170cm接近良好，坐位体前屈14.0cm、肺活量2750ml也接近良好，50米9.5秒中等，五个维度没有突出短板，整体可评中等偏上。跳绳、往返跑、1000米、引体向上为空是初中女生正常的项目设置。其他需要留意的还有轻度近视（远视力4.8/4.6），以及睡眠7小时明显低于初中生9小时的建议——对一个初三学生来说，久坐、睡眠不足与肩背症状很可能是一条因果链。总体看，这是一名体质中等偏上、但带着疑似脊柱侧弯这一关键待确诊问题的初三女生，运动干预价值大，前提是先把脊柱问题查清楚。"
+        }
+      ],
+      "meta": {
+        "student_id": "BJ2025080412",
+        "case_tags": [
+          "初中",
+          "女",
+          "疑似脊柱侧弯",
+          "久坐"
+        ],
+        "source": "pregenerated(claude-fable-5)+待专家修订"
+      }
+    },
+    {
+      "messages": [
+        {
+          "role": "system",
+          "content": "你是青少年运动健康领域的体质评估专家。下面是一名中国中小学生的健康档案，包含体检数据、体质测试成绩和健康扩展信息。请读懂这份档案，用一段自然的话说出你对这名学生体质状况的理解。"
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"physical_exam\": {\n    \"YEARSTART\": \"2025\",\n    \"YEAREND\": \"2026\",\n    \"XB\": \"男\",\n    \"NL\": \"17\",\n    \"SG\": \"175.0\",\n    \"TZ\": \"68.0\",\n    \"FHL\": \"3600\",\n    \"ZYSL\": \"4.5\",\n    \"YYSL\": \"4.5\",\n    \"ZYJSL\": \"5.0\",\n    \"YYJSL\": \"5.0\",\n    \"JSLPJ\": \"中度近视\",\n    \"JZ\": \"未见异常\",\n    \"UP_TIME\": \"2025-09-25\",\n    \"SCHOOL_GRADE\": \"高二\"\n  },\n  \"fitness_test\": {\n    \"NJ\": \"高二\",\n    \"XB\": \"男\",\n    \"SGCJ\": \"175.0\",\n    \"TZCJ\": \"68.0\",\n    \"FHLCJ\": \"3600\",\n    \"WSMCJ\": \"7.6\",\n    \"LDTYCJ\": \"225\",\n    \"ZWTQQCJ\": \"9.0\",\n    \"WSMWFPCJ\": \"\",\n    \"YFZTSCJ\": \"\",\n    \"BBMCJ\": \"\",\n    \"YWQZCJ\": \"\",\n    \"YQMCJ\": \"4分00秒\",\n    \"YTXSCJ\": \"2\"\n  },\n  \"health_profile\": {\n    \"chronic_conditions\": [],\n    \"medications\": [],\n    \"injury_history\": [\n      {\n        \"site\": \"右肩\",\n        \"type\": \"肩部撞击感\",\n        \"date\": \"2025-06\",\n        \"status\": \"偶有不适\",\n        \"note\": \"过顶推举时右肩前侧疼痛\"\n      }\n    ],\n    \"recent_symptoms\": [],\n    \"family_history\": [],\n    \"vitals\": {\n      \"resting_heart_rate\": \"66\",\n      \"blood_pressure\": \"118/74\"\n    },\n    \"exercise_history\": {\n      \"weekly_frequency\": 3,\n      \"typical_duration_min\": 60,\n      \"main_activities\": [\n        \"篮球\",\n        \"校内体育课\"\n      ],\n      \"training_experience\": \"自行练习俯卧撑与跑步一年，无专业指导\",\n      \"sedentary_hours_per_day\": 9\n    },\n    \"lifestyle\": {\n      \"sleep_hours\": 7.0,\n      \"screen_time_hours\": 2.5,\n      \"breakfast_regular\": true\n    }\n  }\n}"
+        },
+        {
+          "role": "assistant",
+          "content": "这是一名17岁的高二男生，身高175.0cm、体重68.0kg，BMI约22.2，身体成分正常。他的体质结构很不均衡：速度和下肢爆发不错——50米7.6秒对高二男生已接近良好，立定跳远225cm处于及格偏上；但引体向上只能完成2次，距离高二男生的及格水平（通常在8个上下）差距很大，上肢拉力是全档案最突出的短板，而且这与他的伤病记录直接相关：右肩在过顶推举时前侧疼痛、偶有撞击感，很可能与一年来无专业指导的自练方式有关。在肩痛评估清楚之前，应回避过顶推举类动作，先做肩胛稳定与肩袖强化，引体向上目标要在肩部无痛的前提下循序推进。心肺方面，1000米4分00秒及格偏上，肺活量3600ml对高二男生也在及格偏上，但与175cm的身高相比还有空间；坐位体前屈9.0cm只是及格中段，柔韧一般。静息心率66、血压118/74正常，无慢性病，每周3次、每次60分钟的篮球和自练习惯说明运动意愿好。还要提一句中度近视（双眼4.5），对抗性球类注意防护。总体是一名速度爆发尚可、上肢力量和柔韧偏弱、带右肩不适的高二男生，体质中等，关键是把\"无指导的自练\"升级为有动作质量把关的力量训练。"
+        }
+      ],
+      "meta": {
+        "student_id": "BJ2025060328",
+        "case_tags": [
+          "高中",
+          "男",
+          "上肢力量短板",
+          "肩部不适"
+        ],
+        "source": "pregenerated(claude-fable-5)+待专家修订"
+      }
+    },
+    {
+      "messages": [
+        {
+          "role": "system",
+          "content": "你是青少年运动健康领域的体质评估专家。下面是一名中国中小学生的健康档案，包含体检数据、体质测试成绩和健康扩展信息。请读懂这份档案，用一段自然的话说出你对这名学生体质状况的理解。"
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"physical_exam\": {\n    \"YEARSTART\": \"2025\",\n    \"YEAREND\": \"2026\",\n    \"XB\": \"女\",\n    \"NL\": \"9\",\n    \"SG\": \"132.0\",\n    \"TZ\": \"27.5\",\n    \"FHL\": \"1500\",\n    \"ZYSL\": \"5.0\",\n    \"YYSL\": \"5.0\",\n    \"ZYJSL\": \"5.0\",\n    \"YYJSL\": \"5.0\",\n    \"JSLPJ\": \"正常\",\n    \"JZ\": \"未见异常\",\n    \"UP_TIME\": \"2025-09-10\",\n    \"SCHOOL_GRADE\": \"小学三年级\"\n  },\n  \"fitness_test\": {\n    \"NJ\": \"小学三年级\",\n    \"XB\": \"女\",\n    \"SGCJ\": \"132.0\",\n    \"TZCJ\": \"27.5\",\n    \"FHLCJ\": \"1500\",\n    \"WSMCJ\": \"10.8\",\n    \"LDTYCJ\": \"\",\n    \"ZWTQQCJ\": \"12.0\",\n    \"WSMWFPCJ\": \"\",\n    \"YFZTSCJ\": \"95\",\n    \"BBMCJ\": \"\",\n    \"YWQZCJ\": \"22\",\n    \"YQMCJ\": \"\",\n    \"YTXSCJ\": \"\"\n  },\n  \"health_profile\": {\n    \"chronic_conditions\": [],\n    \"medications\": [],\n    \"injury_history\": [],\n    \"recent_symptoms\": [],\n    \"family_history\": [],\n    \"vitals\": {\n      \"resting_heart_rate\": \"88\",\n      \"blood_pressure\": \"95/60\"\n    },\n    \"exercise_history\": {\n      \"weekly_frequency\": 3,\n      \"typical_duration_min\": 40,\n      \"main_activities\": [\n        \"校内体育课\",\n        \"课间活动\",\n        \"周末轮滑\"\n      ],\n      \"training_experience\": \"无系统训练经历\",\n      \"sedentary_hours_per_day\": 5\n    },\n    \"lifestyle\": {\n      \"sleep_hours\": 10.0,\n      \"screen_time_hours\": 1.0,\n      \"breakfast_regular\": true\n    }\n  }\n}"
+        },
+        {
+          "role": "assistant",
+          "content": "这是一名9岁的小学三年级女生，身高132.0cm、体重27.5kg，BMI约15.8，发育正常。这份档案几乎没有健康方面的减分项：无慢性病、无用药、无伤病史、无近期症状，静息心率88、血压95/60符合年龄特点，每天睡10小时达到小学生建议量，久坐仅5小时、屏幕1小时，每周3次运动还有周末轮滑的习惯。体测上，坐位体前屈12.0cm对三年级女生达到良好，柔韧是优势；一分钟跳绳95次在良好上下；50米10.8秒、肺活量1500ml处于及格偏上的中游；一分钟仰卧起坐22次刚过及格线，核心力量相对最弱。立定跳远、往返跑和中长跑为空是小学三年级不设这些项目的正常安排，引体向上为空同理。她正处于7至13岁速度、灵敏与协调素质的发展敏感期，轮滑、跳皮筋这类以神经控制为主的活动恰好对路，运动安排上多用游戏化的反应、步法、变向练习，单次量小、重动作质量，顺带把仰卧起坐这类核心练习以趣味形式补进去即可。总体看，这是一名发育正常、生活方式健康、柔韧突出、核心略弱的三年级女生，体质中等偏好，重点是利用好敏感期，而不是急着纠正某个短板。"
+        }
+      ],
+      "meta": {
+        "student_id": "BJ2025030156",
+        "case_tags": [
+          "小学",
+          "女",
+          "低年级",
+          "整体均衡"
+        ],
+        "source": "pregenerated(claude-fable-5)+待专家修订"
+      }
+    },
+    {
+      "messages": [
+        {
+          "role": "system",
+          "content": "你是青少年运动健康领域的体质评估专家。下面是一名中国中小学生的健康档案，包含体检数据、体质测试成绩和健康扩展信息。请读懂这份档案，用一段自然的话说出你对这名学生体质状况的理解。"
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"physical_exam\": {\n    \"YEARSTART\": \"2025\",\n    \"YEAREND\": \"2026\",\n    \"XB\": \"男\",\n    \"NL\": \"13\",\n    \"SG\": \"160.0\",\n    \"TZ\": \"68.5\",\n    \"FHL\": \"2350\",\n    \"ZYSL\": \"4.7\",\n    \"YYSL\": \"4.8\",\n    \"ZYJSL\": \"5.0\",\n    \"YYJSL\": \"5.0\",\n    \"JSLPJ\": \"轻度近视\",\n    \"JZ\": \"未见异常\",\n    \"UP_TIME\": \"2025-09-16\",\n    \"SCHOOL_GRADE\": \"初一\"\n  },\n  \"fitness_test\": {\n    \"NJ\": \"初一\",\n    \"XB\": \"男\",\n    \"SGCJ\": \"160.0\",\n    \"TZCJ\": \"68.5\",\n    \"FHLCJ\": \"2350\",\n    \"WSMCJ\": \"9.4\",\n    \"LDTYCJ\": \"172\",\n    \"ZWTQQCJ\": \"3.5\",\n    \"WSMWFPCJ\": \"\",\n    \"YFZTSCJ\": \"\",\n    \"BBMCJ\": \"\",\n    \"YWQZCJ\": \"\",\n    \"YQMCJ\": \"5分05秒\",\n    \"YTXSCJ\": \"1\"\n  },\n  \"health_profile\": {\n    \"chronic_conditions\": [],\n    \"medications\": [],\n    \"injury_history\": [],\n    \"recent_symptoms\": [\n      \"上楼梯后气促明显\"\n    ],\n    \"family_history\": [\n      \"母亲 2 型糖尿病\"\n    ],\n    \"vitals\": {\n      \"resting_heart_rate\": \"86\",\n      \"blood_pressure\": \"122/78\"\n    },\n    \"exercise_history\": {\n      \"weekly_frequency\": 1,\n      \"typical_duration_min\": 45,\n      \"main_activities\": [\n        \"校内体育课\"\n      ],\n      \"training_experience\": \"无系统训练经历\",\n      \"sedentary_hours_per_day\": 11\n    },\n    \"lifestyle\": {\n      \"sleep_hours\": 8.0,\n      \"screen_time_hours\": 4.0,\n      \"breakfast_regular\": false\n    }\n  }\n}"
+        },
+        {
+          "role": "assistant",
+          "content": "这是一名13岁的初一男生，身高160.0cm、体重68.5kg，BMI约26.8，按同龄男生界值已经进入肥胖范围，这是整份档案的核心问题。与肥胖相伴的信号很完整：上楼梯后气促明显、静息心率86偏快、血压122/78对13岁来说处于正常高值、母亲有2型糖尿病史，加上每周只运动1次、每天久坐11小时、屏幕4小时、早餐不规律，代谢风险的链条已经比较清楚，建议定期监测血压并关注血糖。体测成绩与体重负担一致：1000米5分05秒低于初一男生及格水平，肺活量2350ml仅在及格线附近，心肺耐力较差；引体向上1次低于及格水平，坐位体前屈3.5cm偏低，立定跳远172cm、50米9.4秒也只是勉强及格——速度和爆发被体重拖累的特征明显。800米、仰卧起坐、跳绳、往返跑为空属初中男生正常项目设置。好消息是他尚无确诊慢性病和伤病史，13岁的干预窗口也好。运动安排应以低冲击有氧为主（快走、骑行、游泳，他喜欢的乒乓球也可用），控制跑跳对膝踝的冲击，配合饮食端减少含糖饮料、规律三餐，目标放在控制体重增速和改善身体成分，而不是快速减重。总体是一名肥胖、心肺与力量全面偏弱、带糖尿病家族史的初一男生，体质较差，但属于干预收益最大的类型。"
+        }
+      ],
+      "meta": {
+        "student_id": "BJ2025040243",
+        "case_tags": [
+          "初中",
+          "男",
+          "肥胖",
+          "心肺较差",
+          "糖尿病家族史"
+        ],
+        "source": "pregenerated(claude-fable-5)+待专家修订"
+      }
+    },
+    {
+      "messages": [
+        {
+          "role": "system",
+          "content": "你是青少年运动健康领域的体质评估专家。下面是一名中国中小学生的健康档案，包含体检数据、体质测试成绩和健康扩展信息。请读懂这份档案，用一段自然的话说出你对这名学生体质状况的理解。"
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"physical_exam\": {\n    \"YEARSTART\": \"2025\",\n    \"YEAREND\": \"2026\",\n    \"XB\": \"女\",\n    \"NL\": \"18\",\n    \"SG\": \"165.0\",\n    \"TZ\": \"55.0\",\n    \"FHL\": \"2680\",\n    \"ZYSL\": \"4.4\",\n    \"YYSL\": \"4.5\",\n    \"ZYJSL\": \"5.0\",\n    \"YYJSL\": \"5.0\",\n    \"JSLPJ\": \"中度近视\",\n    \"JZ\": \"未见异常\",\n    \"UP_TIME\": \"2025-09-28\",\n    \"SCHOOL_GRADE\": \"高三\"\n  },\n  \"fitness_test\": {\n    \"NJ\": \"高三\",\n    \"XB\": \"女\",\n    \"SGCJ\": \"165.0\",\n    \"TZCJ\": \"55.0\",\n    \"FHLCJ\": \"2680\",\n    \"WSMCJ\": \"9.6\",\n    \"LDTYCJ\": \"168\",\n    \"ZWTQQCJ\": \"15.5\",\n    \"WSMWFPCJ\": \"\",\n    \"YFZTSCJ\": \"\",\n    \"BBMCJ\": \"4分18秒\",\n    \"YWQZCJ\": \"30\",\n    \"YQMCJ\": \"\",\n    \"YTXSCJ\": \"\"\n  },\n  \"health_profile\": {\n    \"chronic_conditions\": [],\n    \"medications\": [],\n    \"injury_history\": [],\n    \"recent_symptoms\": [\n      \"入睡困难\",\n      \"颈肩僵硬\"\n    ],\n    \"family_history\": [],\n    \"vitals\": {\n      \"resting_heart_rate\": \"80\",\n      \"blood_pressure\": \"110/72\"\n    },\n    \"exercise_history\": {\n      \"weekly_frequency\": 1,\n      \"typical_duration_min\": 30,\n      \"main_activities\": [\n        \"校内体育课\"\n      ],\n      \"training_experience\": \"初中参加过校排球队两年\",\n      \"sedentary_hours_per_day\": 13\n    },\n    \"lifestyle\": {\n      \"sleep_hours\": 6.0,\n      \"screen_time_hours\": 1.5,\n      \"breakfast_regular\": true\n    }\n  }\n}"
+        },
+        {
+          "role": "assistant",
+          "content": "这是一名18岁的高三女生，身高165.0cm、体重55.0kg，BMI约20.2，身体成分正常。她的体测成绩清一色落在及格档：800米4分18秒、50米9.6秒、立定跳远168cm、仰卧起坐30次、坐位体前屈15.5cm、肺活量2680ml，对高三女生来说都在及格到接近良好之间，没有不及格项也没有亮点，整体中等。真正值得注意的是生活方式与症状：每天久坐约13小时、睡眠只有6小时（高中生建议8小时）、每周仅1次30分钟运动，近期出现入睡困难和颈肩僵硬——这是一组典型的高三备考状态画像，症状更可能源于久坐与压力而非器质性问题。她初中打过两年校排球，有运动底子和球类偏好，静息心率80、血压110/72正常，无慢性病与伤病史；中度近视（双眼4.4/4.5）在球类活动中需注意防护。对她而言，运动的首要价值不是提升体测等级，而是打断久坐、改善睡眠与颈肩状态：短时、低门槛、可在家完成的活动比大计划更现实，睡前1小时内避免高强度。1000米、引体向上、跳绳、往返跑为空均为高中女生的正常项目设置。总体看，这是一名体质中等、被学业压缩了运动与睡眠的高三女生，核心矛盾在生活方式，体能本身没有危险信号。"
+        }
+      ],
+      "meta": {
+        "student_id": "BJ2025020189",
+        "case_tags": [
+          "高中",
+          "女",
+          "高三",
+          "睡眠不足",
+          "久坐"
+        ],
+        "source": "pregenerated(claude-fable-5)+待专家修订"
+      }
+    },
+    {
+      "messages": [
+        {
+          "role": "system",
+          "content": "你是青少年运动健康领域的体质评估专家。下面是一名中国中小学生的健康档案，包含体检数据、体质测试成绩和健康扩展信息。请读懂这份档案，用一段自然的话说出你对这名学生体质状况的理解。"
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"physical_exam\": {\n    \"YEARSTART\": \"2025\",\n    \"YEAREND\": \"2026\",\n    \"XB\": \"男\",\n    \"NL\": \"12\",\n    \"SG\": \"148.0\",\n    \"TZ\": \"35.0\",\n    \"FHL\": \"1850\",\n    \"ZYSL\": \"5.0\",\n    \"YYSL\": \"4.9\",\n    \"ZYJSL\": \"5.0\",\n    \"YYJSL\": \"5.0\",\n    \"JSLPJ\": \"正常\",\n    \"JZ\": \"未见异常\",\n    \"UP_TIME\": \"2025-09-14\",\n    \"SCHOOL_GRADE\": \"小学六年级\"\n  },\n  \"fitness_test\": {\n    \"NJ\": \"小学六年级\",\n    \"XB\": \"男\",\n    \"SGCJ\": \"148.0\",\n    \"TZCJ\": \"35.0\",\n    \"FHLCJ\": \"1850\",\n    \"WSMCJ\": \"9.3\",\n    \"LDTYCJ\": \"\",\n    \"ZWTQQCJ\": \"6.5\",\n    \"WSMWFPCJ\": \"108.5\",\n    \"YFZTSCJ\": \"118\",\n    \"BBMCJ\": \"\",\n    \"YWQZCJ\": \"28\",\n    \"YQMCJ\": \"\",\n    \"YTXSCJ\": \"\"\n  },\n  \"health_profile\": {\n    \"chronic_conditions\": [],\n    \"medications\": [],\n    \"injury_history\": [],\n    \"recent_symptoms\": [],\n    \"family_history\": [\n      \"父亲身高 178cm\",\n      \"母亲身高 165cm\"\n    ],\n    \"vitals\": {\n      \"resting_heart_rate\": \"80\",\n      \"blood_pressure\": \"98/60\"\n    },\n    \"exercise_history\": {\n      \"weekly_frequency\": 2,\n      \"typical_duration_min\": 45,\n      \"main_activities\": [\n        \"校内体育课\",\n        \"课间跳绳\"\n      ],\n      \"training_experience\": \"无系统训练经历\",\n      \"sedentary_hours_per_day\": 7\n    },\n    \"lifestyle\": {\n      \"sleep_hours\": 9.0,\n      \"screen_time_hours\": 2.0,\n      \"breakfast_regular\": true\n    }\n  }\n}"
+        },
+        {
+          "role": "assistant",
+          "content": "这是一名12岁的小学六年级男生，身高148.0cm、体重35.0kg，BMI约16.0，在正常范围内偏轻。他的情况与家族信息对得上：父亲178cm、母亲165cm，遗传身高条件中上，本人148cm在12岁男生中不算高，正处在青春期蹿个子的窗口前后，保证睡眠（目前9小时，尽量向小学生10小时的建议靠拢）、营养和适量跳跃类负荷对身高发育最实际。体测呈\"中游略偏上\"的形态：一分钟跳绳118次接近良好，是最好的项目；50米9.3秒、50米×8往返跑108.5秒、一分钟仰卧起坐28次都在及格偏上；坐位体前屈6.5cm中等；相对最弱的是肺活量，1850ml对六年级男生只在及格线附近，与偏轻的体格一致。立定跳远、中长跑、引体向上为空是小学学段的正常设置。健康层面干净：无慢性病、无伤病、视力基本正常，静息心率80、血压98/60正常；每周2次运动偏少，久坐7小时可接受。总体是一名发育正常、体重偏轻、心肺略弱、跳绳见长的六年级男生，体质中等，运动安排围绕\"长高＋打基础\"展开即可：跳绳摸高等纵向弹跳、单杠悬垂牵拉，配合渐进的徒手力量，并把每周运动频次从2次提到3至4次。"
+        }
+      ],
+      "meta": {
+        "student_id": "BJ2025100124",
+        "case_tags": [
+          "小学",
+          "男",
+          "体重偏轻",
+          "身高目标"
+        ],
+        "source": "pregenerated(claude-fable-5)+待专家修订"
+      }
+    },
+    {
+      "messages": [
+        {
+          "role": "system",
+          "content": "你是青少年运动健康领域的体质评估专家。下面是一名中国中小学生的健康档案，包含体检数据、体质测试成绩和健康扩展信息。请读懂这份档案，用一段自然的话说出你对这名学生体质状况的理解。"
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"physical_exam\": {\n    \"YEARSTART\": \"2025\",\n    \"YEAREND\": \"2026\",\n    \"XB\": \"女\",\n    \"NL\": \"14\",\n    \"SG\": \"158.0\",\n    \"TZ\": \"47.0\",\n    \"FHL\": \"2400\",\n    \"ZYSL\": \"4.8\",\n    \"YYSL\": \"4.8\",\n    \"ZYJSL\": \"5.0\",\n    \"YYJSL\": \"5.0\",\n    \"JSLPJ\": \"正常\",\n    \"JZ\": \"未见异常\",\n    \"UP_TIME\": \"2025-09-19\",\n    \"SCHOOL_GRADE\": \"初二\"\n  },\n  \"fitness_test\": {\n    \"NJ\": \"初二\",\n    \"XB\": \"女\",\n    \"SGCJ\": \"158.0\",\n    \"TZCJ\": \"47.0\",\n    \"FHLCJ\": \"2400\",\n    \"WSMCJ\": \"10.2\",\n    \"LDTYCJ\": \"155\",\n    \"ZWTQQCJ\": \"11.0\",\n    \"WSMWFPCJ\": \"\",\n    \"YFZTSCJ\": \"\",\n    \"BBMCJ\": \"免测\",\n    \"YWQZCJ\": \"28\",\n    \"YQMCJ\": \"\",\n    \"YTXSCJ\": \"\"\n  },\n  \"health_profile\": {\n    \"chronic_conditions\": [],\n    \"medications\": [],\n    \"injury_history\": [\n      {\n        \"site\": \"左膝\",\n        \"type\": \"髌股关节疼痛\",\n        \"date\": \"2025-08\",\n        \"status\": \"恢复期\",\n        \"note\": \"上下楼梯与深蹲时左膝前侧疼痛，已就诊并接受理疗，医生嘱避免深屈膝与跳跃\"\n      }\n    ],\n    \"recent_symptoms\": [\n      \"久坐起身时左膝发僵\"\n    ],\n    \"family_history\": [],\n    \"vitals\": {\n      \"resting_heart_rate\": \"76\",\n      \"blood_pressure\": \"104/66\"\n    },\n    \"exercise_history\": {\n      \"weekly_frequency\": 2,\n      \"typical_duration_min\": 40,\n      \"main_activities\": [\n        \"校内体育课\",\n        \"散步\"\n      ],\n      \"training_experience\": \"校健美操队一年，因膝痛暂停\",\n      \"sedentary_hours_per_day\": 10\n    },\n    \"lifestyle\": {\n      \"sleep_hours\": 8.0,\n      \"screen_time_hours\": 2.5,\n      \"breakfast_regular\": true\n    }\n  }\n}"
+        },
+        {
+          "role": "assistant",
+          "content": "这是一名14岁的初二女生，身高158.0cm、体重47.0kg，BMI约18.8，身体成分正常。读这份档案要先看伤病：左膝髌股关节疼痛，2025年8月发生、目前仍在恢复期，已就诊理疗，医嘱明确避免深屈膝与跳跃，近期还有久坐起身时左膝发僵的症状。这解释了两件事：一是800米栏填的\"免测\"是因伤申请免测，不是数据缺失；二是她为什么从练了一年的校健美操队暂停下来。因此对她的体质判断要打个折：现有成绩只是带伤状态的参考。可见的项目里，坐位体前屈11.0cm、仰卧起坐28次、立定跳远155cm对初二女生都在及格档，50米10.2秒在及格线附近，肺活量2400ml及格；因为800米免测，心肺耐力实际水平存疑，建议膝伤恢复后补一次评估。运动安排上，恢复期应以游泳（她本就喜欢且对膝关节友好）、股四头肌与臀部力量的无痛强化、直线低冲击有氧为主，深蹲、跳跃落地和跳绳（她也不喜欢）继续回避，等无痛后再逐步引入。生活方式方面每周2次运动、久坐10小时，睡眠8小时与初中生9小时的建议略有差距。总体是一名身体成分正常、体测处于及格水平、左膝恢复期的初二女生，当前阶段的主线是护膝与循序渐进的回归，而不是追成绩。"
+        }
+      ],
+      "meta": {
+        "student_id": "BJ2025110267",
+        "case_tags": [
+          "初中",
+          "女",
+          "膝伤恢复期",
+          "免测"
+        ],
+        "source": "pregenerated(claude-fable-5)+待专家修订"
+      }
+    },
+    {
+      "messages": [
+        {
+          "role": "system",
+          "content": "你是青少年运动健康领域的体质评估专家。下面是一名中国中小学生的健康档案，包含体检数据、体质测试成绩和健康扩展信息。请读懂这份档案，用一段自然的话说出你对这名学生体质状况的理解。"
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"physical_exam\": {\n    \"YEARSTART\": \"2025\",\n    \"YEAREND\": \"2026\",\n    \"XB\": \"男\",\n    \"NL\": \"16\",\n    \"SG\": \"178.0\",\n    \"TZ\": \"66.0\",\n    \"FHL\": \"4200\",\n    \"ZYSL\": \"5.0\",\n    \"YYSL\": \"5.0\",\n    \"ZYJSL\": \"5.0\",\n    \"YYJSL\": \"5.0\",\n    \"JSLPJ\": \"正常\",\n    \"JZ\": \"未见异常\",\n    \"UP_TIME\": \"2025-09-23\",\n    \"SCHOOL_GRADE\": \"高一\"\n  },\n  \"fitness_test\": {\n    \"NJ\": \"高一\",\n    \"XB\": \"男\",\n    \"SGCJ\": \"178.0\",\n    \"TZCJ\": \"66.0\",\n    \"FHLCJ\": \"4200\",\n    \"WSMCJ\": \"7.0\",\n    \"LDTYCJ\": \"245\",\n    \"ZWTQQCJ\": \"18.5\",\n    \"WSMWFPCJ\": \"\",\n    \"YFZTSCJ\": \"\",\n    \"BBMCJ\": \"\",\n    \"YWQZCJ\": \"\",\n    \"YQMCJ\": \"3分38秒\",\n    \"YTXSCJ\": \"14\"\n  },\n  \"health_profile\": {\n    \"chronic_conditions\": [],\n    \"medications\": [],\n    \"injury_history\": [\n      {\n        \"site\": \"左踝\",\n        \"type\": \"韧带扭伤\",\n        \"date\": \"2024-11\",\n        \"status\": \"已恢复\",\n        \"note\": \"无遗留症状\"\n      }\n    ],\n    \"recent_symptoms\": [],\n    \"family_history\": [],\n    \"vitals\": {\n      \"resting_heart_rate\": \"58\",\n      \"blood_pressure\": \"115/70\"\n    },\n    \"exercise_history\": {\n      \"weekly_frequency\": 5,\n      \"typical_duration_min\": 90,\n      \"main_activities\": [\n        \"校田径队训练\",\n        \"篮球\"\n      ],\n      \"training_experience\": \"校田径队三年，短跑项目\",\n      \"sedentary_hours_per_day\": 8\n    },\n    \"lifestyle\": {\n      \"sleep_hours\": 8.0,\n      \"screen_time_hours\": 1.5,\n      \"breakfast_regular\": true\n    }\n  }\n}"
+        },
+        {
+          "role": "assistant",
+          "content": "这是一名16岁的高一男生，身高178.0cm、体重66.0kg，BMI约20.8，身体成分正常。他是校田径队三年的短跑队员，档案呈现出典型的高训练水平画像：50米7.0秒对高一男生达到优秀，立定跳远245cm在良好到优秀之间，引体向上14次达到优秀，1000米3分38秒接近优秀，肺活量4200ml在良好以上，坐位体前屈18.5cm也接近优秀——五个维度没有短板，整体可评优秀。静息心率58次/分是规律耐力训练带来的典型表现，血压115/70正常，睡眠8小时，每周5次、每次约90分钟的训练量与恢复基本匹配。唯一的历史问题是2024年11月的左踝韧带扭伤，标注已恢复且无遗留症状，但短跑与篮球都是急停变向密集的项目，常规加入单腿平衡、腓骨肌弹力带抗阻这类踝稳定练习作为预防是值得的。1000米、引体向上有成绩而800米、仰卧起坐为空，跳绳与往返跑为空，均为高中男生的正常项目设置。对这样的学生，评估重点从\"补短板\"转向\"精进与防伤\"：训练安排应与田径队教练的周期计划衔接，避免负荷叠加过量，并监控睡眠与疲劳。总体是一名体质全面优秀、训练背景扎实、仅需做踝部预防性维护的高一男生。"
+        }
+      ],
+      "meta": {
+        "student_id": "BJ2025120331",
+        "case_tags": [
+          "高中",
+          "男",
+          "田径特长",
+          "整体优秀"
+        ],
+        "source": "pregenerated(claude-fable-5)+待专家修订"
+      }
+    },
+    {
+      "messages": [
+        {
+          "role": "system",
+          "content": "你是青少年运动健康领域的体质评估专家。下面是一名中国中小学生的健康档案，包含体检数据、体质测试成绩和健康扩展信息。请读懂这份档案，用一段自然的话说出你对这名学生体质状况的理解。"
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"physical_exam\": {\n    \"YEARSTART\": \"2025\",\n    \"YEAREND\": \"2026\",\n    \"XB\": \"女\",\n    \"NL\": \"10\",\n    \"SG\": \"138.0\",\n    \"TZ\": \"30.0\",\n    \"FHL\": \"1600\",\n    \"ZYSL\": \"4.9\",\n    \"YYSL\": \"5.0\",\n    \"ZYJSL\": \"5.0\",\n    \"YYJSL\": \"5.0\",\n    \"JSLPJ\": \"正常\",\n    \"JZ\": \"未见异常\",\n    \"UP_TIME\": \"2025-09-11\",\n    \"SCHOOL_GRADE\": \"小学四年级\"\n  },\n  \"fitness_test\": {\n    \"NJ\": \"小学四年级\",\n    \"XB\": \"女\",\n    \"SGCJ\": \"138.0\",\n    \"TZCJ\": \"30.0\",\n    \"FHLCJ\": \"1600\",\n    \"WSMCJ\": \"10.5\",\n    \"LDTYCJ\": \"\",\n    \"ZWTQQCJ\": \"3.0\",\n    \"WSMWFPCJ\": \"\",\n    \"YFZTSCJ\": \"88\",\n    \"BBMCJ\": \"\",\n    \"YWQZCJ\": \"20\",\n    \"YQMCJ\": \"\",\n    \"YTXSCJ\": \"\"\n  },\n  \"health_profile\": {\n    \"chronic_conditions\": [],\n    \"medications\": [],\n    \"injury_history\": [],\n    \"recent_symptoms\": [],\n    \"family_history\": [],\n    \"vitals\": {\n      \"resting_heart_rate\": \"85\",\n      \"blood_pressure\": \"96/62\"\n    },\n    \"exercise_history\": {\n      \"weekly_frequency\": 2,\n      \"typical_duration_min\": 40,\n      \"main_activities\": [\n        \"校内体育课\"\n      ],\n      \"training_experience\": \"无系统训练经历\",\n      \"sedentary_hours_per_day\": 6\n    },\n    \"lifestyle\": {\n      \"sleep_hours\": 9.5,\n      \"screen_time_hours\": 1.5,\n      \"breakfast_regular\": true\n    }\n  }\n}"
+        },
+        {
+          "role": "assistant",
+          "content": "这是一名10岁的小学四年级女生，身高138.0cm、体重30.0kg，BMI约15.8，发育正常。她的档案里最扎眼的是柔韧性：坐位体前屈只有3.0cm，而同龄女生的及格水平通常在6cm以上——女生在这个年龄本是柔韧优势群体，这个成绩明显偏低；她的目标里也列了坐位体前屈专项提升，说明短板是真实且被意识到的。其次是核心力量，一分钟仰卧起坐20次在四年级女生的及格线附近偏下。其余项目中规中矩：50米10.5秒、肺活量1600ml及格偏上，一分钟跳绳88次在及格与良好之间。立定跳远、往返跑、中长跑、引体向上为空是四年级的正常项目设置，不算缺测。健康层面没有问题：无慢性病、无伤病、视力正常，静息心率85、血压96/62正常，睡眠9.5小时接近建议量，久坐6小时不算多，只是每周2次、只靠体育课，运动量本身偏少。她喜欢舞蹈、不喜欢球类，这对改善柔韧反而是好条件：把拉伸、舞蹈基本功、动物爬行类游戏做成每天睡前25分钟的小方案，频次比强度重要；10岁也正处于柔韧与协调发展的有利年龄，现在干预见效快。总体是一名发育正常、健康状况良好、柔韧和核心偏弱的四年级女生，体质中等，短板清晰且好补。"
+        }
+      ],
+      "meta": {
+        "student_id": "BJ2025130142",
+        "case_tags": [
+          "小学",
+          "女",
+          "柔韧短板"
+        ],
+        "source": "pregenerated(claude-fable-5)+待专家修订"
+      }
+    },
+    {
+      "messages": [
+        {
+          "role": "system",
+          "content": "你是青少年运动健康领域的体质评估专家。下面是一名中国中小学生的健康档案，包含体检数据、体质测试成绩和健康扩展信息。请读懂这份档案，用一段自然的话说出你对这名学生体质状况的理解。"
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"physical_exam\": {\n    \"YEARSTART\": \"2025\",\n    \"YEAREND\": \"2026\",\n    \"XB\": \"男\",\n    \"NL\": \"15\",\n    \"SG\": \"172.0\",\n    \"TZ\": \"88.0\",\n    \"FHL\": \"2500\",\n    \"ZYSL\": \"4.6\",\n    \"YYSL\": \"4.5\",\n    \"ZYJSL\": \"5.0\",\n    \"YYJSL\": \"5.0\",\n    \"JSLPJ\": \"轻度近视\",\n    \"JZ\": \"未见异常\",\n    \"UP_TIME\": \"2025-09-21\",\n    \"SCHOOL_GRADE\": \"初三\"\n  },\n  \"fitness_test\": {\n    \"NJ\": \"初三\",\n    \"XB\": \"男\",\n    \"SGCJ\": \"172.0\",\n    \"TZCJ\": \"88.0\",\n    \"FHLCJ\": \"2500\",\n    \"WSMCJ\": \"9.6\",\n    \"LDTYCJ\": \"165\",\n    \"ZWTQQCJ\": \"2.0\",\n    \"WSMWFPCJ\": \"\",\n    \"YFZTSCJ\": \"\",\n    \"BBMCJ\": \"\",\n    \"YWQZCJ\": \"\",\n    \"YQMCJ\": \"免测\",\n    \"YTXSCJ\": \"0\"\n  },\n  \"health_profile\": {\n    \"chronic_conditions\": [\n      \"血压偏高（校医复测 145/92 mmHg，未经专科确诊）\"\n    ],\n    \"medications\": [],\n    \"injury_history\": [],\n    \"recent_symptoms\": [\n      \"快走十分钟后头晕\",\n      \"夜间睡眠打鼾明显\"\n    ],\n    \"family_history\": [\n      \"父亲高血压\",\n      \"母亲高血压\",\n      \"祖父冠心病\"\n    ],\n    \"vitals\": {\n      \"resting_heart_rate\": \"92\",\n      \"blood_pressure\": \"145/92\"\n    },\n    \"exercise_history\": {\n      \"weekly_frequency\": 0,\n      \"typical_duration_min\": 0,\n      \"main_activities\": [],\n      \"training_experience\": \"无系统训练经历，近一年体育课多为旁观\",\n      \"sedentary_hours_per_day\": 12\n    },\n    \"lifestyle\": {\n      \"sleep_hours\": 7.0,\n      \"screen_time_hours\": 5.0,\n      \"breakfast_regular\": false\n    }\n  }\n}"
+        },
+        {
+          "role": "assistant",
+          "content": "这是一名15岁的初三男生，这份档案读下来结论要前置：在专科就医明确之前，不适合开始任何中高强度的运动计划。危险信号是成串出现的：身高172.0cm、体重88.0kg，BMI约29.7，远超同龄男生的肥胖界值；校医复测血压145/92mmHg，虽未经专科确诊但数值已显著偏高，静息心率92次/分也偏快；近期快走十分钟就头晕，夜间打鼾明显（结合重度肥胖要怀疑睡眠呼吸问题）；家族史里父母双方高血压、祖父冠心病。这些加在一起，正确的顺序是先到医院完成血压评估和医生认为必要的检查，拿到可以运动的医学意见，再谈训练。体测成绩与整体状态一致：1000米免测，肺活量2500ml对初三男生明显偏低，50米9.6秒、立定跳远165cm低于及格水平，引体向上0次，坐位体前屈2.0cm不及格；近一年体育课多为旁观、每周运动频次为0、每天久坐12小时、屏幕5小时、早餐不规律——体质各维度全面较差，且处在\"越不动越差\"的循环里。在就医之前，能做且该做的只有打断久坐：散步（他能接受的项目）、站立活动这类低强度日常活动，避免憋气动作、避免任何引起头晕气促的强度。总体是一名重度肥胖、血压显著偏高待确诊、伴运动中头晕的初三男生，属于必须先转介医学评估的情形。"
+        }
+      ],
+      "meta": {
+        "student_id": "BJ2025140258",
+        "case_tags": [
+          "初中",
+          "男",
+          "重度肥胖",
+          "血压偏高",
+          "需转介"
+        ],
+        "source": "pregenerated(claude-fable-5)+待专家修订"
+      }
+    },
+    {
+      "messages": [
+        {
+          "role": "system",
+          "content": "你是青少年运动健康领域的体质评估专家。下面是一名中国中小学生的健康档案，包含体检数据、体质测试成绩和健康扩展信息。请读懂这份档案，用一段自然的话说出你对这名学生体质状况的理解。"
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"physical_exam\": {\n    \"YEARSTART\": \"2025\",\n    \"YEAREND\": \"2026\",\n    \"XB\": \"女\",\n    \"NL\": \"17\",\n    \"SG\": \"163.0\",\n    \"TZ\": \"45.0\",\n    \"FHL\": \"2450\",\n    \"ZYSL\": \"4.7\",\n    \"YYSL\": \"4.7\",\n    \"ZYJSL\": \"5.0\",\n    \"YYJSL\": \"5.0\",\n    \"JSLPJ\": \"轻度近视\",\n    \"JZ\": \"未见异常\",\n    \"UP_TIME\": \"2025-09-26\",\n    \"SCHOOL_GRADE\": \"高二\"\n  },\n  \"fitness_test\": {\n    \"NJ\": \"高二\",\n    \"XB\": \"女\",\n    \"SGCJ\": \"163.0\",\n    \"TZCJ\": \"45.0\",\n    \"FHLCJ\": \"2450\",\n    \"WSMCJ\": \"9.9\",\n    \"LDTYCJ\": \"160\",\n    \"ZWTQQCJ\": \"16.0\",\n    \"WSMWFPCJ\": \"\",\n    \"YFZTSCJ\": \"\",\n    \"BBMCJ\": \"4分30秒\",\n    \"YWQZCJ\": \"26\",\n    \"YQMCJ\": \"\",\n    \"YTXSCJ\": \"\"\n  },\n  \"health_profile\": {\n    \"chronic_conditions\": [\n      \"缺铁性贫血（2025 年 6 月确诊，口服补铁中）\"\n    ],\n    \"medications\": [\n      \"多糖铁复合物胶囊（每日一次）\"\n    ],\n    \"injury_history\": [],\n    \"recent_symptoms\": [\n      \"运动后易疲劳\",\n      \"偶有体位性头晕\"\n    ],\n    \"family_history\": [],\n    \"vitals\": {\n      \"resting_heart_rate\": \"88\",\n      \"blood_pressure\": \"100/62\"\n    },\n    \"exercise_history\": {\n      \"weekly_frequency\": 1,\n      \"typical_duration_min\": 30,\n      \"main_activities\": [\n        \"校内体育课\"\n      ],\n      \"training_experience\": \"无系统训练经历\",\n      \"sedentary_hours_per_day\": 12\n    },\n    \"lifestyle\": {\n      \"sleep_hours\": 7.0,\n      \"screen_time_hours\": 2.0,\n      \"breakfast_regular\": false\n    }\n  }\n}"
+        },
+        {
+          "role": "assistant",
+          "content": "这是一名17岁的高二女生，身高163.0cm、体重45.0kg，BMI约16.9，已经压在同龄女生消瘦界值附近，体重偏低本身就是需要纳入管理的问题。更关键的是她2025年6月确诊缺铁性贫血，目前每日口服多糖铁复合物补铁中，近期运动后易疲劳、偶有体位性头晕，静息心率88次/分偏快——这组表现相互吻合：贫血削弱血液携氧能力，心率代偿性增快、耐力表现受限。所以她的体测成绩要放在贫血背景下读：800米4分30秒、仰卧起坐26次都压在高二女生及格线附近，50米9.9秒、立定跳远160cm、肺活量2450ml及格，坐位体前屈16.0cm接近良好，是唯一亮点。在铁储备恢复之前，运动强度必须保守：从低强度短时活动起步，强度以能轻松交谈为限，出现头晕立即停止坐下，避免快速起身的体位变化，也避免长跑和高强度间歇（她本人也不喜欢）；随补铁起效再逐步加量，并建议复查血红蛋白后调整方案。生活方式上每周仅1次30分钟运动、久坐12小时、睡眠7小时、早餐不规律，饮食规律化对补铁和体重都重要。总体是一名体重偏低、贫血恢复期、心肺与力量处于及格边缘的高二女生，现阶段运动的角色是辅助康复，营养和治疗才是主线。"
+        }
+      ],
+      "meta": {
+        "student_id": "BJ2025150233",
+        "case_tags": [
+          "高中",
+          "女",
+          "缺铁性贫血",
+          "体重偏低"
+        ],
+        "source": "pregenerated(claude-fable-5)+待专家修订"
+      }
+    },
+    {
+      "messages": [
+        {
+          "role": "system",
+          "content": "你是青少年运动健康领域的体质评估专家。下面是一名中国中小学生的健康档案，包含体检数据、体质测试成绩和健康扩展信息。请读懂这份档案，用一段自然的话说出你对这名学生体质状况的理解。"
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"physical_exam\": {\n    \"YEARSTART\": \"2025\",\n    \"YEAREND\": \"2026\",\n    \"XB\": \"女\",\n    \"NL\": \"13\",\n    \"SG\": \"155.0\",\n    \"TZ\": \"44.0\",\n    \"FHL\": \"\",\n    \"ZYSL\": \"4.9\",\n    \"YYSL\": \"4.9\",\n    \"ZYJSL\": \"5.0\",\n    \"YYJSL\": \"5.0\",\n    \"JSLPJ\": \"正常\",\n    \"JZ\": \"\",\n    \"UP_TIME\": \"2025-09-17\",\n    \"SCHOOL_GRADE\": \"初一\"\n  },\n  \"fitness_test\": {\n    \"NJ\": \"初一\",\n    \"XB\": \"女\",\n    \"SGCJ\": \"155.0\",\n    \"TZCJ\": \"44.0\",\n    \"FHLCJ\": \"\",\n    \"WSMCJ\": \"10.5\",\n    \"LDTYCJ\": \"\",\n    \"ZWTQQCJ\": \"\",\n    \"WSMWFPCJ\": \"\",\n    \"YFZTSCJ\": \"\",\n    \"BBMCJ\": \"\",\n    \"YWQZCJ\": \"25\",\n    \"YQMCJ\": \"\",\n    \"YTXSCJ\": \"\"\n  },\n  \"health_profile\": {\n    \"chronic_conditions\": [],\n    \"medications\": [],\n    \"injury_history\": [],\n    \"recent_symptoms\": [],\n    \"family_history\": [],\n    \"vitals\": {\n      \"resting_heart_rate\": \"\",\n      \"blood_pressure\": \"\"\n    },\n    \"exercise_history\": {\n      \"weekly_frequency\": 2,\n      \"typical_duration_min\": 45,\n      \"main_activities\": [\n        \"校内体育课\"\n      ],\n      \"training_experience\": \"\",\n      \"sedentary_hours_per_day\": 10\n    },\n    \"lifestyle\": {\n      \"sleep_hours\": 8.5,\n      \"screen_time_hours\": 2.0,\n      \"breakfast_regular\": true\n    }\n  }\n}"
+        },
+        {
+          "role": "assistant",
+          "content": "这是一名13岁的初一女生，身高155.0cm、体重44.0kg，BMI约18.3，身体成分正常。这份档案最大的特点是数据残缺，评估前要先把\"真缺失\"和\"正常空置\"分开：跳绳、往返跑、1000米、引体向上为空属于初中女生的正常项目设置；但肺活量在体检表和体质表里都是空的，坐位体前屈、立定跳远、800米也没有成绩，脊柱筛查栏为空，静息心率和血压都没有记录——这些是初一女生应测而未录的内容，属于真正的缺失。结果是五个维度里只有两项可以判断：50米10.5秒在初一女生及格线附近，一分钟仰卧起坐25次也在及格边缘；心肺耐力、柔韧性、爆发力三个维度数据不足，无法负责任地定级。可见信息里没有健康警示：无慢性病、无用药、无伤病史、无症状，运动经历栏也是空的，只知道每周2次运动、每天久坐10小时、睡眠8.5小时接近初中生9小时的建议。对这样的档案，结论本身就是行动项：优先补测肺活量、坐位体前屈、立定跳远和800米，补录血压心率，并向学校确认脊柱筛查结果；在补全之前，只能按\"可见项处于及格边缘、整体疑似偏弱\"的保守假设安排温和的基础活动。总体是一名身体成分正常、可评项目在及格线附近、但档案不足以支撑完整画像的初一女生，当前第一要务是补全数据。"
+        }
+      ],
+      "meta": {
+        "student_id": "BJ2025160171",
+        "case_tags": [
+          "初中",
+          "女",
+          "数据缺失"
+        ],
+        "source": "pregenerated(claude-fable-5)+待专家修订"
+      }
+    },
+    {
+      "messages": [
+        {
+          "role": "system",
+          "content": "你是青少年运动健康领域的体质评估专家。下面是一名中国中小学生的健康档案，包含体检数据、体质测试成绩和健康扩展信息。请读懂这份档案，用一段自然的话说出你对这名学生体质状况的理解。"
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"physical_exam\": {\n    \"YEARSTART\": \"2025\",\n    \"YEAREND\": \"2026\",\n    \"XB\": \"男\",\n    \"NL\": \"11\",\n    \"SG\": \"142.0\",\n    \"TZ\": \"36.5\",\n    \"FHL\": \"1900\",\n    \"ZYSL\": \"5.0\",\n    \"YYSL\": \"5.0\",\n    \"ZYJSL\": \"5.0\",\n    \"YYJSL\": \"5.0\",\n    \"JSLPJ\": \"正常\",\n    \"JZ\": \"未见异常\",\n    \"UP_TIME\": \"2025-09-13\",\n    \"SCHOOL_GRADE\": \"小学五年级\"\n  },\n  \"fitness_test\": {\n    \"NJ\": \"小学五年级\",\n    \"XB\": \"男\",\n    \"SGCJ\": \"156.0\",\n    \"TZCJ\": \"36.5\",\n    \"FHLCJ\": \"1900\",\n    \"WSMCJ\": \"9.7\",\n    \"LDTYCJ\": \"\",\n    \"ZWTQQCJ\": \"8.0\",\n    \"WSMWFPCJ\": \"112.0\",\n    \"YFZTSCJ\": \"115\",\n    \"BBMCJ\": \"\",\n    \"YWQZCJ\": \"30\",\n    \"YQMCJ\": \"\",\n    \"YTXSCJ\": \"\"\n  },\n  \"health_profile\": {\n    \"chronic_conditions\": [],\n    \"medications\": [],\n    \"injury_history\": [],\n    \"recent_symptoms\": [],\n    \"family_history\": [],\n    \"vitals\": {\n      \"resting_heart_rate\": \"84\",\n      \"blood_pressure\": \"100/64\"\n    },\n    \"exercise_history\": {\n      \"weekly_frequency\": 3,\n      \"typical_duration_min\": 45,\n      \"main_activities\": [\n        \"校内体育课\",\n        \"课间跳绳\"\n      ],\n      \"training_experience\": \"无系统训练经历\",\n      \"sedentary_hours_per_day\": 6\n    },\n    \"lifestyle\": {\n      \"sleep_hours\": 9.5,\n      \"screen_time_hours\": 1.5,\n      \"breakfast_regular\": true\n    }\n  }\n}"
+        },
+        {
+          "role": "assistant",
+          "content": "这是一名11岁的小学五年级男生，这份档案在使用前要先处理一处明显的数据矛盾：体检表记录身高142.0cm，体质测试表却记录156.0cm，同一学年相差14cm，必有一处录入有误。由此BMI在约18.1（按142cm）与约15.0（按156cm）之间摇摆，体重评价没法下定论，需要复核实测后再出正式结论。除此之外的数据比较一致：体重36.5kg，肺活量1900ml对五年级男生在及格偏上，50米9.7秒中等，坐位体前屈8.0cm及格偏上，50米×8往返跑112.0秒及格偏上，一分钟跳绳115次接近良好，一分钟仰卧起坐30次在良好附近——整体中等偏上，没有不及格项。立定跳远、中长跑、引体向上为空是小学学段的正常设置。健康层面干净：无慢性病、无伤病，双眼视力5.0，静息心率84、血压100/64正常；每周3次运动、睡眠9.5小时、久坐6小时、屏幕1.5小时，习惯良好。他的目标是身高促进与爆发协调，11岁正处于速度灵敏协调的敏感期，跳绳和乒乓球的偏好都用得上，多安排反应、步法与弹跳类的游戏化练习即可。总体是一名生活习惯好、体质中等偏上的五年级男生，唯一的硬问题是两表身高矛盾——先复测身高，再定体重评价和完整画像。"
+        }
+      ],
+      "meta": {
+        "student_id": "BJ2025170139",
+        "case_tags": [
+          "小学",
+          "男",
+          "两表身高矛盾"
+        ],
+        "source": "pregenerated(claude-fable-5)+待专家修订"
+      }
+    },
+    {
+      "messages": [
+        {
+          "role": "system",
+          "content": "你是青少年运动健康领域的体质评估专家。下面是一名中国中小学生的健康档案，包含体检数据、体质测试成绩和健康扩展信息。请读懂这份档案，用一段自然的话说出你对这名学生体质状况的理解。"
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"physical_exam\": {\n    \"YEARSTART\": \"2025\",\n    \"YEAREND\": \"2026\",\n    \"XB\": \"女\",\n    \"NL\": \"18\",\n    \"SG\": \"168.0\",\n    \"TZ\": \"58.0\",\n    \"FHL\": \"2900\",\n    \"ZYSL\": \"4.8\",\n    \"YYSL\": \"4.9\",\n    \"ZYJSL\": \"5.0\",\n    \"YYJSL\": \"5.0\",\n    \"JSLPJ\": \"正常\",\n    \"JZ\": \"未见异常\",\n    \"UP_TIME\": \"2025-09-27\",\n    \"SCHOOL_GRADE\": \"高三\"\n  },\n  \"fitness_test\": {\n    \"NJ\": \"高三\",\n    \"XB\": \"女\",\n    \"SGCJ\": \"168.0\",\n    \"TZCJ\": \"58.0\",\n    \"FHLCJ\": \"2900\",\n    \"WSMCJ\": \"9.3\",\n    \"LDTYCJ\": \"180\",\n    \"ZWTQQCJ\": \"17.0\",\n    \"WSMWFPCJ\": \"\",\n    \"YFZTSCJ\": \"\",\n    \"BBMCJ\": \"4分02秒\",\n    \"YWQZCJ\": \"38\",\n    \"YQMCJ\": \"\",\n    \"YTXSCJ\": \"\"\n  },\n  \"health_profile\": {\n    \"chronic_conditions\": [\n      \"哮喘（控制良好，长期吸入糖皮质激素）\"\n    ],\n    \"medications\": [\n      \"布地奈德福莫特罗吸入剂（每日两次）\",\n      \"沙丁胺醇气雾剂（按需使用）\"\n    ],\n    \"injury_history\": [],\n    \"recent_symptoms\": [],\n    \"family_history\": [\n      \"母亲过敏性鼻炎\"\n    ],\n    \"vitals\": {\n      \"resting_heart_rate\": \"70\",\n      \"blood_pressure\": \"112/70\"\n    },\n    \"exercise_history\": {\n      \"weekly_frequency\": 3,\n      \"typical_duration_min\": 50,\n      \"main_activities\": [\n        \"校内体育课\",\n        \"游泳\"\n      ],\n      \"training_experience\": \"规律游泳两年\",\n      \"sedentary_hours_per_day\": 12\n    },\n    \"lifestyle\": {\n      \"sleep_hours\": 7.0,\n      \"screen_time_hours\": 1.5,\n      \"breakfast_regular\": true\n    }\n  }\n}"
+        },
+        {
+          "role": "assistant",
+          "content": "这是一名18岁的高三女生，身高168.0cm、体重58.0kg，BMI约20.5，身体成分正常。她有哮喘病史，但属于管理得最规范的那一类：长期每日两次吸入布地奈德福莫特罗作为控制用药，沙丁胺醇气雾剂按需备用，控制良好、无近期症状，还保持了两年规律游泳——控制良好的哮喘不是运动禁忌，她本人就是例证。体测成绩整体良好：立定跳远180cm、坐位体前屈17.0cm对高三女生达到良好，50米9.3秒、800米4分02秒、一分钟仰卧起坐38次、肺活量2900ml都在及格偏上、贴着良好线，五个维度发展均衡、没有短板。运动中对哮喘的常规注意仍要保留：热身拉长到10至15分钟，干冷天气或空气质量差时把有氧移到室内，训练随身携带沙丁胺醇；游泳的湿暖环境耐受性好，继续作为主项很合适。母亲过敏性鼻炎的家族史与她的过敏背景一致，花粉季户外训练要留意。1000米、引体向上、跳绳、往返跑为空均为高中女生的正常项目设置。需要改善的反而是高三的生活方式：每天久坐约12小时，睡眠7小时低于建议的8小时，这对训练恢复和哮喘控制都有影响。总体是一名哮喘控制良好、体质整体良好、有稳定游泳习惯的高三女生，方向是维持规律、冲击800米成绩，并守住哮喘管理的既有规范。"
+        }
+      ],
+      "meta": {
+        "student_id": "BJ2025180294",
+        "case_tags": [
+          "高中",
+          "女",
+          "哮喘控制良好",
+          "游泳习惯"
+        ],
+        "source": "pregenerated(claude-fable-5)+待专家修订"
+      }
+    },
+    {
+      "messages": [
+        {
+          "role": "system",
+          "content": "你是青少年运动健康领域的体质评估专家。下面是一名中国中小学生的健康档案，包含体检数据、体质测试成绩和健康扩展信息。请读懂这份档案，用一段自然的话说出你对这名学生体质状况的理解。"
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"physical_exam\": {\n    \"YEARSTART\": \"2025\",\n    \"YEAREND\": \"2026\",\n    \"XB\": \"男\",\n    \"NL\": \"14\",\n    \"SG\": \"166.0\",\n    \"TZ\": \"54.0\",\n    \"FHL\": \"3900\",\n    \"ZYSL\": \"5.0\",\n    \"YYSL\": \"5.0\",\n    \"ZYJSL\": \"5.0\",\n    \"YYJSL\": \"5.0\",\n    \"JSLPJ\": \"正常\",\n    \"JZ\": \"未见异常\",\n    \"UP_TIME\": \"2025-09-18\",\n    \"SCHOOL_GRADE\": \"初二\"\n  },\n  \"fitness_test\": {\n    \"NJ\": \"初二\",\n    \"XB\": \"男\",\n    \"SGCJ\": \"166.0\",\n    \"TZCJ\": \"54.0\",\n    \"FHLCJ\": \"3900\",\n    \"WSMCJ\": \"7.2\",\n    \"LDTYCJ\": \"238\",\n    \"ZWTQQCJ\": \"15.0\",\n    \"WSMWFPCJ\": \"\",\n    \"YFZTSCJ\": \"\",\n    \"BBMCJ\": \"\",\n    \"YWQZCJ\": \"\",\n    \"YQMCJ\": \"3分45秒\",\n    \"YTXSCJ\": \"12\"\n  },\n  \"health_profile\": {\n    \"chronic_conditions\": [],\n    \"medications\": [],\n    \"injury_history\": [],\n    \"recent_symptoms\": [],\n    \"family_history\": [],\n    \"vitals\": {\n      \"resting_heart_rate\": \"62\",\n      \"blood_pressure\": \"110/68\"\n    },\n    \"exercise_history\": {\n      \"weekly_frequency\": 4,\n      \"typical_duration_min\": 70,\n      \"main_activities\": [\n        \"校篮球队训练\",\n        \"跑步\"\n      ],\n      \"training_experience\": \"校篮球队两年\",\n      \"sedentary_hours_per_day\": 8\n    },\n    \"lifestyle\": {\n      \"sleep_hours\": 8.5,\n      \"screen_time_hours\": 1.5,\n      \"breakfast_regular\": true\n    }\n  }\n}"
+        },
+        {
+          "role": "assistant",
+          "content": "这是一名14岁的初二男生，身高166.0cm、体重54.0kg，BMI约19.6，身体成分正常。他是校篮球队两年的队员，每周4次、每次约70分钟的训练加跑步，数据里处处是训练痕迹：50米7.2秒、立定跳远238cm、引体向上12次对初二男生都达到优秀，1000米3分45秒在良好以上、接近优秀，肺活量3900ml对14岁男生相当出色，坐位体前屈15.0cm也在良好以上——速度、爆发、力量、心肺、柔韧五个维度全面且均衡，整体可评优秀。健康层面同样干净：无慢性病、无用药、无伤病史、无症状，双眼视力5.0，静息心率62次/分体现了良好的有氧基础，血压110/68正常，睡眠8.5小时接近初中生9小时的建议，久坐8小时在初中生里不算多。800米、仰卧起坐、跳绳、往返跑为空是初中男生的正常项目设置。对他来说，评估的意义不在找短板，而在护住上升曲线：14岁仍在生长高峰附近，篮球加短跑的组合跳跃落地和急停变向密集，建议把着地缓冲技术、踝膝稳定与下肢离心力量作为常规保养内容，并注意训练量与睡眠恢复的平衡。总体是一名体质全面优秀、训练习惯成熟的初二男生，重点是防伤与科学进阶。"
+        }
+      ],
+      "meta": {
+        "student_id": "BJ2025190316",
+        "case_tags": [
+          "初中",
+          "男",
+          "整体优秀",
+          "篮球特长"
+        ],
+        "source": "pregenerated(claude-fable-5)+待专家修订"
+      }
+    },
+    {
+      "messages": [
+        {
+          "role": "system",
+          "content": "你是青少年运动健康领域的体质评估专家。下面是一名中国中小学生的健康档案，包含体检数据、体质测试成绩和健康扩展信息。请读懂这份档案，用一段自然的话说出你对这名学生体质状况的理解。"
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"physical_exam\": {\n    \"YEARSTART\": \"2025\",\n    \"YEAREND\": \"2026\",\n    \"XB\": \"女\",\n    \"NL\": \"12\",\n    \"SG\": \"152.0\",\n    \"TZ\": \"58.0\",\n    \"FHL\": \"1900\",\n    \"ZYSL\": \"4.7\",\n    \"YYSL\": \"4.8\",\n    \"ZYJSL\": \"5.0\",\n    \"YYJSL\": \"5.0\",\n    \"JSLPJ\": \"轻度近视\",\n    \"JZ\": \"未见异常\",\n    \"UP_TIME\": \"2025-09-15\",\n    \"SCHOOL_GRADE\": \"小学六年级\"\n  },\n  \"fitness_test\": {\n    \"NJ\": \"小学六年级\",\n    \"XB\": \"女\",\n    \"SGCJ\": \"152.0\",\n    \"TZCJ\": \"58.0\",\n    \"FHLCJ\": \"1900\",\n    \"WSMCJ\": \"10.6\",\n    \"LDTYCJ\": \"\",\n    \"ZWTQQCJ\": \"8.0\",\n    \"WSMWFPCJ\": \"125.0\",\n    \"YFZTSCJ\": \"92\",\n    \"BBMCJ\": \"\",\n    \"YWQZCJ\": \"21\",\n    \"YQMCJ\": \"\",\n    \"YTXSCJ\": \"\"\n  },\n  \"health_profile\": {\n    \"chronic_conditions\": [],\n    \"medications\": [],\n    \"injury_history\": [],\n    \"recent_symptoms\": [\n      \"跳绳后双侧小腿前侧酸痛\"\n    ],\n    \"family_history\": [\n      \"母亲超重\"\n    ],\n    \"vitals\": {\n      \"resting_heart_rate\": \"88\",\n      \"blood_pressure\": \"108/68\"\n    },\n    \"exercise_history\": {\n      \"weekly_frequency\": 2,\n      \"typical_duration_min\": 40,\n      \"main_activities\": [\n        \"校内体育课\",\n        \"课间跳绳\"\n      ],\n      \"training_experience\": \"无系统训练经历\",\n      \"sedentary_hours_per_day\": 8\n    },\n    \"lifestyle\": {\n      \"sleep_hours\": 9.0,\n      \"screen_time_hours\": 3.0,\n      \"breakfast_regular\": true\n    }\n  }\n}"
+        },
+        {
+          "role": "assistant",
+          "content": "这是一名12岁的小学六年级女生，身高152.0cm、体重58.0kg，BMI约25.1，按同龄女生界值已到肥胖线附近甚至越线，体重是这份档案的主线，母亲超重的家族史也提示家庭饮食环境需要一起调整。体重的影响已经写进成绩单：50米10.6秒、50米×8往返跑125秒都压在六年级女生及格线附近，一分钟仰卧起坐21次低于及格水平，核心力量偏弱；肺活量1900ml、坐位体前屈8.0cm在及格档；相对最好的是一分钟跳绳92次，处于及格偏上——但这里有个值得注意的信号：她近期跳绳后双侧小腿前侧酸痛，这是体重偏大叠加高冲击练习时胫骨应力负担的典型表现。她的目标恰好是体重管理加跳绳专项，两者要调和：跳绳量必须渐进（分组短时、穿缓冲好的鞋、选有弹性的地面），小腿酸痛期间用骑行（她喜欢且有自行车）、快走等低冲击有氧顶上，让每周运动从目前的2次提到接近每天的频次，配合减少含糖饮料、控制屏幕时间（目前3小时）。睡眠9小时对小学生略有不足。立定跳远、中长跑、引体向上为空是小学学段正常设置。12岁正处青春期发育前后，是改善身体成分收益最大的窗口之一，目标应定在控制增重速度而非快速减重。总体是一名超重至肥胖边缘、心肺与核心偏弱、跳绳有基础但需防护胫骨负担的六年级女生，干预以低冲击有氧加家庭生活方式调整为主。"
+        }
+      ],
+      "meta": {
+        "student_id": "BJ2025200148",
+        "case_tags": [
+          "小学",
+          "女",
+          "肥胖边缘",
+          "胫骨应力提示"
+        ],
+        "source": "pregenerated(claude-fable-5)+待专家修订"
+      }
+    },
+    {
+      "messages": [
+        {
+          "role": "system",
+          "content": "你是青少年运动健康领域的体质评估专家。下面是一名中国中小学生的健康档案，包含体检数据、体质测试成绩和健康扩展信息。请读懂这份档案，用一段自然的话说出你对这名学生体质状况的理解。"
+        },
+        {
+          "role": "user",
+          "content": "{\n  \"physical_exam\": {\n    \"YEARSTART\": \"2025\",\n    \"YEAREND\": \"2026\",\n    \"XB\": \"男\",\n    \"NL\": \"16\",\n    \"SG\": \"174.0\",\n    \"TZ\": \"64.0\",\n    \"FHL\": \"3400\",\n    \"ZYSL\": \"4.8\",\n    \"YYSL\": \"4.8\",\n    \"ZYJSL\": \"5.0\",\n    \"YYJSL\": \"5.0\",\n    \"JSLPJ\": \"正常\",\n    \"JZ\": \"未见异常\",\n    \"UP_TIME\": \"2025-09-24\",\n    \"SCHOOL_GRADE\": \"高一\"\n  },\n  \"fitness_test\": {\n    \"NJ\": \"高一\",\n    \"XB\": \"男\",\n    \"SGCJ\": \"174.0\",\n    \"TZCJ\": \"64.0\",\n    \"FHLCJ\": \"3400\",\n    \"WSMCJ\": \"7.9\",\n    \"LDTYCJ\": \"215\",\n    \"ZWTQQCJ\": \"10.0\",\n    \"WSMWFPCJ\": \"\",\n    \"YFZTSCJ\": \"\",\n    \"BBMCJ\": \"\",\n    \"YWQZCJ\": \"\",\n    \"YQMCJ\": \"4分15秒\",\n    \"YTXSCJ\": \"7\"\n  },\n  \"health_profile\": {\n    \"chronic_conditions\": [],\n    \"medications\": [],\n    \"injury_history\": [],\n    \"recent_symptoms\": [\n      \"近两周跑步时出现胸闷与心前区压迫感，休息数分钟后缓解\",\n      \"一次训练中出现眼前发黑\"\n    ],\n    \"family_history\": [\n      \"父亲 48 岁时心肌梗死\"\n    ],\n    \"vitals\": {\n      \"resting_heart_rate\": \"74\",\n      \"blood_pressure\": \"126/80\"\n    },\n    \"exercise_history\": {\n      \"weekly_frequency\": 3,\n      \"typical_duration_min\": 60,\n      \"main_activities\": [\n        \"跑步\",\n        \"足球\"\n      ],\n      \"training_experience\": \"规律跑步一年\",\n      \"sedentary_hours_per_day\": 9\n    },\n    \"lifestyle\": {\n      \"sleep_hours\": 7.5,\n      \"screen_time_hours\": 2.0,\n      \"breakfast_regular\": true\n    }\n  }\n}"
+        },
+        {
+          "role": "assistant",
+          "content": "这是一名16岁的高一男生，这份档案必须先说安全结论：近两周他在跑步时反复出现胸闷和心前区压迫感、要休息数分钟才缓解，还有一次训练中眼前发黑，而家族史里父亲48岁时发生过心肌梗死——运动中胸闷胸痛加黑矇，叠加早发心血管病家族史，是运动医学里最不能放过的危险信号组合，无论体测成绩如何，都应立即暂停跑步等中高强度运动，先到心内科完成检查（具体项目由医生决定），拿到明确意见后再恢复训练。他的血压126/80处于正常高值，静息心率74正常。单看体质本身其实不差：身高174.0cm、体重64.0kg，BMI约21.1正常；50米7.9秒接近良好，立定跳远215cm、1000米4分15秒、肺活量3400ml及格偏上，引体向上7次在高一男生及格线附近，坐位体前屈10.0cm中等——有一年规律跑步的底子，整体中等偏上。但正因为他有运动习惯、症状又是新发的，更不能用\"体能好\"来解释掉症状。就医前可以保留的只有散步等完全不引起不适的低强度活动，并把症状情况告知家长和体育老师，一旦再次出现胸闷或眼前发黑立即停止并就医。总体是一名体质中等偏上、但近期出现运动相关心血管警示症状的高一男生，当前唯一正确的处方是先排查、后运动。"
+        }
+      ],
+      "meta": {
+        "student_id": "BJ2025210352",
+        "case_tags": [
+          "高中",
+          "男",
+          "心血管警示症状",
+          "需转介"
+        ],
+        "source": "pregenerated(claude-fable-5)+待专家修订"
+      }
+    }
+  ]
+}
