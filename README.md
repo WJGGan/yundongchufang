@@ -40,7 +40,7 @@ cd backend && uv run uvicorn app.main:app --reload --port 8077
 | 路径 | 用途 |
 |---|---|
 | `/` 、`/report` | 运动处方报告（流式自适应页面） |
-| `/workbench` | 调试工作台：分步查看画像、安全评估、处方原始结构与流式过程 |
+| `/profile` | 健康档案理解报告：第一阶段画像各字段的报告页，可从处方报告页工具条「📋 档案理解报告」跳入 |
 | `/docs` | 接口文档 |
 
 ### 接入模型
@@ -317,7 +317,8 @@ backend/
       prescription_service.py  候选集过滤、处方生成、校验、详情回填
     data/                  四份数据资产 + index/ 嵌入索引
 frontend/
-  index.html               三栏单页：档案 / 画像 / 处方
-  app.js                   Vue 3（CDN，无构建步骤）
-  style.css
+  report.html              运动处方报告页：Vue 3（CDN，无构建步骤）
+  report.js / report.css
+  profile.html             健康档案理解报告页（第一阶段画像）
+  profile.js / profile.css
 ```

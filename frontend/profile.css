@@ -1,0 +1,146 @@
+/* ===========================================================
+   健康档案理解报告 · report.css 的补充样式
+   版式与运动处方报告保持一致（同一套变量与区块类），
+   这里只放画像特有：五维卡片 / 关注点 / 追问列表。
+   =========================================================== */
+
+/* ---------- 2 体质五维卡片 ---------- */
+.dim-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+.dim-card {
+  border: 1px solid #d5e3f5; border-radius: 8px;
+  background: #fbfdff; padding: 12px 14px;
+  min-width: 0;
+}
+.dim-head { display: flex; align-items: center; gap: 8px; }
+.dim-head strong { font-size: var(--fs-lg); }
+.dim-head .lv-badge { margin-left: auto; }
+.dim-bar {
+  height: 8px; border-radius: 4px; background: #e6edf7;
+  overflow: hidden; margin: 9px 0 7px;
+}
+.dim-bar i { display: block; height: 100%; border-radius: 4px; }
+.dim-bar i.bar-exc { background: linear-gradient(90deg, #15724b, #27a06b); }
+.dim-bar i.bar-good { background: linear-gradient(90deg, #2561b4, #2f7fe0); }
+.dim-bar i.bar-pass { background: linear-gradient(90deg, #b06310, #ef8b2a); }
+.dim-bar i.bar-fail { background: linear-gradient(90deg, #bb3326, #d9534f); }
+
+.dim-ind {
+  display: flex; flex-wrap: wrap; gap: 4px 16px;
+  font-size: var(--fs-sm); color: var(--ink-2);
+}
+.dim-ind b { color: var(--ink); font-weight: 600; }
+.dim-ind em { font-style: normal; color: var(--ink-3); }
+.dim-basis { margin: 7px 0 0; font-size: var(--fs-sm); color: var(--ink-3); line-height: 1.6; }
+
+/* 知识引用小徽标：id 原文 + 悬浮显示卡片标题 */
+.krefs { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.kref {
+  padding: 1px 8px; border-radius: 4px; cursor: default;
+  background: var(--purple-soft); color: var(--purple);
+  border: 1px solid #d5cdeb; font-size: var(--fs-xs);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* ---------- 3 综合评价 ---------- */
+.sec-body > .lead { margin: 0 0 10px; font-size: var(--fs-body); }
+.ov-block {
+  margin-top: 10px; padding-top: 9px; border-top: 1px dashed var(--line);
+}
+.ov-block h4 { margin: 0 0 8px; font-size: var(--fs-body); color: var(--ink-2); }
+.ov-block .pill { margin: 0 6px 6px 0; display: inline-block; }
+
+.weak-list { margin: 0; padding: 0; list-style: none; }
+.weak-list li {
+  display: flex; align-items: baseline; gap: 10px;
+  padding: 6px 0; border-bottom: 1px dashed var(--line-2);
+  font-size: var(--fs-md);
+}
+.weak-list li:last-child { border-bottom: none; }
+.weak-list .rank {
+  display: inline-flex; align-items: center; gap: 6px; flex: none;
+  font-weight: 700; color: var(--ink);
+}
+.weak-list .rank b {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--orange); color: #fff; font-size: 13px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.weak-list .reason { color: var(--ink-3); font-size: var(--fs-sm); }
+
+/* ---------- 4 健康关注点 ---------- */
+.focus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.focus-card {
+  border: 1px solid #f3d4ae; border-radius: 8px;
+  background: #fffcf7; padding: 12px 14px; min-width: 0;
+}
+.focus-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.focus-head strong { font-size: var(--fs-body); color: var(--orange); }
+.focus-card .tag {
+  padding: 1px 8px; border-radius: 4px;
+  background: var(--orange-soft); color: var(--orange); font-size: var(--fs-xs);
+}
+.focus-card p { margin: 4px 0; font-size: var(--fs-md); color: var(--ink-2); }
+.fl {
+  display: inline-block; margin-right: 6px; padding: 0 6px;
+  border-radius: 3px; font-size: var(--fs-xs);
+  background: var(--blue-soft); color: var(--blue);
+}
+
+/* ---------- 5 安全评估 ---------- */
+.safety-tags {
+  margin-top: 10px; padding-top: 9px; border-top: 1px dashed var(--line);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  font-size: var(--fs-body);
+}
+.safety-tags .fl { background: var(--red-soft); color: var(--red); }
+.fb-tag {
+  padding: 1px 9px; border-radius: 4px; font-size: var(--fs-sm);
+}
+.fb-tag.no { background: var(--red); color: #fff; }
+
+/* ---------- 6 数据质量与追问 ---------- */
+.plain-list { margin: 0; padding: 0; list-style: none; }
+.plain-list li {
+  padding: 6px 0; border-bottom: 1px dashed var(--line-2);
+  font-size: var(--fs-md); color: var(--ink-2);
+}
+.plain-list li:last-child { border-bottom: none; }
+.plain-list.dim li { color: var(--ink-3); }
+.plain-list b { color: var(--ink); margin-right: 6px; }
+
+.pri {
+  display: inline-block; margin-right: 7px; padding: 0 7px;
+  border-radius: 4px; font-size: var(--fs-xs); font-weight: 600;
+}
+.pri.pri-high { background: var(--red-soft); color: var(--red); }
+.pri.pri-mid { background: var(--orange-soft); color: var(--orange); }
+.pri.pri-low { background: var(--blue-soft); color: var(--blue); }
+.why { color: var(--ink-3); font-size: var(--fs-sm); }
+.fix { color: #178a59; font-size: var(--fs-sm); margin-left: 7px; }
+
+.q-row {
+  display: flex; align-items: baseline; gap: 9px;
+  padding: 7px 0; border-bottom: 1px dashed var(--line-2);
+  font-size: var(--fs-md);
+}
+.q-row:last-child { border-bottom: none; }
+.q-text { flex: 1; color: var(--ink); }
+.q-aud {
+  flex: none; padding: 0 7px; border-radius: 4px;
+  background: #f4f7fb; color: var(--ink-3); font-size: var(--fs-xs);
+}
+
+/* ---------- 急症关键词徽标 ---------- */
+.gen-alert .kw {
+  display: inline-block; margin: 0 4px; padding: 0 8px;
+  border-radius: 4px; background: var(--red-soft); color: var(--red);
+  font-size: var(--fs-sm);
+}
+
+/* ---------- 窄屏并栏 ---------- */
+@media screen and (max-width: 820px) {
+  .dim-grid, .focus-grid { grid-template-columns: 1fr; }
+  .weak-list li { flex-direction: column; gap: 3px; }
+}

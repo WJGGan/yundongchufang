@@ -409,7 +409,7 @@ createApp({
 
   watch: {
     /* 切换学生：有已生成结果就直接载入，没有就清空版面等待生成。
-       录入新档案或工作台跳转时 selectedId 由代码设置，由各自流程处理，这里跳过 */
+       录入新档案时 selectedId 由代码设置，由该流程处理，这里跳过 */
     selectedId(id) {
       if (!id || this.generating) return;
       if (this.hasData && this.rx.student_id === id) return;
@@ -440,18 +440,6 @@ createApp({
         this.selectedId = this.students[0].student_id;
       }
     });
-
-    // 从工作台带数据跳转过来时直接渲染
-    const raw = sessionStorage.getItem('rx_report');
-    if (raw) {
-      try {
-        const data = JSON.parse(raw);
-        if (data.record) this.record = data.record;
-        if (data.rx) this.applyResult(data.rx, data.profile);
-        if (data.rx && data.rx.student_id) this.selectedId = data.rx.student_id;
-        if (!data.record && data.rx && data.rx.student_id) this.fetchRecord(data.rx.student_id);
-      } catch (e) { /* 数据损坏则保持空态 */ }
-    }
   },
 
   methods: {
@@ -498,7 +486,7 @@ createApp({
           const when = (data.generated_at || '').slice(0, 16).replace('T', ' ');
           this.source = `已有结果 · ${data.model || ''} · ${when}`;
         } else if (data.profile) {
-          // 只生成过画像（如在调试工作台单独跑了档案理解）：画像照常展示
+          // 只生成过画像：画像照常展示
           this.genError = '该学生只生成过体质画像，尚无处方，可点「重新生成」补齐';
         } else if (!data.emergency && !data.blocked) {
           this.genError = '该学生的已有结果不含处方内容';
@@ -598,6 +586,12 @@ createApp({
 
     stopGenerate() {
       if (this.abortCtrl) this.abortCtrl.abort();
+    },
+
+    /* 跳转到第一阶段（档案理解）的报告页，携带当前学生便于直接载入 */
+    openProfile() {
+      if (!this.selectedId) return;
+      location.href = '/profile?id=' + encodeURIComponent(this.selectedId);
     },
 
     /* ---------- 自行录入 ---------- */

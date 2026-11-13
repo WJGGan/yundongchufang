@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>健康档案理解报告</title>
+<script src="https://unpkg.com/vue@3.4.38/dist/vue.global.prod.js"></script>
+<link rel="stylesheet" href="/static/report.css?v=20261112" />
+<link rel="stylesheet" href="/static/profile.css?v=20261112" />
+</head>
+<body>
+<div id="profile">
+
+  <!-- 工具条 -->
+  <div class="toolbar">
+    <select class="tb-select" v-model="selectedId">
+      <option value="" disabled>选择学生档案…</option>
+      <option v-for="s in students" :key="s.student_id" :value="s.student_id">
+        {{ cached[s.student_id] ? '★ ' : '' }}{{ s.name }} · {{ s.grade }}{{ s.gender }} · {{ s.age }}岁
+      </option>
+    </select>
+    <button class="tb-btn accent" :disabled="!selectedId || loading" @click="load">载入画像</button>
+    <span class="tb-title" v-if="hasData">
+      {{ titleName }} · 健康档案理解报告
+      <em class="tb-src" v-if="source">{{ source }}</em>
+    </span>
+    <span class="tb-stage" v-else-if="loading">正在载入…</span>
+    <span class="tb-spacer"></span>
+    <a class="tb-btn ghost" href="/report">← 处方报告</a>
+  </div>
+
+  <div class="gen-alert" v-if="error">{{ error }}</div>
+
+  <!-- 急症熔断：第一阶段即被代码拦截，无画像可展示 -->
+  <div class="gen-alert" v-if="emergency">
+    <strong>{{ emergency.title }}</strong>
+    <p>{{ emergency.message }}</p>
+    <div>命中关键词：<span class="kw" v-for="k in emergency.matched_keywords" :key="k">{{ k }}</span></div>
+    <ul><li v-for="a in emergency.immediate_advice" :key="a">{{ a }}</li></ul>
+    <p>{{ emergency.next_step }}</p>
+  </div>
+
+  <!-- 安全闸门：画像判定不宜开处方，画像本身照常展示 -->
+  <div class="gen-alert" v-if="blocked">
+    <strong>安全评估判定当前不宜生成可执行处方</strong>
+    <ul><li v-for="a in blocked.referral_advice" :key="a">{{ a }}</li></ul>
+  </div>
+
+  <!-- 报告版式：无数据时整体降透明度呈现空白版式 -->
+  <div class="sheet-wrap" :class="{ pending: !hasData }">
+
+    <div class="sheet">
+      <div class="sheet-inner">
+
+      <!-- 报头 -->
+      <header class="rpt-head">
+        <div class="logo">
+          <div class="logo-mark">
+            <svg viewBox="0 0 48 48" aria-hidden="true">
+              <circle cx="24" cy="9" r="5"/>
+              <path d="M24 16c-6 0-9 3-9 7v8h4v13h10V31h4v-8c0-4-3-7-9-7z"/>
+            </svg>
+          </div>
+          <div class="logo-text">
+            <strong>青少年</strong>
+            <span>运动健康中心</span>
+          </div>
+        </div>
+
+        <div class="head-title">
+          <h1>青少年运动健康中心</h1>
+          <h2>健康档案理解报告</h2>
+          <p class="slogan">科学运动 · 健康成长 · 专业指导 · 持续改善</p>
+        </div>
+
+        <div class="head-meta">
+          <div class="hm-row"><span>学生编号</span><b>{{ profile.student_id || '—' }}</b></div>
+          <div class="hm-row"><span>姓&nbsp;&nbsp;&nbsp;&nbsp;名</span><b>{{ profile.name || '—' }}</b></div>
+          <div class="hm-row"><span>生成日期</span><b>{{ dateOnly(profile.generated_at) || '—' }}</b></div>
+          <div class="hm-row"><span>模型版本</span><b>{{ profile.versions.model || '—' }}</b></div>
+          <div class="hm-note">本报告由模型辅助生成<br/>需经专业人员审核后使用</div>
+        </div>
+      </header>
+
+      <!-- 1 基础评价 -->
+      <section class="sec">
+        <div class="sec-head blue"><i>1</i><h3>基础评价</h3></div>
+        <div class="sec-body boxed info-box">
+          <div class="info-grid">
+            <div class="f"><label>姓&nbsp;&nbsp;&nbsp;&nbsp;名</label><u>{{ profile.name || '—' }}</u></div>
+            <div class="f"><label>性&nbsp;&nbsp;&nbsp;&nbsp;别</label><u>{{ basic.gender || '—' }}</u></div>
+            <div class="f"><label>年&nbsp;&nbsp;&nbsp;&nbsp;龄</label><u>{{ basic.age ?? '—' }}</u><span class="unit">岁</span></div>
+            <div class="f"><label>年&nbsp;&nbsp;&nbsp;&nbsp;级</label><u>{{ basic.grade || '—' }}</u></div>
+            <div class="f"><label>身&nbsp;&nbsp;&nbsp;&nbsp;高</label><u>{{ basic.height_cm ?? '—' }}</u><span class="unit">cm</span></div>
+            <div class="f"><label>体&nbsp;&nbsp;&nbsp;&nbsp;重</label><u>{{ basic.weight_kg ?? '—' }}</u><span class="unit">kg</span></div>
+            <div class="f"><label>BMI</label><u>{{ basic.bmi ?? '—' }}</u></div>
+            <div class="f"><label>BMI 评价</label><u>{{ basic.bmi_evaluation || '—' }}</u></div>
+            <div class="f wide"><label>评价依据</label><u>{{ basic.bmi_basis || '—' }}</u></div>
+            <div class="f wide"><label>生长发育备注</label><u>{{ basic.growth_note || '—' }}</u></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2 体质五维 -->
+      <section class="sec">
+        <div class="sec-head green"><i>2</i><h3>体质五维评价</h3></div>
+        <div class="sec-body">
+          <div class="dim-grid">
+            <div class="dim-card" v-for="d in dims" :key="d.dimension">
+              <div class="dim-head">
+                <strong>{{ d.dimension }}</strong>
+                <span class="lv-badge" :class="levelMeta(d.level).cls">{{ d.level || '—' }}</span>
+              </div>
+              <div class="dim-bar"><i :class="levelMeta(d.level).cls" :style="{ width: levelMeta(d.level).width }"></i></div>
+              <div class="dim-ind" v-if="d.indicators.length">
+                <span v-for="i in d.indicators" :key="i.name">
+                  {{ i.name }} <b>{{ i.raw || '—' }}</b><em v-if="i.level">（{{ i.level }}）</em>
+                </span>
+              </div>
+              <p class="dim-basis" v-if="d.basis">{{ d.basis }}</p>
+              <div class="krefs" v-if="d.knowledge_refs && d.knowledge_refs.length">
+                <span class="kref" v-for="r in d.knowledge_refs" :key="r" :title="cardTitle(r)">{{ r }}</span>
+              </div>
+            </div>
+          </div>
+          <p class="sub-empty" v-if="!dims.length">暂无体质五维评价数据。</p>
+        </div>
+      </section>
+
+      <!-- 3 综合评价 -->
+      <section class="sec">
+        <div class="sec-head blue"><i>3</i><h3>综合评价</h3>
+          <span class="sec-note" v-if="overall.level">综合等级：{{ overall.level }}</span>
+        </div>
+        <div class="sec-body boxed">
+          <p class="lead">{{ overall.summary || '—' }}</p>
+          <div class="ov-block" v-if="overall.strengths.length">
+            <h4>优势</h4>
+            <span class="pill" v-for="s in overall.strengths" :key="s">{{ s }}</span>
+          </div>
+          <div class="ov-block" v-if="overall.weaknesses.length">
+            <h4>短板（按处方优先级排序）</h4>
+            <ol class="weak-list">
+              <li v-for="(w, i) in overall.weaknesses" :key="i">
+                <span class="rank"><b>{{ i + 1 }}</b>{{ w.dimension }}</span>
+                <span class="reason">{{ w.reason }}</span>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4 健康关注点 -->
+      <section class="sec">
+        <div class="sec-head orange"><i>4</i><h3>健康关注点</h3></div>
+        <div class="sec-body">
+          <div class="focus-grid">
+            <div class="focus-card" v-for="f in focus" :key="f.item">
+              <div class="focus-head">
+                <strong>{{ f.item }}</strong>
+                <span class="tag">{{ f.type }}</span>
+              </div>
+              <p><span class="fl">影响</span>{{ f.impact || '—' }}</p>
+              <p><span class="fl">注意</span>{{ f.attention || '—' }}</p>
+            </div>
+          </div>
+          <p class="sub-empty" v-if="!focus.length">未发现需特别关注的健康问题。</p>
+        </div>
+      </section>
+
+      <!-- 5 安全评估 -->
+      <section class="sec">
+        <div class="sec-head purple"><i>5</i><h3>安全评估</h3></div>
+        <div class="sec-body boxed warn-box">
+          <div class="info-grid">
+            <div class="f"><label>风险等级</label>
+              <span class="cks">
+                <em :class="{ on: safety.risk_level === '低' }">低</em>
+                <em :class="{ on: safety.risk_level === '中' }">中</em>
+                <em :class="{ on: safety.risk_level === '高' }">高</em>
+              </span>
+            </div>
+            <div class="f"><label>可否生成处方</label>
+              <u :class="{ warn: !safety.can_generate_prescription }">
+                {{ safety.can_generate_prescription ? '可以' : '不建议，先转介' }}
+              </u>
+            </div>
+            <div class="f wide"><label>强度上限</label>
+              <u>最大心率 {{ safety.intensity_ceiling.hr_max_percent ?? '—' }}% · RPE {{ safety.intensity_ceiling.rpe_max ?? '—' }}</u>
+            </div>
+            <div class="f wide" v-if="safety.intensity_ceiling.basis"><label>设定依据</label><u>{{ safety.intensity_ceiling.basis }}</u></div>
+          </div>
+          <div class="safety-tags" v-if="safety.blocked_exercise_tags.length">
+            <span class="fl">禁用动作标签</span>
+            <span class="fb-tag no" v-for="t in safety.blocked_exercise_tags" :key="t">{{ t }}</span>
+          </div>
+          <div class="ov-block" v-if="safety.referral_advice.length">
+            <h4>转介建议</h4>
+            <ul class="plain-list"><li v-for="r in safety.referral_advice" :key="r">{{ r }}</li></ul>
+          </div>
+          <div class="ov-block" v-if="safety.notes.length">
+            <h4>安全备注</h4>
+            <ul class="plain-list dim"><li v-for="n in safety.notes" :key="n">{{ n }}</li></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6 数据质量与追问 -->
+      <section class="sec">
+        <div class="sec-head blue"><i>6</i><h3>数据质量与追问</h3></div>
+        <div class="sec-body boxed">
+          <div class="ov-block" v-if="missing.length">
+            <h4>缺失字段</h4>
+            <ul class="plain-list">
+              <li v-for="m in missing" :key="m.field">
+                <b>{{ m.field }}</b>
+                <span class="pri" :class="priCls(m.priority)">{{ m.priority || '—' }}</span>
+                <span class="why">{{ m.why_needed }}</span>
+              </li>
+            </ul>
+          </div>
+          <div class="ov-block" v-if="conflicts.length">
+            <h4>矛盾项</h4>
+            <ul class="plain-list">
+              <li v-for="(c, i) in conflicts" :key="i">
+                <b>{{ (c.fields || []).join(' / ') }}</b>
+                <span class="why">{{ c.description }}</span>
+                <span class="fix" v-if="c.suggestion">→ {{ c.suggestion }}</span>
+              </li>
+            </ul>
+          </div>
+          <div class="ov-block" v-if="questions.length">
+            <h4>建议追问</h4>
+            <div class="q-row" v-for="(q, i) in questions" :key="i">
+              <span class="pri" :class="priCls(q.priority)">{{ q.priority || '—' }}</span>
+              <span class="q-text">{{ q.question }}</span>
+              <span class="q-aud" v-if="q.audience">问{{ q.audience }}</span>
+            </div>
+          </div>
+          <p class="sub-empty" v-if="!missing.length && !conflicts.length && !questions.length">
+            档案数据完整，未发现缺失与矛盾。
+          </p>
+        </div>
+      </section>
+
+      <div class="rpt-bottom">
+        <span class="left">AI 生成辅助 + 科学依据：ACSM 指南、FITT-VP 原则、国家学生体质健康标准等</span>
+        <span class="right">{{ profile.disclaimer || '本报告仅供参考，不能替代医疗建议。如有不适，请及时就医。' }}</span>
+      </div>
+
+      <div class="sheet-foot">
+        <span>{{ profile.student_id }}</span>
+        <span>本报告由模型辅助生成，需经专业人员审核后使用</span>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/static/profile.js?v=20261112"></script>
+</body>
+</html>

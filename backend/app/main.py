@@ -52,11 +52,10 @@ if FRONTEND_DIR.is_dir():
         """运动处方报告页（纯 HTML 流式页面，自适应窗口宽度）。
 
         作为默认入口：打开即呈现空白报告版式，选择档案生成后再填充内容。
-        也支持从工作台经 sessionStorage 带数据跳转过来。
         """
         return FileResponse(FRONTEND_DIR / "report.html", headers=_NO_CACHE)
 
-    @app.get("/workbench", include_in_schema=False)
-    def workbench() -> FileResponse:
-        """调试工作台：分步查看画像、安全评估、处方原始结构与流式过程。"""
-        return FileResponse(FRONTEND_DIR / "index.html", headers=_NO_CACHE)
+    @app.get("/profile", include_in_schema=False)
+    def profile() -> FileResponse:
+        """健康档案理解报告页：展示第一阶段画像（基础评价、五维、安全评估等）各字段。"""
+        return FileResponse(FRONTEND_DIR / "profile.html", headers=_NO_CACHE)
