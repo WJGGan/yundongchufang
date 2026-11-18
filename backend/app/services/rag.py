@@ -258,8 +258,8 @@ def _record_grade(record: dict[str, Any]) -> str:
     return str(exam.get("SCHOOL_GRADE") or fitness.get("NJ") or "")
 
 
-def _prescription_query_text(record: dict[str, Any], request: dict[str, Any]) -> str:
-    """处方阶段的查询：学段/性别 + 健康状况 + 体检异常 + 目标 + 偏好。"""
+def _prescription_query_text(record: dict[str, Any]) -> str:
+    """处方阶段的查询：学段/性别 + 健康状况 + 体检异常。"""
     pieces: list[str] = []
     exam = record.get("physical_exam") or {}
     pieces.append(f"{_record_grade(record)} {exam.get('XB', '')}生 {exam.get('NL', '')}岁")
@@ -283,11 +283,6 @@ def _prescription_query_text(record: dict[str, Any], request: dict[str, Any]) ->
     if vision and vision not in ("正常", "良好"):
         pieces.append(f"视力 {vision}")
 
-    pieces.extend(request.get("goals") or [])
-    preferences = request.get("preferences") or {}
-    liked = preferences.get("liked") or []
-    if liked:
-        pieces.append("喜欢 " + "、".join(liked))
     return "；".join(str(piece) for piece in pieces if str(piece).strip())
 
 
@@ -311,15 +306,10 @@ def _pick_with_quota(
     ranked: list[dict[str, Any]],
     quota: dict[str, int],
     top_k: int,
-    pinned_ids: set[str] | None = None,
 ) -> list[dict[str, Any]]:
-    """先放强制入选项，再按领域配额保底（域内取相似度最高者），最后按总分补满。"""
+    """先按领域配额保底（域内取相似度最高者），再按总分补满。"""
     picked: list[dict[str, Any]] = []
     picked_ids: set[str] = set()
-    for card in ranked:
-        if pinned_ids and card["id"] in pinned_ids:
-            picked.append(card)
-            picked_ids.add(card["id"])
     for domain, count in quota.items():
         taken = sum(1 for item in picked if item.get("domain") == domain)
         for card in [item for item in ranked if item.get("domain") == domain][: max(count - taken, 0)]:
@@ -346,28 +336,8 @@ def _health_quota(has_chronic: bool, has_injury: bool) -> dict[str, int]:
     return quota
 
 
-def _goal_pinned_ids(pool: list[dict[str, Any]], goals: list[Any]) -> set[str]:
-    """目标点名的体测专项卡强制入选。
-
-    如目标「体测专项提升:50米跑」必须召回《50米跑训练方法》；语义排序下
-    同域其他卡（1000米、立定跳远等）可能得分更高而把点名卡挤出名额。
-    """
-    pinned: set[str] = set()
-    for goal in goals or []:
-        token = str(goal).replace("：", ":").split(":")[-1].strip()
-        if not token:
-            continue
-        for card in pool:
-            if card.get("domain") == "体测专项" and (
-                token in card["title"] or card["title"] in token
-            ):
-                pinned.add(card["id"])
-    return pinned
-
-
 async def retrieve_knowledge_for_prescription(
     record: dict[str, Any],
-    request: dict[str, Any],
 ) -> list[dict[str, Any]]:
     """处方生成：领域保底配额 + 混合排序，返回 top-k 知识卡片。"""
     cards = knowledge_cards()
@@ -383,7 +353,7 @@ async def retrieve_knowledge_for_prescription(
         return pool
 
     docs = [(card["id"], knowledge_doc_text(card)) for card in pool]
-    scores = await _score_docs("knowledge", docs, _prescription_query_text(record, request))
+    scores = await _score_docs("knowledge", docs, _prescription_query_text(record))
     ranked = sorted(pool, key=lambda card: scores.get(card["id"], 0.0), reverse=True)
 
     health = record.get("health_profile") or {}
@@ -394,30 +364,9 @@ async def retrieve_knowledge_for_prescription(
             has_injury=bool(health.get("injury_history")),
         )
     )
-    pinned = _goal_pinned_ids(pool, request.get("goals") or [])
-    return _pick_with_quota(ranked, quota, top_k, pinned_ids=pinned)
+    # 学生不再填目标：体测专项卡随弱项成绩的语义相似度竞争入选
+    return _pick_with_quota(ranked, quota, top_k)
 
-
-# 训练目标 → 动作类别的结构化加权，使排序不完全依赖嵌入质量。
-# 目标关键词先映射到体质维度，再经 _DIMENSION_CATEGORY 落到动作类别。
-_DIMENSION_CATEGORY = {
-    "心肺耐力": ("有氧",),
-    "肌肉力量": ("抗阻", "核心"),
-    "柔韧性": ("柔韧",),
-    "速度": ("速度灵敏",),
-    "爆发力": ("速度灵敏", "抗阻"),
-    "身体成分": ("有氧", "核心"),
-}
-
-_GOAL_KEYWORD_DIMENSION = {
-    "心肺": "心肺耐力", "耐力": "心肺耐力", "有氧": "心肺耐力",
-    "1000米": "心肺耐力", "800米": "心肺耐力", "中长跑": "心肺耐力",
-    "力量": "肌肉力量", "引体": "肌肉力量", "仰卧起坐": "肌肉力量",
-    "柔韧": "柔韧性", "体前屈": "柔韧性",
-    "速度": "速度", "灵敏": "速度", "50米": "速度",
-    "爆发": "爆发力", "立定跳远": "爆发力", "跳绳": "爆发力", "身高": "爆发力",
-    "体重": "身体成分", "减脂": "身体成分", "肥胖": "身体成分", "BMI": "身体成分",
-}
 
 # 热身与放松是每个训练日的必备块，全部保留；主训练五类各保底 2 个
 _ALWAYS_KEEP_CATEGORIES = ("热身", "放松")
@@ -431,9 +380,8 @@ _CATEGORY_ORDER = {
 async def rank_exercises(
     candidates: list[dict[str, Any]],
     record: dict[str, Any],
-    request: dict[str, Any],
 ) -> list[dict[str, Any]]:
-    """在硬过滤（年龄/器械/场地）后的候选内，按相关度排序并截断到配置上限。
+    """在硬过滤（年龄/校园默认器材）后的候选内，按相关度排序并截断到配置上限。
 
     保底规则保证模型拿到的子集仍然可编排出完整一周计划：
     热身/放松全保留，主训练五类各至少 2 个（若候选中存在）。
@@ -443,32 +391,10 @@ async def rank_exercises(
         return candidates
 
     docs = [(item["id"], exercise_doc_text(item)) for item in candidates]
-    scores = await _score_docs("exercises", docs, _prescription_query_text(record, request))
-
-    # 目标按先后顺序衰减加权：第一个目标对应类别加成最大
-    category_boost: dict[str, float] = {}
-    for rank, goal in enumerate(request.get("goals") or [], start=1):
-        text = str(goal)
-        for keyword, dimension in _GOAL_KEYWORD_DIMENSION.items():
-            if keyword not in text:
-                continue
-            for category in _DIMENSION_CATEGORY.get(dimension, ()):
-                boost = max(0.2 - 0.06 * (rank - 1), 0.06)
-                category_boost[category] = max(category_boost.get(category, 0.0), boost)
-
-    preferences = request.get("preferences") or {}
-    liked = [str(item) for item in preferences.get("liked") or []]
-    disliked = [str(item) for item in preferences.get("disliked") or []]
+    scores = await _score_docs("exercises", docs, _prescription_query_text(record))
 
     def final_score(exercise: dict[str, Any]) -> float:
-        text = exercise_doc_text(exercise)
-        score = scores.get(exercise["id"], 0.0)
-        score += category_boost.get(exercise.get("category", ""), 0.0)
-        if any(term and term in text for term in liked):
-            score += 0.15
-        if any(term and term in text for term in disliked):
-            score -= 0.25
-        return score
+        return scores.get(exercise["id"], 0.0)
 
     ranked = sorted(candidates, key=final_score, reverse=True)
 

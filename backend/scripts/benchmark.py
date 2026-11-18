@@ -20,7 +20,11 @@ from app.prompts import profile as pf_prompt  # noqa: E402
 from app.schemas.record import HealthRecord  # noqa: E402
 from app.services import rag  # noqa: E402
 from app.services.data_loader import find_student  # noqa: E402
-from app.services.prescription_service import filter_candidates, parse_age  # noqa: E402
+from app.services.prescription_service import (  # noqa: E402
+    DEFAULT_EQUIPMENT,
+    filter_candidates,
+    parse_age,
+)
 
 STUDENT_ID = "BJ2025090314"
 
@@ -41,19 +45,17 @@ async def build_prescription_prompt() -> tuple[str, str]:
     """处方 prompt 直接由原始档案构造，与线上链路一致。"""
     record = HealthRecord.model_validate(find_student(STUDENT_ID))
     record_view = record.to_prompt_dict()
-    request = record.prescription_request.model_dump()
     age = parse_age(record)
     candidates = filter_candidates(
         age=age,
-        equipment=record.prescription_request.equipment,
-        venue=record.prescription_request.venue,
+        equipment=DEFAULT_EQUIPMENT,
+        venue=[],
     )
     # 与 prescription_service 保持一致：候选排序截断 + 知识卡片检索
-    candidates = await rag.rank_exercises(candidates, record_view, request)
-    cards = await rag.retrieve_knowledge_for_prescription(record_view, request)
+    candidates = await rag.rank_exercises(candidates, record_view)
+    cards = await rag.retrieve_knowledge_for_prescription(record_view)
     return rx_prompt.SYSTEM, rx_prompt.build_user_prompt(
         record=record_view,
-        request=request,
         age=age,
         candidates=candidates,
         knowledge_cards=cards,

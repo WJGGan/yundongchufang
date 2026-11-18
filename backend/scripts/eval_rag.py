@@ -31,14 +31,6 @@ from app.services.data_loader import all_students, knowledge_cards  # noqa: E402
 # 金标准标注
 # ---------------------------------------------------------------------------
 
-# 目标关键词 → 卡片
-_GOAL_CARDS = {
-    "1000米": "GUIDE-26", "800米": "GUIDE-26", "50米": "GUIDE-27",
-    "引体": "GUIDE-28", "体前屈": "GUIDE-29", "跳绳": "GUIDE-30",
-    "立定跳远": "GUIDE-31", "身高": "GUIDE-07", "心肺": "GUIDE-08",
-    "柔韧": "GUIDE-09", "体重": "GUIDE-12", "爆发力": "GUIDE-10", "灵敏": "GUIDE-10",
-}
-
 # 处方阶段结构性卡片：输出结构固定含框架/强度/营养/训练结构/安全/依从性
 _RX_STRUCTURAL = {
     "GUIDE-01", "GUIDE-02", "GUIDE-04", "GUIDE-05", "GUIDE-06", "GUIDE-13",
@@ -81,13 +73,8 @@ def gold_condition_cards(student: dict[str, Any]) -> set[str]:
 
 
 def gold_goal_cards(student: dict[str, Any]) -> set[str]:
-    goals = (student.get("prescription_request") or {}).get("goals") or []
-    gold: set[str] = set()
-    for goal in goals:
-        for keyword, card in _GOAL_CARDS.items():
-            if keyword in str(goal):
-                gold.add(card)
-    return gold
+    """处方需求已删除：学生不再提供目标，针对性金标准只剩健康状况卡。"""
+    return set()
 
 
 # ---------------------------------------------------------------------------
@@ -116,10 +103,9 @@ def summarize(rows: list[tuple[float, float, float, float]]) -> str:
 async def eval_rx_stage(label: str) -> None:
     rows, misses = [], []
     for student in all_students():
-        request = student.get("prescription_request") or {}
         # 处方检索直接吃原始档案（与线上链路一致），学生 JSON 即档案结构
         retrieved = {
-            c["id"] for c in await rag.retrieve_knowledge_for_prescription(student, request)
+            c["id"] for c in await rag.retrieve_knowledge_for_prescription(student)
         }
         specific = gold_condition_cards(student) | gold_goal_cards(student)
         rows.append(prf(retrieved, specific, _RX_STRUCTURAL))

@@ -1,7 +1,8 @@
-"""处方生成服务：原始健康档案 + 请求参数 → 一人一策运动处方。
+"""处方生成服务：原始健康档案 → 一人一策运动处方。
 
-动作候选集由代码按器械、场地、年龄过滤后交给模型，模型只负责在候选集内
-选择与排期；动作详情从动作库回填，不由模型生成。
+动作候选集由代码按校园默认器材、年龄过滤后交给模型，模型只负责在候选集内
+选择与排期；动作详情从动作库回填，不由模型生成。学生不提供处方需求，
+锻炼目标与训练量由模型从档案推导。
 """
 
 from __future__ import annotations
@@ -36,6 +37,16 @@ DISCLAIMER = (
 WEEKDAYS = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
 
 _MIN_CANDIDATES = 20
+
+# 校园默认器材：学生不再填写器材清单，按中小学普遍可得的器材过滤候选动作。
+# 跳绳人人有，单杠/低单杠是学校操场标配，标志物可用书包水瓶替代；
+# 传空列表会把全部器材动作拒掉，导致跳绳、引体等体测核心项目永远开不进处方。
+DEFAULT_EQUIPMENT = ["跳绳", "单杠", "低单杠", "标志物"]
+
+# 训练量内置上限：学生不再填写可用时间，超限触发一次重生成
+MAX_TRAINING_DAYS = 6
+MAX_SESSION_MINUTES = 90
+MAX_SESSION_MINUTES_UNDER_12 = 60
 
 # NL 为空时按年级估算年龄，用于候选集 min_age 过滤与 prompt 提示
 _GRADE_AGE = {
@@ -126,7 +137,7 @@ def validate_payload(
     payload: dict[str, Any],
     *,
     candidate_ids: set[str],
-    request: dict[str, Any],
+    age: int | None = None,
 ) -> list[str]:
     """返回问题清单；为空表示通过。用于触发一次重生成。"""
     problems: list[str] = []
@@ -146,25 +157,25 @@ def validate_payload(
     if missing_days:
         problems.append(f"weekly_plan 缺少以下日期：{'、'.join(missing_days)}")
 
-    available = request.get("available_time") or {}
-    max_days = available.get("days_per_week")
-    if isinstance(max_days, int) and max_days > 0:
-        training_days = sum(
-            1 for day in payload.get("weekly_plan") or [] if day.get("is_training_day")
+    training_days = sum(
+        1 for day in payload.get("weekly_plan") or [] if day.get("is_training_day")
+    )
+    if training_days > MAX_TRAINING_DAYS:
+        problems.append(
+            f"训练日 {training_days} 天超过了青少年每周上限 {MAX_TRAINING_DAYS} 天"
         )
-        if training_days > max_days:
-            problems.append(
-                f"训练日 {training_days} 天超过了学生可用的 {max_days} 天"
-            )
 
-    max_minutes = available.get("minutes_per_session")
-    if isinstance(max_minutes, int) and max_minutes > 0:
-        for day in payload.get("weekly_plan") or []:
-            minutes = day.get("total_minutes")
-            if isinstance(minutes, int) and minutes > max_minutes and day.get("is_training_day"):
-                problems.append(
-                    f"{day.get('day', '')} 安排了 {minutes} 分钟，超过单次上限 {max_minutes} 分钟"
-                )
+    max_minutes = (
+        MAX_SESSION_MINUTES_UNDER_12
+        if age is not None and age < 12
+        else MAX_SESSION_MINUTES
+    )
+    for day in payload.get("weekly_plan") or []:
+        minutes = day.get("total_minutes")
+        if isinstance(minutes, int) and minutes > max_minutes and day.get("is_training_day"):
+            problems.append(
+                f"{day.get('day', '')} 安排了 {minutes} 分钟，超过单次上限 {max_minutes} 分钟"
+            )
 
     return problems
 
@@ -220,7 +231,7 @@ def _assemble(
             "name": record.name,
             "generated_at": now_iso(),
             "versions": current_versions().model_dump(),
-            "goals": record.prescription_request.goals,
+            "goals": payload.get("goals") or [],
             "exercise_details": [item.model_dump() for item in details],
             "unknown_exercise_ids": unknown,
             "disclaimer": DISCLAIMER,
@@ -239,26 +250,24 @@ async def stream_prescription(
     ("result", PrescriptionResult) 或 ("error", 说明)。
     """
     provider = get_provider()
-    request = record.prescription_request.model_dump()
     record_view = record.to_prompt_dict()
     age = parse_age(record)
 
     candidates = filter_candidates(
         age=age,
-        equipment=record.prescription_request.equipment,
-        venue=record.prescription_request.venue,
+        equipment=DEFAULT_EQUIPMENT,
+        venue=[],
     )
     # 校验边界用过滤后的全集：候选截断只是 prompt 瘦身，
     # 模型只要用了候选集合内的动作就不算违规
     candidate_ids = {item["id"] for item in candidates}
 
-    # RAG：候选动作按目标/健康状况/偏好排序截断，知识卡片检索相关子集
-    candidates = await rag.rank_exercises(candidates, record_view, request)
-    cards = await rag.retrieve_knowledge_for_prescription(record_view, request)
+    # RAG：候选动作按健康状况排序截断，知识卡片检索相关子集
+    candidates = await rag.rank_exercises(candidates, record_view)
+    cards = await rag.retrieve_knowledge_for_prescription(record_view)
 
     base_prompt = prompt.build_user_prompt(
         record=record_view,
-        request=request,
         age=age,
         candidates=candidates,
         knowledge_cards=cards,
@@ -313,7 +322,7 @@ async def stream_prescription(
         problems = validate_payload(
             payload,
             candidate_ids=candidate_ids,
-            request=request,
+            age=age,
         )
         if problems and attempt == 0:
             last_problems = problems

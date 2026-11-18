@@ -43,7 +43,6 @@ class StudentSummary(BaseModel):
     age: str
     height_cm: str
     weight_kg: str
-    goals: list[str]
     highlights: list[str]
 
 
@@ -85,7 +84,6 @@ def list_students() -> list[StudentSummary]:
     summaries: list[StudentSummary] = []
     for student in all_students():
         exam = student.get("physical_exam") or {}
-        request = student.get("prescription_request") or {}
         summaries.append(
             StudentSummary(
                 student_id=student["student_id"],
@@ -96,7 +94,6 @@ def list_students() -> list[StudentSummary]:
                 age=exam.get("NL", ""),
                 height_cm=exam.get("SG", ""),
                 weight_kg=exam.get("TZ", ""),
-                goals=request.get("goals") or [],
                 highlights=_highlights(student),
             )
         )

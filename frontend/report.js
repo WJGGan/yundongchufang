@@ -81,13 +81,7 @@ const DEFAULT_FORM = {
   chronic: '哮喘（轻度间歇性，近一年未急性发作）',
   medications: '沙丁胺醇气雾剂（按需使用）',
   injuries: '右踝韧带扭伤（2025-04，已恢复，剧烈变向时偶有酸胀）',
-  symptoms: '', family: '父亲高血压',
-  weekly_frequency: '2', main_activities: '校内体育课、周末骑行', sedentary: '9',
-  goals: '健康体重管理、心肺耐力提升、体测专项提升:1000米',
-  days_per_week: '4', minutes_per_session: '45', preferred_slot: '放学后',
-  venue: '家庭、小区空地、学校操场',
-  equipment: '跳绳、弹力带、瑜伽垫、自行车、篮球',
-  liked: '骑行、篮球', disliked: '长距离慢跑',
+  symptoms: '',
 };
 
 createApp({
@@ -118,7 +112,7 @@ createApp({
     isCached() {
       return !!this.cached[this.selectedId];
     },
-    /* ---------- 1 基本信息：原始档案（体检 / 体测 / 运动史 / 伤病史） ---------- */
+    /* ---------- 1 基本信息：原始档案（体检 / 体测 / 伤病史） ---------- */
 
     /* 基本信息直接取原始档案的体检字段 */
     basic() {
@@ -173,19 +167,6 @@ createApp({
         });
       });
       return rows;
-    },
-
-    /* 运动史 */
-    exerciseRows() {
-      const h = this.rawHealth.exercise_history || {};
-      const num = (n, suffix) => (n !== '' && n != null ? `${n} ${suffix}` : '');
-      return [
-        { label: '每周运动', value: num(h.weekly_frequency, '次') },
-        { label: '每次时长', value: num(h.typical_duration_min, '分钟') },
-        { label: '每日久坐', value: num(h.sedentary_hours_per_day, '小时') },
-        { label: '训练经历', value: h.training_experience || '' },
-        { label: '常做运动', value: (h.main_activities || []).join('、'), wide: true },
-      ];
     },
 
     /* 伤病史：兼容结构化条目与纯文本录入 */
@@ -389,7 +370,7 @@ createApp({
       // 报告版面挂在 v-if="!showForm" 下：先收起录入表单，结果才看得见
       this.showForm = false;
       this.resetState();
-      // 原始档案单独拉取：报告头部的基本信息 / 体检 / 体测 / 运动史 / 伤病史直接展示档案原文
+      // 原始档案单独拉取：报告头部的基本信息 / 体检 / 体测 / 伤病史直接展示档案原文
       this.fetchRecord(this.selectedId);
       try {
         const res = await fetch(`/api/v1/pregenerated/${this.selectedId}`);
@@ -498,20 +479,10 @@ createApp({
       return (text || '').split(/[,，、;；\n]/).map((s) => s.trim()).filter(Boolean);
     },
 
-    toNum(text) {
-      if (text === '' || text == null) return null;
-      const n = Number(text);
-      return Number.isFinite(n) ? n : null;
-    },
-
     buildRecord() {
       const f = this.form;
       if (!f.name || !f.age || !f.height || !f.weight) {
         this.formError = '请至少填写姓名、年龄、身高、体重';
-        return null;
-      }
-      if (!this.splitList(f.goals).length) {
-        this.formError = '请至少填写一个运动目标';
         return null;
       }
       this.formError = '';
@@ -534,25 +505,7 @@ createApp({
           medications: this.splitList(f.medications),
           injury_history: this.splitList(f.injuries).map((t) => ({ note: t })),
           recent_symptoms: this.splitList(f.symptoms),
-          family_history: this.splitList(f.family),
           vitals: { resting_heart_rate: f.resting_hr, blood_pressure: f.blood_pressure },
-          exercise_history: {
-            weekly_frequency: this.toNum(f.weekly_frequency),
-            main_activities: this.splitList(f.main_activities),
-            sedentary_hours_per_day: this.toNum(f.sedentary),
-          },
-        },
-        prescription_request: {
-          goals: this.splitList(f.goals),
-          available_time: {
-            days_per_week: this.toNum(f.days_per_week),
-            minutes_per_session: this.toNum(f.minutes_per_session),
-            preferred_slot: f.preferred_slot,
-          },
-          venue: this.splitList(f.venue),
-          equipment: this.splitList(f.equipment),
-          preferences: { liked: this.splitList(f.liked), disliked: this.splitList(f.disliked) },
-          guardian_consent: true,
         },
       };
     },

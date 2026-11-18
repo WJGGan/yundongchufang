@@ -74,16 +74,6 @@ class Vitals(BaseModel):
     blood_pressure: str = ""
 
 
-class ExerciseHistory(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    weekly_frequency: int | None = None
-    typical_duration_min: int | None = None
-    main_activities: list[str] = Field(default_factory=list)
-    training_experience: str = ""
-    sedentary_hours_per_day: float | None = None
-
-
 class HealthProfile(BaseModel):
     """健康扩展层：体检与体质表未覆盖、但处方生成必需的信息。"""
 
@@ -93,37 +83,7 @@ class HealthProfile(BaseModel):
     medications: list[str] = Field(default_factory=list)
     injury_history: list[InjuryRecord] = Field(default_factory=list)
     recent_symptoms: list[str] = Field(default_factory=list)
-    family_history: list[str] = Field(default_factory=list)
     vitals: Vitals = Field(default_factory=Vitals)
-    exercise_history: ExerciseHistory = Field(default_factory=ExerciseHistory)
-
-
-class AvailableTime(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    days_per_week: int | None = None
-    minutes_per_session: int | None = None
-    preferred_slot: str = ""
-
-
-class Preferences(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    liked: list[str] = Field(default_factory=list)
-    disliked: list[str] = Field(default_factory=list)
-
-
-class PrescriptionRequest(BaseModel):
-    """处方请求参数：目标、约束条件与偏好。"""
-
-    model_config = ConfigDict(extra="allow")
-
-    goals: list[str] = Field(default_factory=list)
-    available_time: AvailableTime = Field(default_factory=AvailableTime)
-    venue: list[str] = Field(default_factory=list)
-    equipment: list[str] = Field(default_factory=list)
-    preferences: Preferences = Field(default_factory=Preferences)
-    guardian_consent: bool | None = None
 
 
 class HealthRecord(BaseModel):
@@ -137,11 +97,17 @@ class HealthRecord(BaseModel):
     physical_exam: PhysicalExam = Field(default_factory=PhysicalExam)
     fitness_test: FitnessTest = Field(default_factory=FitnessTest)
     health_profile: HealthProfile = Field(default_factory=HealthProfile)
-    prescription_request: PrescriptionRequest = Field(default_factory=PrescriptionRequest)
 
     def to_prompt_dict(self) -> dict[str, Any]:
         """送入模型的档案视图，去掉姓名与学校以减少无关个人信息。"""
         data = self.model_dump()
         data.pop("name", None)
         data.pop("school", None)
+        # 兼容旧档案：extra="allow" 会把历史数据中的处方需求残留键带出来
+        data.pop("prescription_request", None)
+        # 兼容旧档案：已删除的家族病史与运动史字段不再送入模型
+        profile = data.get("health_profile")
+        if isinstance(profile, dict):
+            profile.pop("family_history", None)
+            profile.pop("exercise_history", None)
         return data

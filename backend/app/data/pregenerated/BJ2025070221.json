@@ -128,12 +128,6 @@
         "type": "视力情况",
         "impact": "视力处于正常低缘，对球类等需要动态视力的项目影响不大。",
         "attention": "羽毛球等活动注意场地光线充足。"
-      },
-      {
-        "item": "久坐每日10小时",
-        "type": "运动习惯",
-        "impact": "久坐时间长，影响训练恢复与体能。",
-        "attention": "训练安排在晚自习前，避免睡前高强度；每静坐1小时起身活动。"
       }
     ],
     "data_quality": {
@@ -141,8 +135,8 @@
       "conflicts": [],
       "clarification_questions": [
         {
-          "question": "你跑步气促的时候，有没有过胸口发闷、喘的声音像吹哨子（哮鸣），或者家里有人有哮喘？",
-          "field": "recent_symptoms / 家族史",
+          "question": "你跑步气促的时候，有没有过胸口发闷、喘的声音像吹哨子（哮鸣）？",
+          "field": "recent_symptoms",
           "priority": "高",
           "audience": "学生本人及家长"
         },

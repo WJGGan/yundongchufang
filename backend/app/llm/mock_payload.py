@@ -86,6 +86,7 @@ def _mock_profile() -> dict[str, Any]:
 
 def _mock_prescription() -> dict[str, Any]:
     return {
+        "goals": [f"{_MOCK} 健康体重管理", "心肺耐力提升", "体测专项提升:1000米"],
         "fitt_vp": {
             "frequency": {"value": "每周 4 次", "detail": f"{_MOCK} 有氧 3 次 + 抗阻 1 次"},
             "intensity": {"value": "最大心率 60%-70%，RPE 4-6", "detail": f"{_MOCK} 谈话测试控制"},
@@ -142,10 +143,10 @@ def _mock_prescription() -> dict[str, Any]:
             {"day": "周四", "theme": f"{_MOCK} 休息", "total_minutes": 0, "is_training_day": False, "blocks": []},
             {"day": "周五", "theme": f"{_MOCK} 低冲击有氧", "total_minutes": 45, "is_training_day": True,
              "blocks": [{"phase": "主体", "minutes": 30, "items": [
-                 {"exercise_id": "AER-011", "name": "骑行", "dosage": "30 分钟", "notes": ""}]}]},
+                 {"exercise_id": "AER-006", "name": "匀速慢跑", "dosage": "30 分钟", "notes": ""}]}]},
             {"day": "周六", "theme": f"{_MOCK} 趣味有氧", "total_minutes": 40, "is_training_day": True,
              "blocks": [{"phase": "主体", "minutes": 25, "items": [
-                 {"exercise_id": "AER-013", "name": "篮球运球与投篮练习", "dosage": "25 分钟非对抗", "notes": ""}]}]},
+                 {"exercise_id": "AER-001", "name": "基础跳绳", "dosage": "45 秒 × 5 组，组间休 60 秒", "notes": ""}]}]},
             {"day": "周日", "theme": f"{_MOCK} 休息 + 柔韧", "total_minutes": 15, "is_training_day": False,
              "blocks": [{"phase": "柔韧", "minutes": 15, "items": [
                  {"exercise_id": "FLX-004", "name": "髋屈肌拉伸", "dosage": "每侧 30 秒 × 2", "notes": ""}]}]},
