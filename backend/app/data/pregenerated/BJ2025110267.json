@@ -166,26 +166,6 @@
         }
       ]
     },
-    "safety": {
-      "risk_level": "中",
-      "can_generate_prescription": true,
-      "blocked_exercise_tags": [
-        "高冲击",
-        "膝关节高负荷",
-        "最大力量",
-        "憋气风险"
-      ],
-      "intensity_ceiling": {
-        "hr_max_percent": 70,
-        "rpe_max": 6,
-        "basis": "无系统训练经历（健美操队因膝痛已暂停），按初学者处理：心率上限不超过最大心率70%、RPE不超过6；膝痛恢复期内下肢训练以无痛范围为前提，出现疼痛即降级或停止"
-      },
-      "referral_advice": [],
-      "notes": [
-        "左膝髌股关节疼痛处于恢复期且仍在理疗中，处方须排除跳跃、深蹲（大腿平行以下）、跪姿及下坡跑类动作，优先游泳、骑行等低冲击有氧",
-        "训练中若出现膝部锐痛、肿胀或打软腿应立即停止并复诊；出现胸闷、头晕等全身警示症状按运动中止信号处理"
-      ]
-    },
     "disclaimer": "本画像由 AI 基于所提供档案生成，仅供参考，不作为医疗诊断依据。"
   },
   "prescription": {
@@ -203,11 +183,6 @@
       "心肺耐力提升",
       "肌肉力量与耐力"
     ],
-    "cycle": {
-      "total_weeks": 8,
-      "current_phase": "第1-2周 基础适应期",
-      "next_review": "第4周末"
-    },
     "fitt_vp": {
       "frequency": {
         "value": "每周4次训练+3天主动恢复",
@@ -1498,7 +1473,6 @@
     "disclaimer": "本运动处方由 AI 生成，仅供参考，不作为医疗诊断依据。执行中出现不适请立即停止并咨询专业人员。"
   },
   "emergency": null,
-  "blocked": null,
   "elapsed": {
     "profile": 31.8,
     "prescription": 49.9

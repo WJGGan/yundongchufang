@@ -20,7 +20,7 @@ from app.prompts import profile as pf_prompt  # noqa: E402
 from app.schemas.record import HealthRecord  # noqa: E402
 from app.services import rag  # noqa: E402
 from app.services.data_loader import find_student  # noqa: E402
-from app.services.prescription_service import filter_candidates  # noqa: E402
+from app.services.prescription_service import filter_candidates, parse_age  # noqa: E402
 
 STUDENT_ID = "BJ2025090314"
 
@@ -38,39 +38,23 @@ async def build_profile_prompt() -> tuple[str, str]:
 
 
 async def build_prescription_prompt() -> tuple[str, str]:
-    """用一份固定的最小画像构造处方 prompt，避免每次基准都先跑一遍画像。"""
+    """处方 prompt 直接由原始档案构造，与线上链路一致。"""
     record = HealthRecord.model_validate(find_student(STUDENT_ID))
-    stub_profile = {
-        "basic": {"age": 14, "gender": "男", "bmi": 25.5, "bmi_evaluation": "肥胖"},
-        "overall": {
-            "level": "中等偏下",
-            "weaknesses": [
-                {"rank": 1, "dimension": "身体成分", "reason": "BMI 25.5 属肥胖"},
-                {"rank": 2, "dimension": "心肺耐力", "reason": "1000米接近及格下限"},
-                {"rank": 3, "dimension": "肌肉力量", "reason": "引体向上 3 个"},
-            ],
-        },
-        "safety": {
-            "risk_level": "中",
-            "can_generate_prescription": True,
-            "blocked_exercise_tags": ["高冲击", "踝关节负荷", "憋气风险", "最大力量"],
-            "intensity_ceiling": {"hr_max_percent": 70, "rpe_max": 6, "basis": "初学者"},
-        },
-    }
+    record_view = record.to_prompt_dict()
     request = record.prescription_request.model_dump()
+    age = parse_age(record)
     candidates = filter_candidates(
-        age=14,
-        blocked_tags=stub_profile["safety"]["blocked_exercise_tags"],
+        age=age,
         equipment=record.prescription_request.equipment,
         venue=record.prescription_request.venue,
     )
     # 与 prescription_service 保持一致：候选排序截断 + 知识卡片检索
-    candidates = await rag.rank_exercises(candidates, stub_profile, request)
-    cards = await rag.retrieve_knowledge_for_prescription(stub_profile, request)
+    candidates = await rag.rank_exercises(candidates, record_view, request)
+    cards = await rag.retrieve_knowledge_for_prescription(record_view, request)
     return rx_prompt.SYSTEM, rx_prompt.build_user_prompt(
-        profile=stub_profile,
+        record=record_view,
         request=request,
-        age=14,
+        age=age,
         candidates=candidates,
         knowledge_cards=cards,
     )

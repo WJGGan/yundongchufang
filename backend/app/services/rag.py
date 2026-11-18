@@ -252,26 +252,43 @@ def _to_int(value: Any) -> int | None:
         return None
 
 
-def _prescription_query_text(profile: dict[str, Any], request: dict[str, Any]) -> str:
-    """处方阶段的查询：短板 + 目标 + 健康关注 + 偏好。"""
+def _record_grade(record: dict[str, Any]) -> str:
+    exam = record.get("physical_exam") or {}
+    fitness = record.get("fitness_test") or {}
+    return str(exam.get("SCHOOL_GRADE") or fitness.get("NJ") or "")
+
+
+def _prescription_query_text(record: dict[str, Any], request: dict[str, Any]) -> str:
+    """处方阶段的查询：学段/性别 + 健康状况 + 体检异常 + 目标 + 偏好。"""
     pieces: list[str] = []
-    basic = profile.get("basic") or {}
-    pieces.append(f"{basic.get('grade', '')} {basic.get('gender', '')}生 {basic.get('age', '')}岁")
-    if basic.get("bmi_evaluation"):
-        pieces.append(f"BMI {basic['bmi_evaluation']}")
-    overall = profile.get("overall") or {}
-    for weakness in overall.get("weaknesses") or []:
-        pieces.append(f"短板{weakness.get('rank', '')}：{weakness.get('dimension', '')}，{weakness.get('reason', '')}")
-    for focus in profile.get("health_focus") or []:
-        pieces.append(f"{focus.get('item', '')} {focus.get('attention', '')}")
-    safety = profile.get("safety") or {}
-    pieces.extend(safety.get("blocked_exercise_tags") or [])
+    exam = record.get("physical_exam") or {}
+    pieces.append(f"{_record_grade(record)} {exam.get('XB', '')}生 {exam.get('NL', '')}岁")
+
+    health = record.get("health_profile") or {}
+    pieces.extend(str(item) for item in health.get("chronic_conditions") or [])
+    pieces.extend(f"用药 {item}" for item in health.get("medications") or [])
+    pieces.extend(str(item) for item in health.get("recent_symptoms") or [])
+    for injury in health.get("injury_history") or []:
+        if isinstance(injury, dict):
+            pieces.append(
+                f"{injury.get('site', '')}{injury.get('type', '')}（{injury.get('status', '')}）"
+            )
+        else:
+            pieces.append(str(injury))
+
+    spine = str(exam.get("JZ") or "")
+    if spine and "未见异常" not in spine:
+        pieces.append(f"脊柱 {spine}")
+    vision = str(exam.get("JSLPJ") or "")
+    if vision and vision not in ("正常", "良好"):
+        pieces.append(f"视力 {vision}")
+
     pieces.extend(request.get("goals") or [])
     preferences = request.get("preferences") or {}
     liked = preferences.get("liked") or []
     if liked:
         pieces.append("喜欢 " + "、".join(liked))
-    return "；".join(str(piece) for piece in pieces if piece)
+    return "；".join(str(piece) for piece in pieces if str(piece).strip())
 
 
 # ---------------------------------------------------------------------------
@@ -349,7 +366,7 @@ def _goal_pinned_ids(pool: list[dict[str, Any]], goals: list[Any]) -> set[str]:
 
 
 async def retrieve_knowledge_for_prescription(
-    profile: dict[str, Any],
+    record: dict[str, Any],
     request: dict[str, Any],
 ) -> list[dict[str, Any]]:
     """处方生成：领域保底配额 + 混合排序，返回 top-k 知识卡片。"""
@@ -357,8 +374,8 @@ async def retrieve_knowledge_for_prescription(
     if not settings.rag_enabled:
         return cards
 
-    basic = profile.get("basic") or {}
-    stage = _school_stage(str(basic.get("grade") or ""), _to_int(basic.get("age")))
+    exam = record.get("physical_exam") or {}
+    stage = _school_stage(_record_grade(record), _to_int(exam.get("NL")))
     pool = _stage_filter(cards, stage)
 
     top_k = settings.rag_knowledge_top_k
@@ -366,22 +383,23 @@ async def retrieve_knowledge_for_prescription(
         return pool
 
     docs = [(card["id"], knowledge_doc_text(card)) for card in pool]
-    scores = await _score_docs("knowledge", docs, _prescription_query_text(profile, request))
+    scores = await _score_docs("knowledge", docs, _prescription_query_text(record, request))
     ranked = sorted(pool, key=lambda card: scores.get(card["id"], 0.0), reverse=True)
 
-    focus_types = {str(item.get("type", "")) for item in profile.get("health_focus") or []}
+    health = record.get("health_profile") or {}
     quota = dict(_PRESCRIPTION_DOMAIN_QUOTA)
     quota.update(
         _health_quota(
-            has_chronic=bool({"慢性病", "用药"} & focus_types),
-            has_injury="伤病史" in focus_types,
+            has_chronic=bool(health.get("chronic_conditions") or health.get("medications")),
+            has_injury=bool(health.get("injury_history")),
         )
     )
     pinned = _goal_pinned_ids(pool, request.get("goals") or [])
     return _pick_with_quota(ranked, quota, top_k, pinned_ids=pinned)
 
 
-# 体质短板 → 动作类别的结构化加权，使排序不完全依赖嵌入质量
+# 训练目标 → 动作类别的结构化加权，使排序不完全依赖嵌入质量。
+# 目标关键词先映射到体质维度，再经 _DIMENSION_CATEGORY 落到动作类别。
 _DIMENSION_CATEGORY = {
     "心肺耐力": ("有氧",),
     "肌肉力量": ("抗阻", "核心"),
@@ -389,6 +407,16 @@ _DIMENSION_CATEGORY = {
     "速度": ("速度灵敏",),
     "爆发力": ("速度灵敏", "抗阻"),
     "身体成分": ("有氧", "核心"),
+}
+
+_GOAL_KEYWORD_DIMENSION = {
+    "心肺": "心肺耐力", "耐力": "心肺耐力", "有氧": "心肺耐力",
+    "1000米": "心肺耐力", "800米": "心肺耐力", "中长跑": "心肺耐力",
+    "力量": "肌肉力量", "引体": "肌肉力量", "仰卧起坐": "肌肉力量",
+    "柔韧": "柔韧性", "体前屈": "柔韧性",
+    "速度": "速度", "灵敏": "速度", "50米": "速度",
+    "爆发": "爆发力", "立定跳远": "爆发力", "跳绳": "爆发力", "身高": "爆发力",
+    "体重": "身体成分", "减脂": "身体成分", "肥胖": "身体成分", "BMI": "身体成分",
 }
 
 # 热身与放松是每个训练日的必备块，全部保留；主训练五类各保底 2 个
@@ -402,10 +430,10 @@ _CATEGORY_ORDER = {
 
 async def rank_exercises(
     candidates: list[dict[str, Any]],
-    profile: dict[str, Any],
+    record: dict[str, Any],
     request: dict[str, Any],
 ) -> list[dict[str, Any]]:
-    """在安全硬过滤后的候选内，按相关度排序并截断到配置上限。
+    """在硬过滤（年龄/器械/场地）后的候选内，按相关度排序并截断到配置上限。
 
     保底规则保证模型拿到的子集仍然可编排出完整一周计划：
     热身/放松全保留，主训练五类各至少 2 个（若候选中存在）。
@@ -415,15 +443,18 @@ async def rank_exercises(
         return candidates
 
     docs = [(item["id"], exercise_doc_text(item)) for item in candidates]
-    scores = await _score_docs("exercises", docs, _prescription_query_text(profile, request))
+    scores = await _score_docs("exercises", docs, _prescription_query_text(record, request))
 
-    overall = profile.get("overall") or {}
+    # 目标按先后顺序衰减加权：第一个目标对应类别加成最大
     category_boost: dict[str, float] = {}
-    for weakness in overall.get("weaknesses") or []:
-        rank = weakness.get("rank") or 3
-        for category in _DIMENSION_CATEGORY.get(str(weakness.get("dimension", "")), ()):
-            boost = max(0.2 - 0.06 * (rank - 1), 0.06)
-            category_boost[category] = max(category_boost.get(category, 0.0), boost)
+    for rank, goal in enumerate(request.get("goals") or [], start=1):
+        text = str(goal)
+        for keyword, dimension in _GOAL_KEYWORD_DIMENSION.items():
+            if keyword not in text:
+                continue
+            for category in _DIMENSION_CATEGORY.get(dimension, ()):
+                boost = max(0.2 - 0.06 * (rank - 1), 0.06)
+                category_boost[category] = max(category_boost.get(category, 0.0), boost)
 
     preferences = request.get("preferences") or {}
     liked = [str(item) for item in preferences.get("liked") or []]

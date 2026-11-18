@@ -81,24 +81,11 @@ def _mock_profile() -> dict[str, Any]:
                 "attention": "延长热身，低温转室内",
             }
         ],
-        "safety": {
-            "risk_level": "中",
-            "can_generate_prescription": True,
-            "blocked_exercise_tags": ["憋气风险", "最大力量", "高冲击"],
-            "intensity_ceiling": {
-                "hr_max_percent": 70,
-                "rpe_max": 6,
-                "basis": f"{_MOCK} 初学者上限",
-            },
-            "referral_advice": [],
-            "notes": [f"{_MOCK} 离线占位安全评估，不可用于实际指导"],
-        },
     }
 
 
 def _mock_prescription() -> dict[str, Any]:
     return {
-        "cycle": {"total_weeks": 8, "current_phase": f"{_MOCK} 第 1-2 周 适应期", "next_review": "第 3 周末"},
         "fitt_vp": {
             "frequency": {"value": "每周 4 次", "detail": f"{_MOCK} 有氧 3 次 + 抗阻 1 次"},
             "intensity": {"value": "最大心率 60%-70%，RPE 4-6", "detail": f"{_MOCK} 谈话测试控制"},

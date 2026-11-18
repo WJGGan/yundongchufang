@@ -2,32 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "yundong-chufang",
-      "runtimeExecutable": "uv",
-      "runtimeArgs": [
-        "run", "--directory", "backend",
-        "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8077"
-      ],
-      "port": 8077,
-      "url": "http://localhost:8077"
-    },
-    {
-      "name": "yundong-chufang-mock",
-      "runtimeExecutable": "env",
-      "runtimeArgs": [
-        "LLM_PROVIDER=mock",
-        "uv", "run", "--directory", "backend",
-        "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8078"
-      ],
-      "port": 8078,
-      "url": "http://localhost:8078"
-    },
-    {
-      "name": "docs-static",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8321", "--directory", "docs"],
-      "port": 8321,
-      "url": "http://localhost:8321"
+      "name": "mock-backend",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd backend && LLM_PROVIDER=mock .venv/bin/python -m uvicorn app.main:app --port 8017"],
+      "port": 8017
     }
   ]
 }

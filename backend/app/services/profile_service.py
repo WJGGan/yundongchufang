@@ -1,36 +1,20 @@
-"""档案理解服务：原始档案 → 体质画像 + 安全评估。"""
+"""档案理解服务：原始档案 → 体质画像。"""
 
 from __future__ import annotations
 
 from collections.abc import AsyncIterator
-from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from pydantic import ValidationError
 
-from app.config import settings
 from app.llm.provider import LLMError, extract_json, get_provider
 from app.prompts import profile as prompt
-from app.schemas.profile import ProfileResult, Versions
+from app.schemas.profile import ProfileResult
 from app.schemas.record import HealthRecord
+from app.services.common import current_versions, now_iso
 from app.services.data_loader import save_profile_result
 
-CST = timezone(timedelta(hours=8))
-
 DISCLAIMER = "本画像由 AI 基于所提供档案生成，仅供参考，不作为医疗诊断依据。"
-
-
-def now_iso() -> str:
-    return datetime.now(CST).isoformat(timespec="seconds")
-
-
-def current_versions() -> Versions:
-    return Versions(
-        exercise_library=settings.exercise_library_version,
-        knowledge_base=settings.knowledge_base_version,
-        prompt=settings.prompt_version,
-        model=settings.active_model,
-    )
 
 
 async def stream_profile(record: HealthRecord) -> AsyncIterator[tuple[str, Any]]:

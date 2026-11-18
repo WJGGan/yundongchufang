@@ -38,7 +38,7 @@
   <div class="gen-bar" v-if="generating">
     <div class="gen-track"><i></i></div>
     <span class="gen-text">{{ stage }}</span>
-    <span class="gen-hint">模型逐字生成中，整条流程约需数分钟，请勿关闭页面</span>
+    <span class="gen-hint">模型依据健康档案直接生成处方，逐字输出约需数分钟，请勿关闭页面</span>
   </div>
 
   <div class="gen-alert" v-if="genError">{{ genError }}</div>
@@ -49,16 +49,11 @@
     <ul><li v-for="a in emergency.immediate_advice" :key="a">{{ a }}</li></ul>
   </div>
 
-  <div class="gen-alert" v-if="blocked">
-    <strong>安全评估判定当前不宜生成可执行处方</strong>
-    <ul><li v-for="a in blocked.referral_advice" :key="a">{{ a }}</li></ul>
-  </div>
-
   <!-- 自行录入档案 -->
   <div class="form-panel" v-if="showForm">
     <div class="fp-head">
       <h3>自行录入健康档案</h3>
-      <p>带 * 为必填，其余可留空；多个条目之间用逗号、顿号或分号分隔。提交后档案会保存为一份新的 JSON，并立即走画像与处方生成流程。</p>
+      <p>带 * 为必填，其余可留空；多个条目之间用逗号、顿号或分号分隔。提交后档案会保存为一份新的 JSON，并立即直接生成运动处方。</p>
     </div>
 
     <div class="fp-sec">
@@ -168,22 +163,9 @@
             <div class="f"><label>年&nbsp;&nbsp;&nbsp;&nbsp;龄</label><u>{{ basic.age ?? '—' }}</u><span class="unit">岁</span></div>
             <div class="f"><label>年&nbsp;&nbsp;&nbsp;&nbsp;级</label><u>{{ basic.grade || '—' }}</u></div>
 
-            <div class="f"><label>身&nbsp;&nbsp;&nbsp;&nbsp;高</label><u>{{ basic.height_cm ?? '—' }}</u><span class="unit">cm</span></div>
-            <div class="f"><label>体&nbsp;&nbsp;&nbsp;&nbsp;重</label><u>{{ basic.weight_kg ?? '—' }}</u><span class="unit">kg</span></div>
-            <div class="f wide"><label>BMI 评价</label><u>{{ basic.bmi ?? '—' }}（{{ basic.bmi_evaluation || '—' }}）</u></div>
-
-            <div class="f"><label>风险等级</label>
-              <span class="cks">
-                <em :class="{ on: riskLevel === '低' }">低</em>
-                <em :class="{ on: riskLevel === '中' }">中</em>
-                <em :class="{ on: riskLevel === '高' }">高</em>
-              </span>
-            </div>
-            <div class="f"><label>处方周期</label><u>{{ rx.cycle.total_weeks ? rx.cycle.total_weeks + ' 周' : '—' }}</u></div>
-            <div class="f wide"><label>处方有效期</label><u>{{ validFrom }} 至 {{ validTo }}</u></div>
-
-            <div class="f wide"><label>当前阶段</label><u>{{ rx.cycle.current_phase || '—' }}</u></div>
-            <div class="f wide"><label>审&nbsp;核&nbsp;人</label><u class="blank"></u><span class="unit">（签名 / 电子章）</span></div>
+            <div class="f"><label>身&nbsp;&nbsp;&nbsp;&nbsp;高</label><u>{{ basic.height ?? '—' }}</u><span class="unit">cm</span></div>
+            <div class="f"><label>体&nbsp;&nbsp;&nbsp;&nbsp;重</label><u>{{ basic.weight ?? '—' }}</u><span class="unit">kg</span></div>
+            <div class="f wide"><label>BMI</label><u>{{ bmi || '—' }}</u></div>
           </div>
 
           <!-- 1.1 体检数据 -->
@@ -198,14 +180,13 @@
             </div>
           </div>
 
-          <!-- 1.2 体质测试成绩与等级 -->
+          <!-- 1.2 体质测试成绩 -->
           <div class="sub-sec">
-            <h4 class="sub-title">体质测试成绩与等级</h4>
+            <h4 class="sub-title">体质测试成绩</h4>
             <div class="fit-grid" v-if="fitnessRows.length">
               <div class="fit-item" v-for="r in fitnessRows" :key="r.name">
                 <span class="fit-name">{{ r.name }}</span>
                 <b class="fit-score">{{ r.value }}</b>
-                <span class="lv-badge" :class="levelCls(r.level)">{{ r.level || '—' }}</span>
               </div>
             </div>
             <p class="sub-empty" v-else>暂无体质测试成绩记录。</p>
@@ -246,10 +227,6 @@
             <span class="label">其他目标</span>
             <span class="pill" v-for="g in extraGoals" :key="g">{{ g }}</span>
           </div>
-          <div class="goal-weak" v-if="weaknesses.length">
-            <span class="label">短板排序</span>
-            <span class="rank" v-for="(w, i) in weaknesses" :key="i"><b>{{ i + 1 }}</b>{{ w.dimension }}</span>
-          </div>
         </div>
       </section>
 
@@ -274,7 +251,6 @@
       <section class="sec">
         <div class="sec-head blue">
           <i>4</i><h3>详细执行内容（每周计划 + 具体动作）</h3>
-          <span class="sec-note">当前周期：{{ rx.cycle.current_phase || '—' }}</span>
         </div>
 
         <div class="sec-body detail-grid">
@@ -356,13 +332,11 @@
             </div>
           </div>
 
-          <!-- 本阶段要点 -->
+          <!-- 进阶要点 -->
           <div class="dt-box">
-            <div class="dt-head purple">本阶段要点</div>
+            <div class="dt-head purple">进阶要点</div>
             <div class="dt-body">
-              <div class="dt-line"><span>当前阶段：</span><b>{{ rx.cycle.current_phase || '—' }}</b></div>
               <div class="dt-line"><span>进阶方式：</span><b>{{ rx.fitt_vp.progression.value || '—' }}</b></div>
-              <div class="dt-line"><span>下次复评：</span><b>{{ rx.cycle.next_review || '—' }}</b></div>
               <p class="dt-empty">{{ rx.fitt_vp.progression.detail }}</p>
             </div>
           </div>
@@ -387,12 +361,7 @@
                 <strong>{{ r.item }}</strong>
                 <p>{{ r.action }}</p>
               </div>
-              <div class="risk" v-for="(f, i) in healthFocus" :key="'h' + i">
-                <span class="lv lv-mid">关注</span>
-                <strong>{{ f.item }}</strong>
-                <p>{{ f.attention }}</p>
-              </div>
-              <p class="dt-empty" v-if="!rx.risk_notes.length && !healthFocus.length">未发现需特别提示的个人风险。</p>
+              <p class="dt-empty" v-if="!rx.risk_notes.length">未发现需特别提示的个人风险。</p>
             </div>
             <div class="wg">
               <h4>运动禁忌</h4>
@@ -403,11 +372,7 @@
                   <p>{{ f.reason }}</p>
                 </div>
               </div>
-              <div class="forbid" v-if="blockedTags.length">
-                <span class="fb no">禁用</span>
-                <div><strong>禁用动作标签</strong><p>{{ blockedTags.join('、') }}</p></div>
-              </div>
-              <p class="dt-empty" v-if="!rx.forbidden_or_limited.length && !blockedTags.length">无特别禁忌。</p>
+              <p class="dt-empty" v-if="!rx.forbidden_or_limited.length">无特别禁忌。</p>
             </div>
             <div class="wg">
               <h4>监测建议</h4>
@@ -454,6 +419,8 @@
   </div>
 </div>
 
-<script src="/static/report.js?v=20261112"></script>
+<script src="/static/sse.js?v=20261118"></script>
+<script src="/static/ai-panel.js?v=20261118"></script>
+<script src="/static/report.js?v=20261118"></script>
 </body>
 </html>

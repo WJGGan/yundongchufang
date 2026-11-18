@@ -21,9 +21,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.config import DATA_DIR, settings  # noqa: E402
 from app.schemas.record import HealthRecord  # noqa: E402
+from app.services.common import now_iso  # noqa: E402
 from app.services.data_loader import find_student, mock_students  # noqa: E402
 from app.services.prescription_service import stream_prescription  # noqa: E402
-from app.services.profile_service import analyze_profile, now_iso  # noqa: E402
+from app.services.profile_service import analyze_profile  # noqa: E402
 from app.services.safety import check_emergency  # noqa: E402
 
 OUT_DIR = DATA_DIR / "pregenerated"
@@ -55,7 +56,6 @@ async def generate_one(student_id: str) -> bool:
         "profile": None,
         "prescription": None,
         "emergency": None,
-        "blocked": None,
     }
 
     emergency = check_emergency(student)
@@ -65,26 +65,16 @@ async def generate_one(student_id: str) -> bool:
         print(f"  {name}：命中急症熔断，已存（不调用模型）")
         return True
 
+    # 画像与处方两个模块各自独立生成，互不传递结果
     t0 = time.time()
     profile = await analyze_profile(record)
     t_profile = time.time() - t0
     payload["profile"] = profile.model_dump()
 
-    if not profile.safety.can_generate_prescription:
-        payload["blocked"] = {
-            "risk_level": profile.safety.risk_level,
-            "referral_advice": profile.safety.referral_advice,
-            "notes": profile.safety.notes,
-        }
-        payload["elapsed"] = {"profile": round(t_profile, 1)}
-        _save(student_id, payload)
-        print(f"  {name}：安全评估判定不生成处方，已存（画像 {t_profile:.0f}s）")
-        return True
-
     t1 = time.time()
     result = None
     retries = 0
-    async for kind, data in stream_prescription(record, profile):
+    async for kind, data in stream_prescription(record):
         if kind == "retry":
             retries += 1
         elif kind == "result":

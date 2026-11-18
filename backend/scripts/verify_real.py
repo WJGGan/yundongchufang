@@ -19,19 +19,14 @@ from app.services.profile_service import analyze_profile  # noqa: E402
 
 
 async def case_prescription(student_id: str) -> None:
+    """处方直接从原始档案生成，不经过画像。"""
     rec = HealthRecord.model_validate(find_student(student_id))
     tag = f"[{rec.name} 完整处方]"
-    t0 = time.time()
-    profile = await analyze_profile(rec)
-    print(f"{tag} 画像完成 {time.time() - t0:.0f}s  "
-          f"风险={profile.safety.risk_level} 可生成={profile.safety.can_generate_prescription}")
-    print(f"{tag} 短板={[w.dimension for w in profile.overall.weaknesses]}")
-    print(f"{tag} 禁用标签={profile.safety.blocked_exercise_tags}", flush=True)
 
     t1 = time.time()
     retries: list[str] = []
     result = None
-    async for kind, payload in stream_prescription(rec, profile):
+    async for kind, payload in stream_prescription(rec):
         if kind == "retry":
             retries.append(payload)
             print(f"{tag} 触发重生成: {payload}", flush=True)
@@ -44,7 +39,6 @@ async def case_prescription(student_id: str) -> None:
 
     if result is None:
         return
-    print(f"{tag} 周期: {result.cycle.total_weeks} 周 · {result.cycle.current_phase}")
     print(f"{tag} 心率区间: {result.intensity_control.target_hr_zone.lower}"
           f"-{result.intensity_control.target_hr_zone.upper}  RPE {result.intensity_control.rpe_range}")
     for key in ("frequency", "intensity", "time", "type", "volume", "progression"):
@@ -72,28 +66,18 @@ async def case_profile(student_id: str, label: str) -> None:
     tag = f"[{rec.name} {label}]"
     t0 = time.time()
     profile = await analyze_profile(rec)
-    safety = profile.safety
     print(f"{tag} 完成 {time.time() - t0:.0f}s")
-    print(f"{tag} 风险={safety.risk_level}  可生成处方={safety.can_generate_prescription}")
-    print(f"{tag} 禁用标签={safety.blocked_exercise_tags}")
-    print(f"{tag} 强度上限=HRmax {safety.intensity_ceiling.hr_max_percent}% / RPE {safety.intensity_ceiling.rpe_max}")
-    for advice in safety.referral_advice:
-        print(f"{tag} 转介: {advice}")
     print(f"{tag} BMI {profile.basic.bmi} -> {profile.basic.bmi_evaluation}")
     print(f"{tag} 短板={[w.dimension for w in profile.overall.weaknesses]}")
-    for conflict in profile.data_quality.conflicts:
-        print(f"{tag} 矛盾: {conflict.fields} {conflict.description}")
-        print(f"{tag}       建议: {conflict.suggestion}")
-    print(f"{tag} 缺失={[m.field for m in profile.data_quality.missing_fields]}")
-    for q in profile.data_quality.clarification_questions:
-        print(f"{tag} 追问[{q.priority}/{q.audience}] {q.question}")
+    for focus in profile.health_focus:
+        print(f"{tag} 关注[{focus.type}] {focus.item} — {focus.attention}")
     print(flush=True)
 
 
 CASES = {
     "rx": lambda: case_prescription("BJ2025090314"),        # 李沐阳：哮喘+踝伤+肥胖，完整处方
-    "block": lambda: case_profile("BJ2025140258", "安全拦截用例"),  # 马天宇：血压145/92
-    "conflict": lambda: case_profile("BJ2025170139", "矛盾检测用例"),  # 朱浩宇：身高142 vs 156
+    "bp": lambda: case_profile("BJ2025140258", "高血压档案画像"),  # 马天宇：血压145/92
+    "conflict": lambda: case_profile("BJ2025170139", "矛盾档案画像"),  # 朱浩宇：身高142 vs 156
 }
 
 

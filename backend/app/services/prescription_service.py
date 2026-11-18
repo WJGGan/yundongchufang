@@ -1,6 +1,6 @@
-"""处方生成服务：画像 + 请求参数 → 一人一策运动处方。
+"""处方生成服务：原始健康档案 + 请求参数 → 一人一策运动处方。
 
-动作候选集由代码按安全标签、器械、场地、年龄过滤后交给模型，模型只负责在候选集内
+动作候选集由代码按器械、场地、年龄过滤后交给模型，模型只负责在候选集内
 选择与排期；动作详情从动作库回填，不由模型生成。
 """
 
@@ -19,15 +19,14 @@ from app.schemas.prescription import (
     PrescriptionResult,
     RiskNote,
 )
-from app.schemas.profile import ProfileResult
 from app.schemas.record import HealthRecord
 from app.services import rag
+from app.services.common import current_versions, now_iso
 from app.services.data_loader import (
     exercise_index,
     exercise_library,
     save_prescription_result,
 )
-from app.services.profile_service import current_versions, now_iso
 
 DISCLAIMER = (
     "本运动处方由 AI 生成，仅供参考，不作为医疗诊断依据。"
@@ -37,6 +36,28 @@ DISCLAIMER = (
 WEEKDAYS = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
 
 _MIN_CANDIDATES = 20
+
+# NL 为空时按年级估算年龄，用于候选集 min_age 过滤与 prompt 提示
+_GRADE_AGE = {
+    "初一": 13, "初二": 14, "初三": 15,
+    "七年级": 13, "八年级": 14, "九年级": 15,
+    "高一": 16, "高二": 17, "高三": 18,
+    "一年级": 7, "二年级": 8, "三年级": 9,
+    "四年级": 10, "五年级": 11, "六年级": 12,
+}
+
+
+def parse_age(record: HealthRecord) -> int | None:
+    """从原始档案解析年龄：NL 字段优先，空值按年级估算。"""
+    try:
+        return int(float((record.physical_exam.NL or "").strip()))
+    except ValueError:
+        pass
+    grade = (record.physical_exam.SCHOOL_GRADE or record.fitness_test.NJ or "").strip()
+    for token, age in _GRADE_AGE.items():
+        if token in grade:
+            return age
+    return None
 
 
 def _loose_match(a: str, b: str) -> bool:
@@ -64,18 +85,14 @@ def _venue_ok(exercise: dict[str, Any], allowed: list[str]) -> bool:
 def filter_candidates(
     *,
     age: int | None,
-    blocked_tags: list[str],
     equipment: list[str],
     venue: list[str],
 ) -> list[dict[str, Any]]:
-    """按安全标签、器械、场地、年龄过滤出可用动作。"""
-    blocked = set(blocked_tags)
+    """按器械、场地、年龄过滤出可用动作。"""
     picked: list[dict[str, Any]] = []
     fallback: list[dict[str, Any]] = []
 
     for exercise in exercise_library()["exercises"]:
-        if blocked & set(exercise.get("contraindication_tags") or []):
-            continue
         if age is not None and exercise.get("min_age") and age < exercise["min_age"]:
             continue
 
@@ -109,13 +126,11 @@ def validate_payload(
     payload: dict[str, Any],
     *,
     candidate_ids: set[str],
-    blocked_tags: list[str],
     request: dict[str, Any],
 ) -> list[str]:
     """返回问题清单；为空表示通过。用于触发一次重生成。"""
     problems: list[str] = []
     index = exercise_index()
-    blocked = set(blocked_tags)
 
     used = _used_exercise_ids(payload)
     unknown = sorted({item for item in used if item not in index})
@@ -125,16 +140,6 @@ def validate_payload(
     off_list = sorted({item for item in used if item in index and item not in candidate_ids})
     if off_list:
         problems.append(f"以下动作不在可用候选集内：{'、'.join(off_list)}")
-
-    violating = sorted(
-        {
-            item
-            for item in used
-            if item in index and blocked & set(index[item].get("contraindication_tags") or [])
-        }
-    )
-    if violating:
-        problems.append(f"以下动作命中了被禁用的风险标签：{'、'.join(violating)}")
 
     days = [str(day.get("day", "")) for day in payload.get("weekly_plan") or []]
     missing_days = [day for day in WEEKDAYS if day not in days]
@@ -206,7 +211,6 @@ def _assemble(
     payload: dict[str, Any],
     *,
     record: HealthRecord,
-    profile: ProfileResult,
 ) -> PrescriptionResult:
     details, unknown = build_exercise_details(payload)
 
@@ -228,7 +232,6 @@ def _assemble(
 
 async def stream_prescription(
     record: HealthRecord,
-    profile: ProfileResult,
 ) -> AsyncIterator[tuple[str, Any]]:
     """流式生成处方。
 
@@ -237,25 +240,24 @@ async def stream_prescription(
     """
     provider = get_provider()
     request = record.prescription_request.model_dump()
-    profile_dict = profile.model_dump()
-    age = profile.basic.age
+    record_view = record.to_prompt_dict()
+    age = parse_age(record)
 
     candidates = filter_candidates(
         age=age,
-        blocked_tags=profile.safety.blocked_exercise_tags,
         equipment=record.prescription_request.equipment,
         venue=record.prescription_request.venue,
     )
-    # 校验边界用安全硬过滤后的全集：候选截断只是 prompt 瘦身，
-    # 模型只要用了安全集合内的动作就不算违规
+    # 校验边界用过滤后的全集：候选截断只是 prompt 瘦身，
+    # 模型只要用了候选集合内的动作就不算违规
     candidate_ids = {item["id"] for item in candidates}
 
-    # RAG：候选动作按短板/目标/偏好排序截断，知识卡片检索相关子集
-    candidates = await rag.rank_exercises(candidates, profile_dict, request)
-    cards = await rag.retrieve_knowledge_for_prescription(profile_dict, request)
+    # RAG：候选动作按目标/健康状况/偏好排序截断，知识卡片检索相关子集
+    candidates = await rag.rank_exercises(candidates, record_view, request)
+    cards = await rag.retrieve_knowledge_for_prescription(record_view, request)
 
     base_prompt = prompt.build_user_prompt(
-        profile=profile_dict,
+        record=record_view,
         request=request,
         age=age,
         candidates=candidates,
@@ -311,7 +313,6 @@ async def stream_prescription(
         problems = validate_payload(
             payload,
             candidate_ids=candidate_ids,
-            blocked_tags=profile.safety.blocked_exercise_tags,
             request=request,
         )
         if problems and attempt == 0:
@@ -319,7 +320,7 @@ async def stream_prescription(
             continue
 
         try:
-            result = _assemble(payload, record=record, profile=profile)
+            result = _assemble(payload, record=record)
         except ValidationError as exc:
             last_problems = [exc.json()]
             if attempt == 0:

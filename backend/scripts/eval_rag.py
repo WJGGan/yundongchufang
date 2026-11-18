@@ -114,25 +114,12 @@ def summarize(rows: list[tuple[float, float, float, float]]) -> str:
 
 
 async def eval_rx_stage(label: str) -> None:
-    import glob
-    import json
-
     rows, misses = [], []
-    latest: dict[str, str] = {}
-    for path in sorted(glob.glob(str(Path(__file__).resolve().parent.parent / "app/data/profiles/*.json"))):
-        latest[Path(path).name.split("_")[0]] = path  # 同一学生多份画像只取最新
-    for path in latest.values():
-        profile = json.load(open(path, encoding="utf-8"))
-        if "[MOCK]" in json.dumps(profile, ensure_ascii=False):
-            continue  # 离线占位画像不参与评测
-        student = next(
-            (s for s in all_students() if s["student_id"] == profile.get("student_id")), None
-        )
-        if student is None:
-            continue
-        request = student["prescription_request"]
+    for student in all_students():
+        request = student.get("prescription_request") or {}
+        # 处方检索直接吃原始档案（与线上链路一致），学生 JSON 即档案结构
         retrieved = {
-            c["id"] for c in await rag.retrieve_knowledge_for_prescription(profile, request)
+            c["id"] for c in await rag.retrieve_knowledge_for_prescription(student, request)
         }
         specific = gold_condition_cards(student) | gold_goal_cards(student)
         rows.append(prf(retrieved, specific, _RX_STRUCTURAL))

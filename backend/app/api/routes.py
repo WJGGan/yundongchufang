@@ -10,13 +10,13 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from app.config import settings
 from app.llm.provider import LLMError
-from app.schemas.profile import ProfileResult
 from app.schemas.record import HealthRecord
 from app.services import prescription_service, profile_service, rag
+from app.services.common import current_versions
 from app.services.data_loader import (
     all_students,
     exercise_index,
@@ -53,10 +53,6 @@ class ProfileRequest(BaseModel):
 
 class PrescriptionRequestBody(BaseModel):
     record: HealthRecord
-    profile: ProfileResult | None = Field(
-        default=None,
-        description="已生成的画像。不传则先自动生成一份画像再出处方。",
-    )
 
 
 def _highlights(student: dict[str, Any]) -> list[str]:
@@ -75,7 +71,7 @@ def get_meta() -> dict[str, Any]:
     return {
         "llm_provider": settings.llm_provider,
         "model": settings.active_model,
-        "versions": profile_service.current_versions().model_dump(),
+        "versions": current_versions().model_dump(),
         "exercise_count": len(exercise_library()["exercises"]),
         "knowledge_card_count": len(knowledge_cards()),
         "student_count": len(all_students()),
@@ -168,7 +164,6 @@ def list_saved_results() -> dict[str, Any]:
                 "elapsed": data.get("elapsed"),
                 "has_prescription": data.get("prescription") is not None,
                 "emergency": data.get("emergency") is not None,
-                "blocked": data.get("blocked") is not None,
             }
         )
     return {"count": len(items), "items": items}
@@ -298,56 +293,9 @@ async def generate_prescription(body: PrescriptionRequestBody) -> StreamingRespo
             yield _sse("done", {"ok": False})
             return
 
-        profile = body.profile
-        if profile is None:
-            yield _sse("status", {"message": "正在生成体质画像", "phase": "profile"})
-            try:
-                async for kind, payload in profile_service.stream_profile(body.record):
-                    if kind == "thinking":
-                        yield _sse("thinking", {"text": payload, "phase": "profile"})
-                    elif kind == "token":
-                        yield _sse("token", {"text": payload, "phase": "profile"})
-                    elif kind == "retry":
-                        yield _sse("retry", {"problems": payload, "phase": "profile"})
-                    elif kind == "result":
-                        profile = payload
-                    elif kind == "error":
-                        yield _sse("error", {"message": payload})
-                        yield _sse("done", {"ok": False})
-                        return
-            except LLMError as exc:
-                yield _sse("error", {"message": str(exc)})
-                yield _sse("done", {"ok": False})
-                return
-            if profile is None:
-                yield _sse("error", {"message": "画像生成失败"})
-                yield _sse("done", {"ok": False})
-                return
-            yield _sse("profile", profile.model_dump())
-
-        # 画像一确定就先保存一次：即使后续处方失败或被安全拦截，画像也可再次加载
-        record_generated_result(
-            body.record.student_id, name=body.record.name, profile=profile.model_dump()
-        )
-
-        if not profile.safety.can_generate_prescription:
-            yield _sse(
-                "blocked",
-                {
-                    "risk_level": profile.safety.risk_level,
-                    "referral_advice": profile.safety.referral_advice,
-                    "notes": profile.safety.notes,
-                    "message": "安全评估判定当前不宜生成可执行处方",
-                },
-            )
-            yield _sse("done", {"ok": False})
-            return
-
         yield _sse("status", {"message": "正在生成运动处方", "phase": "prescription"})
         try:
-            async for kind, payload in prescription_service.stream_prescription(
-                body.record, profile
-            ):
+            async for kind, payload in prescription_service.stream_prescription(body.record):
                 if kind == "thinking":
                     yield _sse("thinking", {"text": payload, "phase": "prescription"})
                 elif kind == "token":
@@ -358,7 +306,6 @@ async def generate_prescription(body: PrescriptionRequestBody) -> StreamingRespo
                     record_generated_result(
                         body.record.student_id,
                         name=body.record.name,
-                        profile=profile.model_dump(),
                         prescription=payload.model_dump(),
                     )
                     yield _sse("result", payload.model_dump())

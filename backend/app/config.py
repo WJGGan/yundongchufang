@@ -63,7 +63,7 @@ class Settings:
     # 资产版本号，随每份画像与处方一并返回，便于定位是哪一版规则/库产出的结果
     exercise_library_version: str = "v1.0.0"
     knowledge_base_version: str = "v1.0.0"
-    prompt_version: str = "v1.2.0"
+    prompt_version: str = "v2.0.0"
 
     @property
     def active_model(self) -> str:

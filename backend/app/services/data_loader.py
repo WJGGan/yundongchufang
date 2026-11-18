@@ -188,9 +188,8 @@ def record_generated_result(
     """把一次线上生成的结果并入 generated/<学号>.json 快照，供「载入已有结果」读取。
 
     只接受档案库中真实存在的学号；落盘是旁路留档，磁盘问题不中断生成流程。
-    合并规则按安全优先：
+    合并规则：
       - 急症熔断：旧画像与处方不再可信，整份重置为急症快照
-      - 新画像判定不宜开处方：保留画像并记录 blocked，清掉旧处方
       - 仅重新生成画像：更新画像，保留上一次的处方
       - 生成出处方：画像与处方成对更新
     """
@@ -203,7 +202,6 @@ def record_generated_result(
         "profile": None,
         "prescription": None,
         "emergency": None,
-        "blocked": None,
     }
     snapshot.update(
         {
@@ -215,26 +213,13 @@ def record_generated_result(
     )
 
     if emergency is not None:
-        snapshot.update(
-            {"emergency": emergency, "profile": None, "prescription": None, "blocked": None}
-        )
+        snapshot.update({"emergency": emergency, "profile": None, "prescription": None})
     else:
         snapshot["emergency"] = None
         if profile is not None:
             snapshot["profile"] = profile
-            safety = profile.get("safety") or {}
-            if safety.get("can_generate_prescription", True):
-                snapshot["blocked"] = None
-            else:
-                snapshot["blocked"] = {
-                    "risk_level": safety.get("risk_level", ""),
-                    "referral_advice": safety.get("referral_advice") or [],
-                    "notes": safety.get("notes") or [],
-                }
-                snapshot["prescription"] = None
         if prescription is not None:
             snapshot["prescription"] = prescription
-            snapshot["blocked"] = None
 
     try:
         GENERATED_DIR.mkdir(parents=True, exist_ok=True)

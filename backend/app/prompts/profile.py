@@ -1,4 +1,4 @@
-"""档案理解 prompt：原始健康档案 → 体质画像 + 安全评估。"""
+"""档案理解 prompt：原始健康档案 → 体质画像。"""
 
 from __future__ import annotations
 
@@ -20,12 +20,7 @@ SYSTEM = """你是青少年运动健康领域的体质评估专家，服务对�
 3. BMI 按体重除以身高平方计算，并按中国学龄儿童青少年年龄性别 BMI 界值判断消瘦、正常、超重或肥胖。
 4. weaknesses 必须按优先级排序并给出 rank，排序依据是"对学生当前健康与目标影响最大"，而不是单纯分数最低。dimension 取值限定为上述体质五维，或"身体成分"（当 BMI 超重、肥胖或消瘦构成主要问题时）。不要使用其他自创名称。
 5. health_focus 需覆盖档案中所有需要在运动中留意的健康项：慢性病、用药、伤病史、脊柱筛查异常、视力情况、家族史。
-6. safety 为安全评估：
-   - risk_level 取 高/中/低。
-   - can_generate_prescription：出现以下情况置为 false —— 未经控制或未确诊的显著血压升高、运动中反复出现胸闷胸痛或晕厥、急性损伤未恢复、其他需先就医明确的情况。置为 false 时必须在 referral_advice 给出转介建议。
-   - blocked_exercise_tags 只能从以下词表中选取：憋气风险、高冲击、中等冲击、膝关节高负荷、踝关节负荷、腰椎高负荷、颈椎风险、肩关节高负荷、不对称负荷、最大力量、倒立体位、需保护与监护。
-   - intensity_ceiling：无系统训练经历者按初学者处理，心率上限不超过最大心率 70%、RPE 不超过 6；高风险人群心率上限不超过 60%；12 岁以下禁止最大力量训练。
-7. 不做医疗诊断，不推测未在档案中出现的疾病，不给出用药建议。
+6. 不做医疗诊断，不推测未在档案中出现的疾病，不给出用药建议。
 
 输出要求：
 - 只输出一个 JSON 对象，不要输出任何解释文字或代码围栏。
@@ -43,13 +38,7 @@ SYSTEM = """你是青少年运动健康领域的体质评估专家，服务对�
   "overall": {"level": "", "summary": "",
               "strengths": [],
               "weaknesses": [{"rank": 1, "dimension": "", "reason": ""}]},
-  "health_focus": [{"item": "", "type": "", "impact": "", "attention": ""}],
-  "safety": {
-    "risk_level": "", "can_generate_prescription": true,
-    "blocked_exercise_tags": [],
-    "intensity_ceiling": {"hr_max_percent": 0, "rpe_max": 0, "basis": ""},
-    "referral_advice": [], "notes": []
-  }
+  "health_focus": [{"item": "", "type": "", "impact": "", "attention": ""}]
 }"""
 
 

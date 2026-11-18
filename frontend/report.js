@@ -1,5 +1,7 @@
 const { createApp } = Vue;
 
+const AI_TITLE = '运动处方 · 模型分析';
+
 /* 运动目的候选项：模型 goals 命中则勾选，未命中的 goals 作为「其他目标」展示 */
 const GOAL_OPTIONS = [
   { text: '提高心肺耐力', kw: ['心肺', '耐力', '有氧'] },
@@ -12,18 +14,18 @@ const GOAL_OPTIONS = [
   { text: '养成运动习惯', kw: ['习惯', '依从', '坚持', '兴趣'] },
 ];
 
-/* 体质测试项目：key 对应档案 fitness_test 字段，kw 用于在画像 fitness_dimensions 里匹配等级 */
+/* 体质测试项目：key 对应档案 fitness_test 字段 */
 const FITNESS_ITEMS = [
-  { key: 'FHLCJ', label: '肺活量', unit: 'ml', kw: ['肺活量'] },
-  { key: 'WSMCJ', label: '50米跑', unit: '秒', kw: ['50米'], exclude: ['往返', '×8', 'x8'] },
-  { key: 'LDTYCJ', label: '立定跳远', unit: 'cm', kw: ['立定跳远'] },
-  { key: 'ZWTQQCJ', label: '坐位体前屈', unit: 'cm', kw: ['体前屈'] },
-  { key: 'WSMWFPCJ', label: '50米×8往返跑', unit: '秒', kw: ['往返'] },
-  { key: 'YFZTSCJ', label: '一分钟跳绳', unit: '个', kw: ['跳绳'] },
-  { key: 'BBMCJ', label: '800米跑', unit: '', kw: ['800'] },
-  { key: 'YQMCJ', label: '1000米跑', unit: '', kw: ['1000'] },
-  { key: 'YWQZCJ', label: '一分钟仰卧起坐', unit: '个', kw: ['仰卧起坐'] },
-  { key: 'YTXSCJ', label: '引体向上', unit: '个', kw: ['引体'] },
+  { key: 'FHLCJ', label: '肺活量', unit: 'ml' },
+  { key: 'WSMCJ', label: '50米跑', unit: '秒' },
+  { key: 'LDTYCJ', label: '立定跳远', unit: 'cm' },
+  { key: 'ZWTQQCJ', label: '坐位体前屈', unit: 'cm' },
+  { key: 'WSMWFPCJ', label: '50米×8往返跑', unit: '秒' },
+  { key: 'YFZTSCJ', label: '一分钟跳绳', unit: '个' },
+  { key: 'BBMCJ', label: '800米跑', unit: '' },
+  { key: 'YQMCJ', label: '1000米跑', unit: '' },
+  { key: 'YWQZCJ', label: '一分钟仰卧起坐', unit: '个' },
+  { key: 'YTXSCJ', label: '引体向上', unit: '个' },
 ];
 
 const GENERAL_TIPS = [
@@ -47,7 +49,6 @@ const EMPTY_RX = {
   generated_at: '',
   versions: {},
   goals: [],
-  cycle: { total_weeks: null, current_phase: '', next_review: '' },
   fitt_vp: {
     frequency: { ...EMPTY_FITT_ITEM }, intensity: { ...EMPTY_FITT_ITEM },
     time: { ...EMPTY_FITT_ITEM }, type: { ...EMPTY_FITT_ITEM },
@@ -67,15 +68,6 @@ const EMPTY_RX = {
   forbidden_or_limited: [],
   disclaimer: '',
 };
-const EMPTY_PROFILE = {
-  basic: {}, fitness_dimensions: [], overall: { strengths: [], weaknesses: [] },
-  health_focus: [],
-  safety: {
-    risk_level: '', can_generate_prescription: true, blocked_exercise_tags: [],
-    intensity_ceiling: {}, referral_advice: [], notes: [],
-  },
-};
-
 const clone = (o) => JSON.parse(JSON.stringify(o));
 
 /* 自行录入表单的默认值：预填李沐阳（BJ2025090314）的完整档案，
@@ -99,10 +91,11 @@ const DEFAULT_FORM = {
 };
 
 createApp({
+  mixins: [AiPanelMixin],
+
   data() {
     return {
       rx: clone(EMPTY_RX),
-      profile: clone(EMPTY_PROFILE),
       record: null,
       hasData: false,
       students: [],
@@ -112,15 +105,11 @@ createApp({
       stage: '',
       genError: '',
       emergency: null,
-      blocked: null,
       exerciseMap: {},
       showForm: false,
       form: clone(DEFAULT_FORM),
       formSaving: false,
       formError: '',
-      aiOpen: false,
-      aiMessages: [],
-      abortCtrl: null,
       generalTips: GENERAL_TIPS,
     };
   },
@@ -129,23 +118,20 @@ createApp({
     isCached() {
       return !!this.cached[this.selectedId];
     },
-    basic() {
-      return (this.profile && this.profile.basic) || {};
-    },
-    riskLevel() {
-      return (this.profile && this.profile.safety && this.profile.safety.risk_level) || '中';
-    },
-    blockedTags() {
-      return (this.profile && this.profile.safety && this.profile.safety.blocked_exercise_tags) || [];
-    },
-    healthFocus() {
-      return (this.profile && this.profile.health_focus) || [];
-    },
-    weaknesses() {
-      return (this.profile && this.profile.overall && this.profile.overall.weaknesses) || [];
-    },
-
     /* ---------- 1 基本信息：原始档案（体检 / 体测 / 运动史 / 伤病史） ---------- */
+
+    /* 基本信息直接取原始档案的体检字段 */
+    basic() {
+      const e = this.rawExam;
+      return { gender: e.XB, age: e.NL, grade: e.SCHOOL_GRADE, height: e.SG, weight: e.TZ };
+    },
+    /* BMI 由档案身高体重现算，保留 1 位小数 */
+    bmi() {
+      const h = Number(this.rawExam.SG);
+      const w = Number(this.rawExam.TZ);
+      if (!h || !w) return '';
+      return (w / ((h / 100) ** 2)).toFixed(1);
+    },
 
     rawExam() {
       return (this.record && this.record.physical_exam) || {};
@@ -174,7 +160,7 @@ createApp({
       ];
     },
 
-    /* 体测成绩：成绩取自档案 fitness_test，等级取自画像 fitness_dimensions */
+    /* 体测成绩：取自档案 fitness_test，只展示成绩不评等级 */
     fitnessRows() {
       const ft = this.rawFitness;
       const rows = [];
@@ -184,7 +170,6 @@ createApp({
         rows.push({
           name: it.label,
           value: it.unit && /^[\d.]+$/.test(raw) ? `${raw} ${it.unit}` : raw,
-          level: this.levelOf(it),
         });
       });
       return rows;
@@ -214,17 +199,6 @@ createApp({
             .filter(Boolean).join('').trim();
         })
         .filter(Boolean);
-    },
-
-    validFrom() {
-      return this.dateOnly(this.rx.generated_at) || '—';
-    },
-    validTo() {
-      const start = this.parseDate(this.rx.generated_at);
-      const weeks = this.rx.cycle.total_weeks;
-      if (!start || !weeks) return '—';
-      const end = new Date(start.getTime() + weeks * 7 * 86400000);
-      return this.fmtDate(end);
     },
 
     goalOptions() {
@@ -262,7 +236,7 @@ createApp({
         { label: '(Time) 运动时间', k: 'T', cls: 't', value: f.time.value, detail: f.time.detail },
         { label: '(Frequency) 运动频率', k: 'F', cls: 'f', value: f.frequency.value, detail: f.frequency.detail },
         { label: '(Volume) 周运动总量', k: 'V', cls: 'v', value: f.volume.value, detail: f.volume.detail },
-        { label: '(Progression) 运动进阶', k: 'P', cls: 'p', value: f.progression.value, detail: `${f.progression.detail || ''}${this.rx.cycle.next_review ? '　复评：' + this.rx.cycle.next_review : ''}`.trim() },
+        { label: '(Progression) 运动进阶', k: 'P', cls: 'p', value: f.progression.value, detail: f.progression.detail || '' },
       ];
     },
 
@@ -415,7 +389,7 @@ createApp({
       // 报告版面挂在 v-if="!showForm" 下：先收起录入表单，结果才看得见
       this.showForm = false;
       this.resetState();
-      // 原始档案单独拉取：报告头部的体检 / 体测 / 运动史 / 伤病史直接展示档案原文
+      // 原始档案单独拉取：报告头部的基本信息 / 体检 / 体测 / 运动史 / 伤病史直接展示档案原文
       this.fetchRecord(this.selectedId);
       try {
         const res = await fetch(`/api/v1/pregenerated/${this.selectedId}`);
@@ -426,16 +400,11 @@ createApp({
         const data = await res.json();
 
         if (data.emergency) { this.emergency = data.emergency; }
-        if (data.blocked) { this.blocked = data.blocked; }
-        if (data.profile) { this.profile = data.profile; }
 
         if (data.prescription) {
-          this.applyResult(data.prescription, data.profile);
-        } else if (data.profile) {
-          // 只生成过画像：画像照常展示
-          this.genError = '该学生只生成过体质画像，尚无处方，可点「生成处方」补齐';
-        } else if (!data.emergency && !data.blocked) {
-          this.genError = '该学生的已有结果不含处方内容';
+          this.applyResult(data.prescription);
+        } else if (!data.emergency) {
+          this.genError = '该学生的已有结果不含处方内容，可点「生成处方」生成';
         }
       } catch (err) {
         this.genError = `载入失败：${err}`;
@@ -452,9 +421,8 @@ createApp({
         .catch(() => {});
     },
 
-    applyResult(rx, profile) {
+    applyResult(rx) {
       this.rx = rx;
-      if (profile) this.profile = profile;
       (rx.exercise_details || []).forEach((e) => { this.exerciseMap[e.id] = e; });
       this.hasData = true;
       document.title = `${rx.name || ''}运动处方报告`;
@@ -462,12 +430,10 @@ createApp({
 
     resetState() {
       this.rx = clone(EMPTY_RX);
-      this.profile = clone(EMPTY_PROFILE);
       this.record = null;
       this.hasData = false;
       this.genError = '';
       this.emergency = null;
-      this.blocked = null;
       this.aiMessages = [];
       document.title = '运动处方报告';
     },
@@ -490,30 +456,17 @@ createApp({
       }
     },
 
-    /* 把一份完整档案送入画像 + 处方生成流程（SSE） */
+    /* 把一份完整档案送入处方生成流程（SSE） */
     async streamGenerate(record) {
       this.generating = true;
       this.aiOpen = true;
-      this.stage = '正在生成体质画像…';
+      this.stage = '正在生成运动处方…';
       this.abortCtrl = new AbortController();
       try {
-        const res = await fetch('/api/v1/prescription:generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ record }),
+        await streamSSE('/api/v1/prescription:generate', { record }, {
           signal: this.abortCtrl.signal,
+          onEvent: (event, payload) => this.handleFrame(event, payload),
         });
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
-        while (true) {
-          const { value, done } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const frames = buffer.split('\n\n');
-          buffer = frames.pop();
-          frames.forEach((f) => this.handleFrame(f));
-        }
       } catch (err) {
         if (err && err.name === 'AbortError') {
           this.pushAiNote('已手动停止生成。');
@@ -643,110 +596,38 @@ createApp({
       await this.streamGenerate(saved);
     },
 
-    handleFrame(frame) {
-      let event = 'message';
-      let data = '';
-      frame.split('\n').forEach((line) => {
-        if (line.startsWith('event: ')) event = line.slice(7).trim();
-        else if (line.startsWith('data: ')) data += line.slice(6);
-      });
-      if (!data) return;
-      let payload;
-      try { payload = JSON.parse(data); } catch { return; }
-
+    /* SSE 事件处理；未知事件（如旧后端的 profile）静默忽略 */
+    handleFrame(event, payload) {
       switch (event) {
         case 'status':
           this.stage = payload.message + '…';
           this.pushAiNote(payload.message + '…');
           break;
-        case 'profile':
-          // 画像先到：报告上半部分（基本信息、目标、风险）可以先填上
-          this.profile = payload;
-          break;
         case 'thinking':
-          this.stage = (payload.phase === 'profile')
-            ? '模型正在分析体质画像…'
-            : '模型正在设计运动处方…';
-          this.appendThink(payload.phase || 'prescription', payload.text);
+          this.stage = '模型正在设计运动处方…';
+          this.appendThink(AI_TITLE, payload.text);
           break;
         case 'token':
-          this.stage = (payload.phase === 'profile')
-            ? '模型正在输出画像数据…'
-            : '模型正在输出处方数据…';
-          this.bumpProgress(payload.phase || 'prescription', payload.text.length);
+          this.stage = '模型正在输出处方数据…';
+          this.bumpProgress('处方', payload.text.length);
           break;
         case 'retry':
           this.stage = '输出未通过校验，正在重新生成…';
           this.pushAiNote('输出未通过校验，正在重新生成…');
           break;
         case 'result':
-          this.applyResult(payload, this.profile);
+          this.applyResult(payload);
           this.pushAiNote('运动处方生成完成。');
           break;
         case 'emergency':
           this.emergency = payload;
           this.pushAiNote('命中急症关键词，已熔断，不再调用模型。');
           break;
-        case 'blocked':
-          this.blocked = payload;
-          this.pushAiNote('安全评估判定当前不宜生成可执行处方。');
-          break;
         case 'error':
           this.genError = payload.message;
           this.pushAiNote('生成失败：' + payload.message);
           break;
       }
-    },
-
-    /* ---------- 右侧 AI 输出抽屉 ---------- */
-
-    aiTitle(phase) {
-      return phase === 'profile' ? '体质画像 · 模型分析' : '运动处方 · 模型分析';
-    },
-
-    /* 把模型输出渲染成 Markdown；先转义尖括号，防止模型输出原始 HTML */
-    md(text) {
-      const safe = (text || '').replace(/</g, '&lt;');
-      try { return marked.parse(safe); } catch (e) { return safe; }
-    },
-
-    pushAiNote(text) {
-      this.aiMessages.push({ kind: 'note', text });
-      this.scrollAi();
-    },
-
-    /* 思考过程：自然语言，按 Markdown 渲染 */
-    appendThink(phase, text) {
-      const last = this.aiMessages[this.aiMessages.length - 1];
-      if (last && last.kind === 'think' && last.phase === phase) {
-        last.text += text;
-      } else {
-        this.aiMessages.push({ kind: 'think', phase, title: this.aiTitle(phase), text });
-      }
-      this.scrollAi();
-    },
-
-    /* 结构化 JSON 不直接展示，只显示写入进度 */
-    bumpProgress(phase, chars) {
-      const last = this.aiMessages[this.aiMessages.length - 1];
-      if (last && last.kind === 'progress' && last.phase === phase) {
-        last.chars += chars;
-      } else {
-        this.aiMessages.push({ kind: 'progress', phase, chars });
-      }
-      this.scrollAi();
-    },
-
-    progressText(m) {
-      const what = m.phase === 'profile' ? '画像' : '处方';
-      return `正在写入结构化${what}数据… 已接收 ${m.chars} 字符`;
-    },
-
-    scrollAi() {
-      this.$nextTick(() => {
-        const box = this.$refs.aiBody;
-        if (box) box.scrollTop = box.scrollHeight;
-      });
     },
 
     /* ---------- 渲染辅助 ---------- */
@@ -781,30 +662,6 @@ createApp({
     },
 
     riskCls(level) { return { 高: 'high', 中: 'mid', 低: 'low' }[level] || 'mid'; },
-
-    /* 在画像 fitness_dimensions 的指标里找某个体测项目的等级 */
-    levelOf(item) {
-      const dims = (this.profile && this.profile.fitness_dimensions) || [];
-      for (const d of dims) {
-        for (const ind of d.indicators || []) {
-          const name = ind.name || '';
-          if (item.kw.some((k) => name.includes(k))
-              && !(item.exclude || []).some((k) => name.includes(k))) {
-            return ind.level || '';
-          }
-        }
-      }
-      return '';
-    },
-
-    levelCls(level) {
-      if (!level) return '';
-      if (level.includes('优')) return 'lv-exc';
-      if (level.includes('良')) return 'lv-good';
-      if (level.includes('不及格')) return 'lv-fail';
-      return 'lv-pass';
-    },
-
 
     parseDate(s) {
       if (!s) return null;

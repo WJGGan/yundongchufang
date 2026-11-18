@@ -206,7 +206,6 @@ body {
   min-height: 22px; font-weight: 600;
   padding: 0 3px;
 }
-.info-grid u.blank { min-width: 90px; }
 .info-grid .unit { color: var(--ink-3); font-size: var(--fs-xs); white-space: nowrap; }
 .info-grid u.warn { color: #c2600f; }
 .info-grid.half { grid-template-columns: repeat(2, 1fr); }

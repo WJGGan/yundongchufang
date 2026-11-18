@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.schemas.profile import Versions
+from app.schemas.common import Versions
 
 
 class FittItem(BaseModel):
@@ -23,14 +23,6 @@ class FittVp(BaseModel):
     type: FittItem = Field(default_factory=FittItem)
     volume: FittItem = Field(default_factory=FittItem)
     progression: FittItem = Field(default_factory=FittItem)
-
-
-class Cycle(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    total_weeks: int | None = None
-    current_phase: str = ""
-    next_review: str = ""
 
 
 class PlanItem(BaseModel):
@@ -155,7 +147,6 @@ class PrescriptionResult(BaseModel):
     generated_at: str = ""
     versions: Versions = Field(default_factory=Versions)
     goals: list[str] = Field(default_factory=list)
-    cycle: Cycle = Field(default_factory=Cycle)
     fitt_vp: FittVp = Field(default_factory=FittVp)
     weekly_plan: list[DayPlan] = Field(default_factory=list)
     exercise_details: list[ExerciseDetail] = Field(default_factory=list)

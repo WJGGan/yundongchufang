@@ -160,25 +160,6 @@
         }
       ]
     },
-    "safety": {
-      "risk_level": "低",
-      "can_generate_prescription": true,
-      "blocked_exercise_tags": [
-        "最大力量",
-        "憋气风险",
-        "高冲击"
-      ],
-      "intensity_ceiling": {
-        "hr_max_percent": 70,
-        "rpe_max": 6,
-        "basis": "16岁女生，近三年无规律运动，按初学者处理，心率上限不超过最大心率70%（约140次/分，最大心率按约195-205次/分估算）、RPE≤6；排除运动诱发气道问题前，避免长时间高强度持续跑。"
-      },
-      "referral_advice": [],
-      "notes": [
-        "若训练中出现胸闷、胸痛、哮鸣、头晕或症状反复出现，立即停止并就医（GUIDE-33）。",
-        "气促症状建议在初期训练中持续观察；如轻度负荷下仍反复气促，建议先到呼吸科排查运动性支气管收缩后再进阶。"
-      ]
-    },
     "disclaimer": "本画像由 AI 基于所提供档案生成，仅供参考，不作为医疗诊断依据。"
   },
   "prescription": {
@@ -196,11 +177,6 @@
       "心肺耐力提升",
       "体测专项提升:800米"
     ],
-    "cycle": {
-      "total_weeks": 8,
-      "current_phase": "基础适应期（走跑交替建有氧基础）",
-      "next_review": "第4周末"
-    },
     "fitt_vp": {
       "frequency": {
         "value": "每周3次",
@@ -1302,7 +1278,6 @@
     "disclaimer": "本运动处方由 AI 生成，仅供参考，不作为医疗诊断依据。执行中出现不适请立即停止并咨询专业人员。"
   },
   "emergency": null,
-  "blocked": null,
   "elapsed": {
     "profile": 31.1,
     "prescription": 48.5

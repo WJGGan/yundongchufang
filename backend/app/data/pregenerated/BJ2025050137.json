@@ -147,25 +147,6 @@
         }
       ]
     },
-    "safety": {
-      "risk_level": "低",
-      "can_generate_prescription": true,
-      "blocked_exercise_tags": [
-        "高冲击",
-        "最大力量"
-      ],
-      "intensity_ceiling": {
-        "hr_max_percent": 70,
-        "rpe_max": 6,
-        "basis": "11岁学生，虽有一年足球兴趣班经历但无系统训练记录，按初学者处理；上限70%最大心率、RPE≤6；12岁以下禁止最大力量训练"
-      },
-      "referral_advice": [],
-      "notes": [
-        "血压100/62、静息心率82均在正常范围，无慢性病、伤病与症状记录",
-        "跳绳属高冲击项目，须在弹性地面进行并注意落地缓冲",
-        "跳跃类训练每周3次、每次10-20次有效跳跃即可产生骨密度刺激，不需大量重复"
-      ]
-    },
     "disclaimer": "本画像由 AI 基于所提供档案生成，仅供参考，不作为医疗诊断依据。"
   },
   "prescription": {
@@ -183,11 +164,6 @@
       "身高促进与骨骼发育",
       "体测专项提升:一分钟跳绳"
     ],
-    "cycle": {
-      "total_weeks": 8,
-      "current_phase": "第1-2周 适应期",
-      "next_review": "第4周末"
-    },
     "fitt_vp": {
       "frequency": {
         "value": "每周4次训练",
@@ -1437,7 +1413,6 @@
     "disclaimer": "本运动处方由 AI 生成，仅供参考，不作为医疗诊断依据。执行中出现不适请立即停止并咨询专业人员。"
   },
   "emergency": null,
-  "blocked": null,
   "elapsed": {
     "profile": 57.3,
     "prescription": 42.8

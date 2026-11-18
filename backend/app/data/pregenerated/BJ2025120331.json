@@ -134,25 +134,6 @@
         }
       ]
     },
-    "safety": {
-      "risk_level": "低",
-      "can_generate_prescription": true,
-      "blocked_exercise_tags": [
-        "踝关节负荷",
-        "需保护与监护"
-      ],
-      "intensity_ceiling": {
-        "hr_max_percent": 85,
-        "rpe_max": 8,
-        "basis": "16岁男生，三年系统短跑训练，静息心率58提示心肺适应良好，血压正常（115/70），无慢性病与急性伤，可按有训练基础者处理，允许较高强度专项训练；但跳跃与变向类动作中踝关节负荷需控制并做好防护，避免在疲劳状态下进行高风险落地动作"
-      },
-      "referral_advice": [],
-      "notes": [
-        "左踝陈旧扭伤：引入跳跃与变向训练前先完成本体感觉（单腿站立、不稳定平面）与腓骨肌力量（提踵、弹力带）准备阶段",
-        "12岁以上，且具备三年抗阻训练相关基础，可进行适度负重训练，但仍遵循先动作模式后负荷原则，避免1RM测试",
-        "训练课含高强度冲刺与跳跃，热身与整理活动须充分（各5-10分钟以上）"
-      ]
-    },
     "disclaimer": "本画像由 AI 基于所提供档案生成，仅供参考，不作为医疗诊断依据。",
     "knowledge_refs_note": "已引用卡片：GUIDE-03、GUIDE-14、GUIDE-18、GUIDE-26、GUIDE-31、GUIDE-32、GUIDE-34"
   },
@@ -171,11 +152,6 @@
       "爆发力与灵敏协调",
       "体测专项提升:50米跑"
     ],
-    "cycle": {
-      "total_weeks": 8,
-      "current_phase": "第一阶段：踝稳定性重建+爆发力基础",
-      "next_review": "第4周末"
-    },
     "fitt_vp": {
       "frequency": {
         "value": "每周5次训练",
@@ -1708,7 +1684,6 @@
     "disclaimer": "本运动处方由 AI 生成，仅供参考，不作为医疗诊断依据。执行中出现不适请立即停止并咨询专业人员。"
   },
   "emergency": null,
-  "blocked": null,
   "elapsed": {
     "profile": 25.8,
     "prescription": 57.7
