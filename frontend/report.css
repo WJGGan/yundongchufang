@@ -364,12 +364,13 @@ body {
   font-size: var(--fs-md); text-align: left; vertical-align: top; line-height: 1.7;
 }
 .sched-table thead th { background: #f4f7fc; color: var(--ink-2); font-weight: 600; font-size: var(--fs-sm); }
-.sched-table thead th:nth-child(1) { width: 132px; }
-.sched-table thead th:nth-child(3) { width: 118px; text-align: right; }
+.sched-table thead th:nth-child(1) { width: 132px; text-align: center; }
+.sched-table thead th:nth-child(3) { width: 118px; text-align: center; }
 .sd-day strong { display: block; color: var(--blue); font-size: var(--fs-body); line-height: 1.5; }
 .sd-day span { display: block; font-size: var(--fs-xs); color: var(--ink-3); line-height: 1.5; margin-top: 2px; white-space: nowrap; }
 .sd-items { line-height: 2; }
-.sd-min { text-align: right; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.sched-table td.sd-day { text-align: center; vertical-align: middle; }
+.sched-table td.sd-min { text-align: center; vertical-align: middle; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .sched-table tr.rest td { background: #fafafa; }
 .sched-table tr.rest .sd-day strong { color: var(--ink-3); }
 .sched-table tr.rest .sd-min { color: var(--ink-3); font-weight: 400; }
@@ -384,6 +385,14 @@ body {
 button.pill { cursor: pointer; }
 button.pill:hover { filter: brightness(.96); }
 .pill i { font-style: normal; font-weight: 400; }
+.pill-arrow { margin-right: 6px; color: var(--ink-3); font-size: var(--fs-sm); font-weight: 400; }
+
+/* 本日安排理由：模型输出的 rationale，排在动作标签下方 */
+.sd-why { margin: 5px 0 0; font-size: var(--fs-sm); color: var(--ink-3); line-height: 1.6; }
+.sd-why span {
+  display: inline-block; margin-right: 6px; padding: 0 6px; border-radius: 3px;
+  font-size: var(--fs-xs); background: var(--blue-soft); color: var(--blue); white-space: nowrap;
+}
 .pill-warm  { background: #fdf0d9; color: #8f5505; }
 .pill-aer   { background: #ddeafd; color: #11509e; }
 .pill-str   { background: #ebe4fb; color: #53339f; }

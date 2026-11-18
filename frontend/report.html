@@ -252,12 +252,15 @@
                       <span>{{ d.theme }}</span>
                     </td>
                     <td class="sd-items">
-                      <button v-for="p in d.pills" :key="p.key" type="button"
-                              class="pill" :class="'pill-' + p.cls"
-                              @mouseenter="pillEnter($event, p)" @mouseleave="pillLeave"
-                              @click="pillClick($event, p)">
-                        {{ p.name }}<i v-if="p.dosage"> · {{ p.dosage }}</i>
-                      </button>
+                      <template v-for="(p, pi) in d.pills" :key="p.key">
+                        <button type="button"
+                                class="pill" :class="'pill-' + p.cls"
+                                @click="pillClick($event, p)">
+                          {{ p.name }}<i v-if="p.dosage"> · {{ p.dosage }}</i>
+                        </button>
+                        <span v-if="pi < d.pills.length - 1" class="pill-arrow" aria-hidden="true">→</span>
+                      </template>
+                      <p class="sd-why" v-if="dayFilter !== '全周' && d.rationale"><span>为什么这样练</span>{{ d.rationale }}</p>
                     </td>
                     <td class="sd-min">{{ d.minutes }}</td>
                   </tr>

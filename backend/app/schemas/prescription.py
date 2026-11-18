@@ -49,6 +49,7 @@ class DayPlan(BaseModel):
     theme: str = ""
     total_minutes: int | None = None
     is_training_day: bool = True
+    rationale: str = ""
     blocks: list[PlanBlock] = Field(default_factory=list)
 
 

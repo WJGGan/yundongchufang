@@ -101,6 +101,7 @@ def _mock_prescription() -> dict[str, Any]:
                 "theme": f"{_MOCK} 低冲击有氧 + 柔韧",
                 "total_minutes": 45,
                 "is_training_day": True,
+                "rationale": f"{_MOCK} 以低冲击有氧改善心肺与体重，占位示例文案",
                 "blocks": [
                     {
                         "phase": "热身",
@@ -133,9 +134,11 @@ def _mock_prescription() -> dict[str, Any]:
                 ],
             },
             {"day": "周二", "theme": f"{_MOCK} 主动恢复", "total_minutes": 15, "is_training_day": False,
+             "rationale": f"{_MOCK} 训练次日放松身体，保持柔韧练习",
              "blocks": [{"phase": "柔韧", "minutes": 15, "items": [
                  {"exercise_id": "FLX-001", "name": "坐位体前屈拉伸", "dosage": "30 秒 × 3", "notes": ""}]}]},
             {"day": "周三", "theme": f"{_MOCK} 徒手抗阻", "total_minutes": 45, "is_training_day": True,
+             "rationale": f"{_MOCK} 隔日安排力量练习，发展肌肉力量",
              "blocks": [{"phase": "主体", "minutes": 30, "items": [
                  {"exercise_id": "RES-004", "name": "臀桥", "dosage": "15 次 × 3 组", "notes": ""},
                  {"exercise_id": "RES-011", "name": "跪姿俯卧撑", "dosage": "12 次 × 3 组", "notes": ""},

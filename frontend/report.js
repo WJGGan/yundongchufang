@@ -257,6 +257,7 @@ createApp({
           day: d.day,
           theme: d.theme || (d.is_training_day ? '训练日' : '休息'),
           rest: !d.is_training_day,
+          rationale: d.rationale || '',
           pills,
           minutes: d.total_minutes ? `约 ${d.total_minutes} 分钟` : '—',
         };
@@ -605,16 +606,7 @@ createApp({
       this.pop.up = r.bottom > window.innerHeight - 330;
       this.pop.y = this.pop.up ? r.top - 8 : r.bottom + 8;
     },
-    pillEnter(evt, pill) {
-      if (this.pop.pinned) return;
-      if (this.dayFilter === '全周') return; // 全周视图不悬停弹出，选中具体日期后才展示
-      this.pop.pill = pill;
-      this.placePop(evt);
-      this.pop.show = true;
-    },
-    pillLeave() {
-      if (!this.pop.pinned) this.pop.show = false;
-    },
+    /* 动作详情弹层只由点击触发（悬停不弹出） */
     pillClick(evt, pill) {
       if (this.pop.pinned && this.pop.pill && this.pop.pill.key === pill.key) {
         this.closePop();
