@@ -174,14 +174,21 @@
             <p class="sub-empty" v-else>暂无体质测试成绩记录。</p>
           </div>
 
-          <!-- 1.3 伤病史 -->
-          <div class="sub-sec">
+          <!-- 1.3 伤病史与慢性病 -->
+          <div class="sub-sec two">
             <div>
               <h4 class="sub-title">伤病史</h4>
               <ul class="injury-list" v-if="injuryRows.length">
                 <li v-for="(t, i) in injuryRows" :key="i">{{ t }}</li>
               </ul>
-              <p class="sub-empty" v-else>无伤病史记录。</p>
+              <p class="sub-empty" v-else>无</p>
+            </div>
+            <div>
+              <h4 class="sub-title">慢性病</h4>
+              <ul class="injury-list" v-if="chronicRows.length">
+                <li v-for="(t, i) in chronicRows" :key="'c' + i">{{ t }}</li>
+              </ul>
+              <p class="sub-empty" v-else>无</p>
             </div>
           </div>
         </div>

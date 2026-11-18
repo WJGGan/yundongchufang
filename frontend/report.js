@@ -193,6 +193,13 @@ createApp({
         .filter(Boolean);
     },
 
+    /* 慢性病：档案 chronic_conditions 字符串列表 */
+    chronicRows() {
+      return (this.rawHealth.chronic_conditions || [])
+        .map((t) => String(t).trim())
+        .filter(Boolean);
+    },
+
     goalOptions() {
       const goals = this.rx.goals || [];
       return GOAL_OPTIONS.map((o) => ({
