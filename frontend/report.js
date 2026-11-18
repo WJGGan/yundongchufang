@@ -51,7 +51,6 @@ const PREFIX_CATEGORY = {
 /* 空骨架：没有数据时报告版式照常渲染，字段留白而非整页隐藏 */
 const EMPTY_FITT_ITEM = { value: '', detail: '' };
 const EMPTY_RX = {
-  prescription_id: '',
   student_id: '',
   name: '',
   generated_at: '',
@@ -75,14 +74,11 @@ const EMPTY_RX = {
   },
   risk_notes: [],
   forbidden_or_limited: [],
-  explanations: [],
-  homework: { title: '', tasks: [], completion_standard: '', self_report: '' },
   disclaimer: '',
 };
 const EMPTY_PROFILE = {
   basic: {}, fitness_dimensions: [], overall: { strengths: [], weaknesses: [] },
   health_focus: [],
-  data_quality: { missing_fields: [], conflicts: [], clarification_questions: [] },
   safety: {
     risk_level: '', can_generate_prescription: true, blocked_exercise_tags: [],
     intensity_ceiling: {}, referral_advice: [], notes: [],
@@ -121,7 +117,6 @@ createApp({
       hasData: false,
       students: [],
       cached: {},
-      source: '',
       selectedId: '',
       generating: false,
       stage: '',
@@ -366,45 +361,6 @@ createApp({
         }));
     },
 
-    /* 6 执行与随访 */
-    followCards() {
-      const venues = new Set();
-      this.allItems.forEach((it) => {
-        (this.detailOf(it.exercise_id).venue || []).forEach((v) => venues.add(v));
-      });
-      const adjust = (this.profile && this.profile.safety && this.profile.safety.notes) || [];
-      return [
-        {
-          title: '健身场所', cls: 'home',
-          lines: venues.size ? [...venues].slice(0, 4) : ['居家 / 校园 / 户外'],
-        },
-        {
-          title: '复评周期', cls: 'cal',
-          lines: [
-            this.rx.cycle.total_weeks ? `处方周期 ${this.rx.cycle.total_weeks} 周` : '周期待定',
-            this.rx.cycle.next_review ? `下次复评：${this.rx.cycle.next_review}` : '建议 4–8 周后复评',
-          ],
-        },
-        {
-          title: '复评指标', cls: 'chart',
-          lines: this.weaknesses.length
-            ? this.weaknesses.slice(0, 3).map((w) => w.dimension)
-            : ['体重 / 体脂率', '心肺耐力', '柔韧与力量'],
-        },
-        {
-          title: '处方调整建议', cls: 'loop',
-          lines: adjust.length ? adjust.slice(0, 3) : ['根据复评结果、依从性与个人目标动态调整'],
-        },
-        {
-          title: '依从性记录', cls: 'phone',
-          lines: ['逐次填写下方运动记录表', '可通过 APP / 穿戴设备同步'],
-        },
-      ];
-    },
-
-    topExplanations() {
-      return (this.rx.explanations || []).slice(0, 6);
-    },
   },
 
   watch: {
@@ -436,9 +392,12 @@ createApp({
       .catch(() => {});
 
     Promise.all([studentsReady, this.refreshCached()]).then(() => {
-      if (!this.selectedId && this.students.length) {
-        this.selectedId = this.students[0].student_id;
-      }
+      if (this.selectedId) return;
+      // 优先认领 URL 携带的学生（如从档案理解报告页返回），无参再退回首个学生
+      const wanted = new URLSearchParams(location.search).get('id');
+      const hit = wanted && this.students.find((s) => s.student_id === wanted);
+      this.selectedId = hit ? hit.student_id
+        : (this.students[0] && this.students[0].student_id) || '';
     });
   },
 
@@ -483,8 +442,6 @@ createApp({
 
         if (data.prescription) {
           this.applyResult(data.prescription, data.profile);
-          const when = (data.generated_at || '').slice(0, 16).replace('T', ' ');
-          this.source = `已有结果 · ${data.model || ''} · ${when}`;
         } else if (data.profile) {
           // 只生成过画像：画像照常展示
           this.genError = '该学生只生成过体质画像，尚无处方，可点「重新生成」补齐';
@@ -522,7 +479,6 @@ createApp({
       this.genError = '';
       this.emergency = null;
       this.blocked = null;
-      this.source = '';
       this.aiMessages = [];
       document.title = '运动处方报告';
     },

@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-import uuid
 from collections.abc import AsyncIterator
 from typing import Any
 
@@ -26,7 +25,6 @@ from app.services import rag
 from app.services.data_loader import (
     exercise_index,
     exercise_library,
-    knowledge_cards,
     save_prescription_result,
 )
 from app.services.profile_service import current_versions, now_iso
@@ -163,9 +161,6 @@ def validate_payload(
                     f"{day.get('day', '')} 安排了 {minutes} 分钟，超过单次上限 {max_minutes} 分钟"
                 )
 
-    if len(payload.get("explanations") or []) < 4:
-        problems.append("explanations 少于 4 条")
-
     return problems
 
 
@@ -207,16 +202,6 @@ def build_exercise_details(payload: dict[str, Any]) -> tuple[list[ExerciseDetail
     return details, unknown
 
 
-def _strip_unknown_refs(payload: dict[str, Any]) -> list[str]:
-    valid = {card["id"] for card in knowledge_cards()}
-    dropped: list[str] = []
-    for explanation in payload.get("explanations") or []:
-        refs = explanation.get("knowledge_refs") or []
-        explanation["knowledge_refs"] = [ref for ref in refs if ref in valid]
-        dropped.extend(ref for ref in refs if ref not in valid)
-    return sorted(set(dropped))
-
-
 def _assemble(
     payload: dict[str, Any],
     *,
@@ -224,11 +209,9 @@ def _assemble(
     profile: ProfileResult,
 ) -> PrescriptionResult:
     details, unknown = build_exercise_details(payload)
-    dropped_refs = _strip_unknown_refs(payload)
 
     payload.update(
         {
-            "prescription_id": f"RX-{now_iso()[:10].replace('-', '')}-{record.student_id or 'NA'}-{uuid.uuid4().hex[:4]}",
             "student_id": record.student_id,
             "name": record.name,
             "generated_at": now_iso(),
@@ -240,17 +223,7 @@ def _assemble(
         }
     )
 
-    result = PrescriptionResult.model_validate(payload)
-    if dropped_refs:
-        result.risk_notes.append(
-            RiskNote(
-                level="低",
-                item="知识引用缺失",
-                reason="模型引用了不存在的知识卡片：" + "、".join(dropped_refs),
-                action="该引用已移除，处方内容不受影响",
-            )
-        )
-    return result
+    return PrescriptionResult.model_validate(payload)
 
 
 async def stream_prescription(

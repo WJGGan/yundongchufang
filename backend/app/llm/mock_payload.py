@@ -88,20 +88,6 @@ def _mock_profile() -> dict[str, Any]:
                 "attention": "延长热身，低温转室内",
             }
         ],
-        "data_quality": {
-            "missing_fields": [
-                {"field": "静息血压", "why_needed": f"{_MOCK} 用于强度上限判断", "priority": "高"}
-            ],
-            "conflicts": [],
-            "clarification_questions": [
-                {
-                    "question": f"{_MOCK} 最近一年测过血压吗？",
-                    "field": "vitals.blood_pressure",
-                    "priority": "高",
-                    "audience": "家长",
-                }
-            ],
-        },
         "safety": {
             "risk_level": "中",
             "can_generate_prescription": True,
@@ -203,32 +189,4 @@ def _mock_prescription() -> dict[str, Any]:
         "forbidden_or_limited": [
             {"target": f"{_MOCK} 憋气类动作", "restriction": "禁止", "reason": "占位", "source": "安全"}
         ],
-        "explanations": [
-            {
-                "target": "fitt_vp.type",
-                "why": f"{_MOCK} 这是离线占位解释，不构成真实依据",
-                "knowledge_refs": ["GUIDE-12"],
-            },
-            {
-                "target": "weekly_plan.周一.放松",
-                "why": f"{_MOCK} 离线占位解释",
-                "knowledge_refs": ["GUIDE-09"],
-            },
-            {
-                "target": "intensity_control.target_hr_zone",
-                "why": f"{_MOCK} 离线占位解释",
-                "knowledge_refs": ["GUIDE-04"],
-            },
-            {
-                "target": "weekly_plan.周六",
-                "why": f"{_MOCK} 离线占位解释",
-                "knowledge_refs": ["GUIDE-32"],
-            },
-        ],
-        "homework": {
-            "title": f"{_MOCK} 本周课后运动作业",
-            "tasks": ["占位任务"],
-            "completion_standard": "占位",
-            "self_report": "占位",
-        },
     }

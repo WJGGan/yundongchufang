@@ -104,7 +104,7 @@ async def generate_one(student_id: str) -> bool:
     days = sum(1 for d in result.weekly_plan if d.is_training_day)
     print(
         f"  {name}：完成（画像 {t_profile:.0f}s + 处方 {t_rx:.0f}s"
-        f"，重试 {retries} 次，训练日 {days} 天，解释 {len(result.explanations)} 条）"
+        f"，重试 {retries} 次，训练日 {days} 天）"
     )
     return True
 

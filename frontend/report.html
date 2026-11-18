@@ -19,27 +19,19 @@
         {{ cached[s.student_id] ? '★ ' : '' }}{{ s.name }} · {{ s.grade }}{{ s.gender }} · {{ s.age }}岁
       </option>
     </select>
-    <button class="tb-btn accent" :disabled="!isCached || generating" @click="loadCached"
-            :title="isCached ? '直接载入已生成的结果，无需等待模型' : '该学生还没有生成过结果'">
-      {{ isCached ? '★ 载入已有结果' : '无已有结果' }}
+    <button class="tb-btn primary" v-if="!generating && !isCached" :disabled="!selectedId" @click="generate">
+      生成处方
     </button>
-    <button class="tb-btn primary" v-if="!generating" :disabled="!selectedId" @click="generate">
-      {{ isCached ? '重新生成' : '生成处方' }}
-    </button>
-    <button class="tb-btn danger" v-else @click="stopGenerate">■ 停止生成</button>
+    <button class="tb-btn danger" v-else-if="generating" @click="stopGenerate">■ 停止生成</button>
+    <button class="tb-btn" :class="{ active: aiOpen }" v-if="aiMessages.length || generating"
+            @click="aiOpen = !aiOpen">AI 过程</button>
+    <span class="tb-stage" v-if="generating">{{ stage }}</span>
+    <span class="tb-spacer"></span>
     <button class="tb-btn" :class="{ active: showForm }" @click="showForm = !showForm">
       ✎ 自行录入档案
     </button>
-    <button class="tb-btn" :class="{ active: aiOpen }" v-if="aiMessages.length || generating"
-            @click="aiOpen = !aiOpen">AI 过程</button>
     <button class="tb-btn" :disabled="!selectedId" @click="openProfile"
-            title="查看第一阶段档案理解（体质画像）的分析结果">📋 档案理解报告</button>
-    <span class="tb-title" v-if="hasData">
-      {{ rx.name || '—' }} · 运动处方报告
-      <em class="tb-src" v-if="source">{{ source }}</em>
-    </span>
-    <span class="tb-stage" v-else-if="generating">{{ stage }}</span>
-    <span class="tb-spacer"></span>
+            title="查看第一阶段档案理解（体质画像）的分析结果">查看档案理解报告</button>
   </div>
 
   <!-- 生成进度 -->
@@ -148,29 +140,17 @@
       <!-- 报头 -->
       <header class="rpt-head">
         <div class="logo">
-          <div class="logo-mark">
-            <svg viewBox="0 0 48 48" aria-hidden="true">
-              <circle cx="24" cy="9" r="5"/>
-              <path d="M24 16c-6 0-9 3-9 7v8h4v13h10V31h4v-8c0-4-3-7-9-7z"/>
-            </svg>
-          </div>
-          <div class="logo-text">
-            <strong>青少年</strong>
-            <span>运动健康中心</span>
-          </div>
+          <img src="/static/assets/logo.svg" alt="国家人工智能应用中试基地" />
         </div>
 
         <div class="head-title">
-          <h1>青少年运动健康中心</h1>
-          <h2>一人一策运动处方报告</h2>
+          <h1>一人一策运动处方报告</h1>
           <p class="slogan">科学运动 · 健康成长 · 专业指导 · 持续改善</p>
         </div>
 
         <div class="head-meta">
-          <div class="hm-row"><span>处方编号</span><b>{{ rx.prescription_id || '—' }}</b></div>
           <div class="hm-row"><span>生成日期</span><b>{{ dateOnly(rx.generated_at) }}</b></div>
           <div class="hm-row"><span>模型版本</span><b>{{ rx.versions.model || '—' }}</b></div>
-          <div class="hm-note">本报告由模型辅助生成<br/>需经专业人员审核后使用</div>
         </div>
       </header>
 
@@ -461,80 +441,8 @@
         </div>
       </section>
 
-      <!-- 6 执行与随访 -->
-      <section class="sec">
-        <div class="sec-head blue"><i>6</i><h3>执行与随访</h3></div>
-        <div class="sec-body">
-          <div class="follow-grid">
-            <div class="fg" v-for="f in followCards" :key="f.title">
-              <div class="fg-ico" :class="f.cls"></div>
-              <h4>{{ f.title }}</h4>
-              <p v-for="(l, i) in f.lines" :key="i">{{ l }}</p>
-            </div>
-          </div>
-
-          <div class="homework" v-if="rx.homework && rx.homework.title">
-            <h4>{{ rx.homework.title }}</h4>
-            <ul><li v-for="t in rx.homework.tasks" :key="t">{{ t }}</li></ul>
-            <p><span>完成标准</span>{{ rx.homework.completion_standard || '—' }}</p>
-            <p><span>自评方式</span>{{ rx.homework.self_report || '—' }}</p>
-          </div>
-
-          <h4 class="rec-title">运动记录表（可自行记录或通过 APP 同步）</h4>
-          <table class="rec-table">
-            <thead>
-              <tr>
-                <th>日期</th><th>运动类型</th><th>时长（分钟）</th>
-                <th>平均心率（次/分）</th><th>RPE（自感用力）</th>
-                <th>能量消耗（kcal）</th><th>备注 / 感受</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="n in 8" :key="n"><td v-for="c in 7" :key="c"></td></tr>
-            </tbody>
-          </table>
-
-          <div class="tip-bar">
-            小贴士：循序渐进，坚持记录，逐步提升体能，享受运动带来的健康与活力！
-          </div>
-        </div>
-      </section>
-
-      <!-- 7 处方师签名与依据 -->
-      <section class="sec">
-        <div class="sec-head purple"><i>7</i><h3>处方师签名与依据</h3></div>
-        <div class="sec-body boxed sign-box">
-          <div class="sign-left">
-            <div class="sign-line"><label>处方师 / 审核人签名</label><u></u><span class="unit">（专业人员）</span></div>
-            <div class="sign-line"><label>日&nbsp;&nbsp;&nbsp;&nbsp;期</label><u></u></div>
-            <div class="stamp">处方专用章</div>
-          </div>
-          <div class="sign-right">
-            <h4>生成依据</h4>
-            <ul class="basis-list">
-              <li v-for="(e, i) in topExplanations" :key="i">
-                <span class="code">{{ e.target }}</span>{{ e.why }}
-                <em v-if="e.knowledge_refs && e.knowledge_refs.length">［{{ e.knowledge_refs.join('、') }}］</em>
-              </li>
-            </ul>
-            <div class="ver">
-              动作库 {{ rx.versions.exercise_library || '—' }} ·
-              知识库 {{ rx.versions.knowledge_base || '—' }} ·
-              提示词 {{ rx.versions.prompt || '—' }} ·
-              模型 {{ rx.versions.model || '—' }}
-            </div>
-          </div>
-        </div>
-      </section>
-
       <div class="rpt-bottom">
-        <span class="left">AI 生成辅助 + 科学依据：ACSM 指南、FITT-VP 原则、国家学生体质健康标准等</span>
-        <span class="right">{{ rx.disclaimer || '本处方仅供参考，不能替代医疗建议。如有不适，请及时就医。' }}</span>
-      </div>
-
-      <div class="sheet-foot">
-        <span>{{ rx.prescription_id }}</span>
-        <span>本报告由模型辅助生成，需经专业人员审核后使用</span>
+        <span class="left">{{ rx.disclaimer || '本运动处方由 AI 生成，仅供参考，不作为医疗诊断依据。执行中出现不适请立即停止并咨询专业人员。' }}</span>
       </div>
       </div>
     </div>

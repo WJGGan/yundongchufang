@@ -64,10 +64,6 @@ async def case_prescription(student_id: str) -> None:
     print(f"{tag} 禁止与限制:")
     for item in result.forbidden_or_limited:
         print(f"{tag}   [{item.restriction}/{item.source}] {item.target} — {item.reason}")
-    print(f"{tag} 解释 {len(result.explanations)} 条:")
-    for exp in result.explanations:
-        print(f"{tag}   {exp.target} refs={exp.knowledge_refs}")
-        print(f"{tag}     {exp.why}")
     print(f"{tag} 未知动作ID: {result.unknown_exercise_ids}", flush=True)
 
 

@@ -72,39 +72,6 @@ class HealthFocus(BaseModel):
     attention: str = ""
 
 
-class MissingField(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    field: str = ""
-    why_needed: str = ""
-    priority: str = ""
-
-
-class ConflictItem(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    fields: list[str] = Field(default_factory=list)
-    description: str = ""
-    suggestion: str = ""
-
-
-class ClarificationQuestion(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    question: str = ""
-    field: str = ""
-    priority: str = ""
-    audience: str = ""
-
-
-class DataQuality(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    missing_fields: list[MissingField] = Field(default_factory=list)
-    conflicts: list[ConflictItem] = Field(default_factory=list)
-    clarification_questions: list[ClarificationQuestion] = Field(default_factory=list)
-
-
 class IntensityCeiling(BaseModel):
     model_config = ConfigDict(extra="allow")
 
@@ -137,7 +104,6 @@ class ProfileResult(BaseModel):
     fitness_dimensions: list[FitnessDimension] = Field(default_factory=list)
     overall: OverallEvaluation = Field(default_factory=OverallEvaluation)
     health_focus: list[HealthFocus] = Field(default_factory=list)
-    data_quality: DataQuality = Field(default_factory=DataQuality)
     safety: SafetyAssessment = Field(default_factory=SafetyAssessment)
     disclaimer: str = ""
 

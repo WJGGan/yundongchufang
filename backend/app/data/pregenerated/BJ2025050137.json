@@ -1451,57 +1451,6 @@
         "source": "安全"
       }
     ],
-    "explanations": [
-      {
-        "target": "fitt_vp.type",
-        "why": "短板第一为心肺耐力（肺活量1950ml偏低、往返跑一般），故以快走慢跑交替、快走等有氧为主体；第二短板爆发力对应跳绳专项，每周3次交替脚跳绳并计次提频",
-        "knowledge_refs": [
-          "GUIDE-01",
-          "GUIDE-30"
-        ]
-      },
-      {
-        "target": "weekly_plan.周六.主体",
-        "why": "周六安排长时快走积累有氧量，配合仰卧起坐维持其核心优势项，强度低适合周末家庭场景执行",
-        "knowledge_refs": [
-          "GUIDE-12",
-          "GUIDE-14"
-        ]
-      },
-      {
-        "target": "weekly_plan.周三.主体",
-        "why": "11岁处于速度灵敏敏感期，安排加速跑、侧滑步、反应启动，单次量小组间充分恢复，重神经控制质量，长期收益高",
-        "knowledge_refs": [
-          "GUIDE-10"
-        ]
-      },
-      {
-        "target": "weekly_plan.周一.主体",
-        "why": "交替脚跳绳每周3次、每次少量有效跳跃，兼顾跳绳体测目标与骨骼纵向发育刺激；弹性地面加落地缓冲保安全",
-        "knowledge_refs": [
-          "GUIDE-07",
-          "GUIDE-30"
-        ]
-      },
-      {
-        "target": "intensity_control.target_hr_zone",
-        "why": "学生无系统训练记录按初学者处理，上限70%最大心率约140次/分、RPE≤6，配合谈话测试便于无设备场景监控",
-        "knowledge_refs": [
-          "GUIDE-05",
-          "GUIDE-06"
-        ]
-      }
-    ],
-    "homework": {
-      "title": "跳绳与自我监控打卡",
-      "tasks": [
-        "每次跳绳课记录30秒最好成绩",
-        "训练中按谈话测试自评并记录RPE",
-        "记录睡眠时间与训练感受"
-      ],
-      "completion_standard": "每周4次训练完成打卡，跳绳成绩有记录",
-      "self_report": "每周日与家长一起回顾：训练完成度、身体感受、跳绳成绩变化"
-    },
     "unknown_exercise_ids": [],
     "disclaimer": "本运动处方由 AI 生成，仅供参考，不作为医疗诊断依据。执行中出现不适请立即停止并咨询专业人员。"
   },

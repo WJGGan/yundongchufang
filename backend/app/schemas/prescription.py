@@ -145,29 +145,11 @@ class Restriction(BaseModel):
     source: str = ""
 
 
-class Explanation(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    target: str = ""
-    why: str = ""
-    knowledge_refs: list[str] = Field(default_factory=list)
-
-
-class Homework(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    title: str = ""
-    tasks: list[str] = Field(default_factory=list)
-    completion_standard: str = ""
-    self_report: str = ""
-
-
 class PrescriptionResult(BaseModel):
     """处方接口的完整返回体。"""
 
     model_config = ConfigDict(extra="allow")
 
-    prescription_id: str = ""
     student_id: str = ""
     name: str = ""
     generated_at: str = ""
@@ -181,7 +163,5 @@ class PrescriptionResult(BaseModel):
     nutrition: Nutrition = Field(default_factory=Nutrition)
     risk_notes: list[RiskNote] = Field(default_factory=list)
     forbidden_or_limited: list[Restriction] = Field(default_factory=list)
-    explanations: list[Explanation] = Field(default_factory=list)
-    homework: Homework = Field(default_factory=Homework)
     unknown_exercise_ids: list[str] = Field(default_factory=list)
     disclaimer: str = ""

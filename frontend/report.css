@@ -147,22 +147,12 @@ body {
 
 /* ---------- 报头 ---------- */
 .rpt-head {
-  display: grid; grid-template-columns: 116px 1fr 216px;
+  display: grid; grid-template-columns: 190px 1fr 216px;
   align-items: center; gap: 14px;
   padding: 0 0 14px; margin-bottom: 16px;
   border-bottom: 2px solid var(--blue);
 }
-.logo { text-align: center; }
-.logo-mark {
-  width: 54px; height: 54px; margin: 0 auto 6px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--blue-2), var(--green));
-  display: flex; align-items: center; justify-content: center;
-}
-.logo-mark svg { width: 32px; height: 32px; fill: #fff; }
-.logo-text { line-height: 1.35; }
-.logo-text strong { display: block; font-size: var(--fs-body); color: var(--blue); }
-.logo-text span { font-size: var(--fs-xs); color: var(--ink-3); }
+.logo img { display: block; width: 190px; height: auto; margin: 0 auto; }
 
 .head-title { text-align: center; }
 .head-title h1 { margin: 0; font-size: 32px; font-weight: 800; color: var(--blue); letter-spacing: 2px; }
@@ -471,74 +461,6 @@ body {
 }
 .mon li.stop span { color: var(--red); background: var(--red-soft); }
 
-/* ---------- 6 执行与随访 ---------- */
-.follow-grid {
-  display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;
-  margin-bottom: 14px;
-}
-.fg {
-  border: 1px solid var(--line); border-radius: 8px;
-  padding: 12px 10px; text-align: center; background: #fbfdff;
-}
-.fg-ico {
-  width: 30px; height: 30px; margin: 0 auto 7px; border-radius: 8px;
-  background: var(--blue-soft); position: relative;
-}
-.fg-ico::after {
-  position: absolute; inset: 0; line-height: 30px; font-size: 17px; color: var(--blue);
-}
-.fg-ico.home::after { content: '⌂'; font-size: 20px; }
-.fg-ico.cal::after { content: '📅'; }
-.fg-ico.chart::after { content: '📊'; }
-.fg-ico.loop::after { content: '↻'; font-size: 19px; }
-.fg-ico.phone::after { content: '📱'; }
-.fg h4 { margin: 0 0 4px; font-size: var(--fs-md); color: var(--blue); }
-.fg p { margin: 0; font-size: var(--fs-sm); color: var(--ink-3); line-height: 1.55; }
-
-.homework {
-  border: 1px solid #bfe3d2; background: var(--green-soft);
-  border-radius: 8px; padding: 12px 14px; margin-bottom: 14px;
-}
-.homework h4 { margin: 0 0 6px; font-size: var(--fs-body); color: var(--green); }
-.homework ul { margin: 0 0 6px; padding-left: 18px; }
-.homework li { font-size: var(--fs-md); color: var(--ink-2); margin-bottom: 3px; }
-.homework p { margin: 2px 0 0; font-size: var(--fs-md); color: var(--ink-2); }
-.homework p span { color: var(--ink-3); margin-right: 6px; }
-
-.rec-title { margin: 0 0 7px; font-size: var(--fs-body); color: var(--blue); }
-.rec-table { width: 100%; border-collapse: collapse; }
-.rec-table th, .rec-table td { border: 1px solid var(--line); padding: 2px 7px; font-size: var(--fs-sm); }
-.rec-table thead th { background: var(--blue-soft); color: var(--blue); font-weight: 600; height: 34px; }
-.rec-table tbody td { height: 32px; }
-
-.tip-bar {
-  margin-top: 12px; padding: 10px 14px; border-radius: 6px;
-  background: var(--green-soft); border: 1px solid #bfe3d2;
-  font-size: var(--fs-md); color: var(--green); text-align: center;
-}
-
-/* ---------- 7 签名 ---------- */
-.sign-box { display: grid; grid-template-columns: 1fr 1.35fr; gap: 18px; border-color: #d5cdeb; }
-.sign-line { display: flex; align-items: baseline; gap: 8px; margin-bottom: 18px; font-size: var(--fs-body); }
-.sign-line label { color: var(--ink-2); white-space: nowrap; }
-.sign-line u { flex: 1; text-decoration: none; border-bottom: 1px solid var(--line); min-height: 24px; }
-.sign-line .unit { font-size: var(--fs-xs); color: var(--ink-3); }
-.stamp {
-  width: 112px; height: 112px; border: 2px solid var(--red); border-radius: 50%;
-  color: var(--red); font-size: var(--fs-md); opacity: .55;
-  display: flex; align-items: center; justify-content: center; text-align: center;
-  margin-left: auto;
-}
-.sign-right h4 { margin: 0 0 7px; font-size: var(--fs-body); color: var(--purple); }
-.basis-list { margin: 0; padding-left: 18px; }
-.basis-list li { font-size: var(--fs-sm); color: var(--ink-2); margin-bottom: 5px; }
-.basis-list .code {
-  display: inline-block; margin-right: 5px; padding: 0 5px; border-radius: 3px;
-  background: var(--purple-soft); color: var(--purple); font-size: var(--fs-xs);
-}
-.basis-list em { font-style: normal; color: var(--ink-3); }
-.ver { margin-top: 8px; padding-top: 7px; border-top: 1px dashed var(--line); font-size: var(--fs-xs); color: var(--ink-3); }
-
 .rpt-bottom {
   margin-top: 16px; display: flex; justify-content: space-between; gap: 14px;
   background: var(--blue); color: #fff; border-radius: 6px;
@@ -556,7 +478,6 @@ body {
    报告是密集的分栏版式，窄屏时逐级并栏，保证手机上也能通读。 */
 @media screen and (max-width: 1024px) {
   .plan-grid { grid-template-columns: 1fr 1fr; }
-  .follow-grid { grid-template-columns: repeat(3, 1fr); }
   .warn-grid { column-count: 2; }
 }
 
@@ -569,7 +490,6 @@ body {
   .two-col { grid-template-columns: 1fr; }
   .info-grid { grid-template-columns: repeat(2, 1fr); }
   .info-grid .f.wide { grid-column: span 2; }
-  .sign-box { grid-template-columns: 1fr; }
 }
 
 @media screen and (max-width: 560px) {
@@ -581,7 +501,6 @@ body {
   .detail-grid { grid-template-columns: 1fr; }
   .week-table { min-width: 540px; }
   .warn-grid { column-count: 1; }
-  .follow-grid { grid-template-columns: 1fr 1fr; }
   .rpt-bottom { flex-direction: column; gap: 5px; }
   .rpt-bottom .right { text-align: left; }
 }

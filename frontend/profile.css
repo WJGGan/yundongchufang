@@ -34,15 +34,6 @@
 .dim-ind em { font-style: normal; color: var(--ink-3); }
 .dim-basis { margin: 7px 0 0; font-size: var(--fs-sm); color: var(--ink-3); line-height: 1.6; }
 
-/* 知识引用小徽标：id 原文 + 悬浮显示卡片标题 */
-.krefs { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
-.kref {
-  padding: 1px 8px; border-radius: 4px; cursor: default;
-  background: var(--purple-soft); color: var(--purple);
-  border: 1px solid #d5cdeb; font-size: var(--fs-xs);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-}
-
 /* ---------- 3 综合评价 ---------- */
 .sec-body > .lead { margin: 0 0 10px; font-size: var(--fs-body); }
 .ov-block {

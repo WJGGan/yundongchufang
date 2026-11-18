@@ -26,15 +26,14 @@ SYSTEM = """你是青少年运动处方师，服务对象是中国中小学生�
     - restriction 只能是"禁止"或"限制"两个词之一，不得附加任何其他文字。
     - source 只能是"安全"或"偏好"两个词之一。
     - 替代方案、生效期限等说明一律写进 reason，不要写进 restriction。
-13. explanations 至少 4 条，target 必须指向处方中的具体位置（如 "fitt_vp.type"、"weekly_plan.周一.放松"、"intensity_control.target_hr_zone"），why 要说明为什么对这名学生这样安排，knowledge_refs 只能引用知识卡片中实际存在的 ID。
-14. 目标心率区间按青少年最大心率约 195 至 205 次/分估算，不要使用 220 减年龄公式，并在 formula_note 中明确这是估算值。
-15. 饮食建议针对青少年生长发育期，不得给出激进限能量或快速减重方案，不得推荐蛋白粉等补剂。
-16. risk_notes 需列出该学生执行本处方时的具体风险点与应对措施，标注 高/中/低 等级。
+13. 目标心率区间按青少年最大心率约 195 至 205 次/分估算，不要使用 220 减年龄公式，并在 formula_note 中明确这是估算值。
+14. 饮食建议针对青少年生长发育期，不得给出激进限能量或快速减重方案，不得推荐蛋白粉等补剂。
+15. risk_notes 需列出该学生执行本处方时的具体风险点与应对措施，标注 高/中/低 等级。
 
 输出要求：
 - 只输出一个 JSON 对象，不要输出任何解释文字或代码围栏。
 - 严格使用下方给定的字段名与结构，不要增减顶层键。
-- 表述务必简洁，这是硬性要求：`value` 不超过 30 字，`detail`、`dosage`、`notes`、`reason`、`action` 不超过 60 字，`why` 不超过 150 字。信息密度优先，不要重复已在别处说过的内容，不要写铺垫句。
+- 表述务必简洁，这是硬性要求：`value` 不超过 30 字，`detail`、`dosage`、`notes`、`reason`、`action` 不超过 60 字。信息密度优先，不要重复已在别处说过的内容，不要写铺垫句。
 - `cycle.next_review` 只写相对表述（如"第4周末"），不要写具体日期。
 - `rpe_range` 只写区间（如"4-6"），不要附加说明文字。
 - 休息日的 blocks 可为空数组，不必为休息日编排内容。
@@ -65,9 +64,7 @@ SYSTEM = """你是青少年运动处方师，服务对象是中国中小学生�
     "hydration": "", "cautions": []
   },
   "risk_notes": [{"level": "", "item": "", "reason": "", "action": ""}],
-  "forbidden_or_limited": [{"target": "", "restriction": "", "reason": "", "source": ""}],
-  "explanations": [{"target": "", "why": "", "knowledge_refs": []}],
-  "homework": {"title": "", "tasks": [], "completion_standard": "", "self_report": ""}
+  "forbidden_or_limited": [{"target": "", "restriction": "", "reason": "", "source": ""}]
 }"""
 
 
@@ -98,7 +95,7 @@ def build_user_prompt(
     )
     exercises = "\n".join(_format_exercise(item) for item in candidates)
     return (
-        "可引用的知识卡片（已按该学生的短板、目标与健康情况检索出的相关子集）：\n"
+        "可参考的知识卡片（已按该学生的短板、目标与健康情况检索出的相关子集）：\n"
         f"{cards}\n\n"
         "可用动作候选集（已按该学生的安全约束、器械、场地与年龄过滤，"
         "并按短板与目标检索排序，只能从中选择）：\n"
@@ -126,7 +123,6 @@ def build_concise_prompt(base_user_prompt: str) -> str:
         f"{base_user_prompt}\n\n"
         "上一次输出因过长被截断，导致 JSON 不完整。请重新输出，并大幅压缩表述：\n"
         "- 所有 detail、notes、reason、action 控制在 40 字以内，value 控制在 25 字以内\n"
-        "- why 控制在 100 字以内，只说关键依据，不复述处方内容\n"
         "- 休息日的 blocks 一律留空数组\n"
         "- 每个训练日的动作总数不超过 6 个\n"
         "- 优先保证 JSON 完整可解析，宁可表述简短也不能截断"

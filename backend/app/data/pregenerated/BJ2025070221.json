@@ -1322,65 +1322,6 @@
         "source": "偏好"
       }
     ],
-    "explanations": [
-      {
-        "target": "fitt_vp.type",
-        "why": "心肺耐力为第一短板且800米是主目标，以走跑交替建基础；核心与下肢力量同步补足以改善跑姿经济性和800米后程表现",
-        "knowledge_refs": [
-          "GUIDE-08",
-          "GUIDE-26"
-        ]
-      },
-      {
-        "target": "intensity_control.target_hr_zone",
-        "why": "近三年无规律运动按初学者处理，心率上限设最大心率70%约140次/分；青少年最大心率按195-205估算，避免低估强度",
-        "knowledge_refs": [
-          "GUIDE-04",
-          "GUIDE-05"
-        ]
-      },
-      {
-        "target": "weekly_plan.周一.主体",
-        "why": "400米即气促提示有氧基础薄弱，先用走跑交替保证可持续完成，4-6周后再过渡连续慢跑",
-        "knowledge_refs": [
-          "GUIDE-08"
-        ]
-      },
-      {
-        "target": "weekly_plan.周三.主体",
-        "why": "仰卧起坐与立定跳远偏低，徒手抗阻加核心训练补力量短板，不依赖器械也符合其偏好",
-        "knowledge_refs": [
-          "GUIDE-03",
-          "GUIDE-26"
-        ]
-      },
-      {
-        "target": "weekly_plan.周五.放松",
-        "why": "每次训练均含热身与整理活动，跑步后必做小腿拉伸，降低损伤并平稳回落心率",
-        "knowledge_refs": [
-          "GUIDE-14"
-        ]
-      },
-      {
-        "target": "weekly_plan.周日.主动恢复",
-        "why": "周日安排轻量快走并可随音乐律动，兼顾其跳舞喜好提升依从性，不占训练日额度",
-        "knowledge_refs": [
-          "GUIDE-12",
-          "GUIDE-24"
-        ]
-      }
-    ],
-    "homework": {
-      "title": "训练日志与症状观察",
-      "tasks": [
-        "记录每次训练心率、RPE与气促情况",
-        "恢复规律早餐并记录",
-        "每周日汇报是否有哮鸣或胸闷",
-        "课间每久坐1小时起身活动"
-      ],
-      "completion_standard": "每周3次训练全部完成且RPE≤6",
-      "self_report": "每周日向家长与老师汇报训练完成度与身体反应"
-    },
     "unknown_exercise_ids": [],
     "disclaimer": "本运动处方由 AI 生成，仅供参考，不作为医疗诊断依据。执行中出现不适请立即停止并咨询专业人员。"
   },

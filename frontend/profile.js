@@ -10,7 +10,6 @@ const EMPTY_PROFILE = {
   fitness_dimensions: [],
   overall: { level: '', summary: '', strengths: [], weaknesses: [] },
   health_focus: [],
-  data_quality: { missing_fields: [], conflicts: [], clarification_questions: [] },
   safety: {
     risk_level: '', can_generate_prescription: true, blocked_exercise_tags: [],
     intensity_ceiling: {}, referral_advice: [], notes: [],
@@ -29,10 +28,8 @@ createApp({
       selectedId: '',
       emergency: null,
       blocked: null,
-      source: '',
       error: '',
       loading: false,
-      cardTitles: {},
     };
   },
 
@@ -41,19 +38,17 @@ createApp({
     hasData() {
       return !!(this.profile && this.profile.generated_at);
     },
-    titleName() {
-      return this.profile.name || '';
+    /* 回到处方报告页时携带当前学生，对方页面据此自动选中并载入 */
+    backHref() {
+      return this.selectedId
+        ? '/report?id=' + encodeURIComponent(this.selectedId)
+        : '/report';
     },
     basic() { return this.profile.basic || {}; },
     dims() { return this.profile.fitness_dimensions || []; },
     overall() { return this.profile.overall || { strengths: [], weaknesses: [] }; },
     focus() { return this.profile.health_focus || []; },
     safety() { return this.profile.safety || {}; },
-    missing() { return (this.profile.data_quality && this.profile.data_quality.missing_fields) || []; },
-    conflicts() { return (this.profile.data_quality && this.profile.data_quality.conflicts) || []; },
-    questions() {
-      return (this.profile.data_quality && this.profile.data_quality.clarification_questions) || [];
-    },
   },
 
   watch: {
@@ -64,16 +59,6 @@ createApp({
   },
 
   mounted() {
-    // 知识卡片 id → 标题：五维卡片引用徽标悬浮提示用
-    fetch('/api/v1/knowledge')
-      .then((r) => r.json())
-      .then((d) => {
-        const map = {};
-        (d.cards || []).forEach((c) => { map[c.id] = c.title || ''; });
-        this.cardTitles = map;
-      })
-      .catch(() => {});
-
     const studentsReady = fetch('/api/v1/students')
       .then((r) => r.json())
       .then((list) => { this.students = list; })
@@ -109,7 +94,6 @@ createApp({
       this.emergency = null;
       this.blocked = null;
       this.profile = clone(EMPTY_PROFILE);
-      this.source = '';
       document.title = '健康档案理解报告';
       try {
         const res = await fetch(`/api/v1/pregenerated/${this.selectedId}`);
@@ -125,8 +109,6 @@ createApp({
         if (data.blocked) this.blocked = data.blocked;
         if (data.profile) {
           this.profile = data.profile;
-          const when = (data.generated_at || '').slice(0, 16).replace('T', ' ');
-          this.source = `已有结果 · ${data.model || ''} · ${when}`;
           document.title = `${data.profile.name || ''}健康档案理解报告`;
         } else if (!data.emergency) {
           this.error = '该学生的已有结果不含画像内容';
@@ -146,14 +128,6 @@ createApp({
       if (s.includes('不及格') || s.includes('差') || s.includes('弱')) return { cls: 'lv-fail bar-fail', width: '35%' };
       if (s) return { cls: 'lv-pass bar-pass', width: '60%' };
       return { cls: '', width: '0%' };
-    },
-
-    priCls(priority) {
-      return { 高: 'pri-high', 中: 'pri-mid', 低: 'pri-low' }[priority] || 'pri-low';
-    },
-
-    cardTitle(id) {
-      return this.cardTitles[id] || '知识卡片';
     },
 
     parseDate(s) {

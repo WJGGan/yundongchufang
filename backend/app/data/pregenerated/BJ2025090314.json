@@ -1361,66 +1361,6 @@
         "source": "安全"
       }
     ],
-    "explanations": [
-      {
-        "target": "fitt_vp.type",
-        "why": "心肺为第2短板且有1000米目标，但超重叠加踝伤，故以骑行与走跑交替等低冲击有氧为主，既控制关节负荷又积累有氧量。",
-        "knowledge_refs": [
-          "GUIDE-12",
-          "GUIDE-26"
-        ]
-      },
-      {
-        "target": "weekly_plan.周一.热身",
-        "why": "哮喘学生热身延长至10-15分钟可降低运动性支气管收缩风险，故热身块设为12分钟。",
-        "knowledge_refs": [
-          "GUIDE-15",
-          "GUIDE-14"
-        ]
-      },
-      {
-        "target": "weekly_plan.周日.主体",
-        "why": "骑行为学生偏好项目，每周安排一次以提升依从性，且无冲击适合超重和踝伤情况。",
-        "knowledge_refs": [
-          "GUIDE-32",
-          "GUIDE-12"
-        ]
-      },
-      {
-        "target": "forbidden_or_limited[0]",
-        "why": "学生不喜欢长距离慢跑，用走跑交替与骑行替代，有氧效果等同且更易坚持。",
-        "knowledge_refs": [
-          "GUIDE-32"
-        ]
-      },
-      {
-        "target": "intensity_control.target_hr_zone",
-        "why": "无训练经历按初学者处理，上限不超最大心率70%即约140次/分；青少年最大心率按195-205估算，不用220减年龄。",
-        "knowledge_refs": [
-          "GUIDE-04",
-          "GUIDE-05"
-        ]
-      },
-      {
-        "target": "weekly_plan.周日.放松",
-        "why": "柔韧性为第3短板（体前屈4.2cm），放松块固定安排体前屈与小腿拉伸，每周高频积累。",
-        "knowledge_refs": [
-          "GUIDE-14",
-          "GUIDE-18"
-        ]
-      }
-    ],
-    "homework": {
-      "title": "训练打卡与体前屈进步记录",
-      "tasks": [
-        "每次训练后记录RPE与是否出现气促",
-        "每日睡前坐位体前屈30秒×2组",
-        "戒含糖饮料，记录每日是否达标",
-        "每两周测一次1000米分段配速（非全力）"
-      ],
-      "completion_standard": "4周内体前屈提升2cm，1000米提升5-10秒，周训练打卡≥3次",
-      "self_report": "每次训练后在打卡表记录RPE、心率感觉与踝部反应，每周日晚汇总"
-    },
     "unknown_exercise_ids": [],
     "disclaimer": "本运动处方由 AI 生成，仅供参考，不作为医疗诊断依据。执行中出现不适请立即停止并咨询专业人员。"
   },
