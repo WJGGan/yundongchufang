@@ -84,14 +84,6 @@ class ExerciseHistory(BaseModel):
     sedentary_hours_per_day: float | None = None
 
 
-class Lifestyle(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    sleep_hours: float | None = None
-    screen_time_hours: float | None = None
-    breakfast_regular: bool | None = None
-
-
 class HealthProfile(BaseModel):
     """健康扩展层：体检与体质表未覆盖、但处方生成必需的信息。"""
 
@@ -104,7 +96,6 @@ class HealthProfile(BaseModel):
     family_history: list[str] = Field(default_factory=list)
     vitals: Vitals = Field(default_factory=Vitals)
     exercise_history: ExerciseHistory = Field(default_factory=ExerciseHistory)
-    lifestyle: Lifestyle = Field(default_factory=Lifestyle)
 
 
 class AvailableTime(BaseModel):

@@ -34,9 +34,7 @@ MATRIX = [
 async def build_profile_prompt() -> tuple[str, str]:
     record = HealthRecord.model_validate(find_student(STUDENT_ID))
     record_view = record.to_prompt_dict()
-    # 与 profile_service 保持一致：知识卡片走 RAG 检索，基准才能反映真实输入量
-    cards = await rag.retrieve_knowledge_for_profile(record_view)
-    return pf_prompt.SYSTEM, pf_prompt.build_user_prompt(record_view, cards)
+    return pf_prompt.SYSTEM, pf_prompt.build_user_prompt(record_view)
 
 
 async def build_prescription_prompt() -> tuple[str, str]:

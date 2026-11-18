@@ -31,8 +31,6 @@ def _mock_profile() -> dict[str, Any]:
             "weight_kg": 72.3,
             "bmi": 25.5,
             "bmi_evaluation": f"{_MOCK} 肥胖",
-            "bmi_basis": f"{_MOCK} 该结果为离线占位数据，未经模型计算",
-            "growth_note": f"{_MOCK} 身高中上，体重增长快于身高",
         },
         "fitness_dimensions": [
             {
@@ -40,35 +38,30 @@ def _mock_profile() -> dict[str, Any]:
                 "indicators": [{"name": "1000米", "raw": "4分32秒", "level": "及格"}],
                 "level": "及格",
                 "basis": f"{_MOCK} 离线占位",
-                "knowledge_refs": ["GUIDE-08"],
             },
             {
                 "dimension": "柔韧性",
                 "indicators": [{"name": "坐位体前屈", "raw": "4.2", "level": "较差"}],
                 "level": "较差",
                 "basis": f"{_MOCK} 离线占位",
-                "knowledge_refs": ["GUIDE-09"],
             },
             {
                 "dimension": "肌肉力量",
                 "indicators": [{"name": "引体向上", "raw": "3", "level": "及格"}],
                 "level": "及格",
                 "basis": f"{_MOCK} 离线占位",
-                "knowledge_refs": ["GUIDE-11"],
             },
             {
                 "dimension": "速度",
                 "indicators": [{"name": "50米", "raw": "8.9", "level": "及格"}],
                 "level": "及格",
                 "basis": f"{_MOCK} 离线占位",
-                "knowledge_refs": ["GUIDE-27"],
             },
             {
                 "dimension": "爆发力",
                 "indicators": [{"name": "立定跳远", "raw": "185", "level": "及格"}],
                 "level": "及格",
                 "basis": f"{_MOCK} 离线占位",
-                "knowledge_refs": ["GUIDE-31"],
             },
         ],
         "overall": {

@@ -1,11 +1,11 @@
-"""RAG 检索质量评测：准确率 / 召回率 / F1。
+"""RAG 检索质量评测：准确率 / 召回率 / F1（仅处方阶段，画像阶段已不使用 RAG）。
 
 用法：
     uv run python -u scripts/eval_rag.py
 
 金标准由标注函数生成：按档案中的健康状况（哮喘、脊柱、视力、伤病、BMI）
 与训练目标（体测专项等）映射到"理应被召回"的知识卡片（针对性卡片），
-叠加按处方/画像输出结构固定需要的"结构性卡片"白名单。
+叠加按处方输出结构固定需要的"结构性卡片"白名单。
 
 指标口径：
 - 针对性召回率：检索结果覆盖了多少针对该生的卡片（核心指标，漏了就是真漏）
@@ -39,11 +39,6 @@ _GOAL_CARDS = {
     "柔韧": "GUIDE-09", "体重": "GUIDE-12", "爆发力": "GUIDE-10", "灵敏": "GUIDE-10",
 }
 
-# 画像阶段结构性卡片：评估五维与体成分所需的方法论口径
-_PROFILE_STRUCTURAL = {
-    "GUIDE-01", "GUIDE-03", "GUIDE-07", "GUIDE-08", "GUIDE-09",
-    "GUIDE-10", "GUIDE-11", "GUIDE-12",
-}
 # 处方阶段结构性卡片：输出结构固定含框架/强度/营养/训练结构/安全/依从性
 _RX_STRUCTURAL = {
     "GUIDE-01", "GUIDE-02", "GUIDE-04", "GUIDE-05", "GUIDE-06", "GUIDE-13",
@@ -118,19 +113,6 @@ def summarize(rows: list[tuple[float, float, float, float]]) -> str:
     )
 
 
-async def eval_profile_stage(label: str) -> None:
-    rows, misses = [], []
-    for student in all_students():
-        retrieved = {c["id"] for c in await rag.retrieve_knowledge_for_profile(student)}
-        specific = gold_condition_cards(student)
-        rows.append(prf(retrieved, specific, _PROFILE_STRUCTURAL))
-        for miss in specific - retrieved:
-            misses.append(f"{student.get('name', student['student_id'])}漏{miss}")
-    print(f"  画像检索@{settings.rag_profile_top_k} [{label}] n={len(rows)}: {summarize(rows)}")
-    if misses:
-        print(f"    漏检明细: {'、'.join(misses)}")
-
-
 async def eval_rx_stage(label: str) -> None:
     import glob
     import json
@@ -164,23 +146,20 @@ async def eval_rx_stage(label: str) -> None:
 async def main() -> None:
     total = len(knowledge_cards())
     print(f"知识库全量 {total} 张；相关集合=针对性卡片∪结构性白名单"
-          f"（画像 {len(_PROFILE_STRUCTURAL)} 张 / 处方 {len(_RX_STRUCTURAL)} 张）\n")
+          f"（处方 {len(_RX_STRUCTURAL)} 张）\n")
 
     print("=== 混合检索（向量 + 词面）===")
-    await eval_profile_stage("向量+词面")
     await eval_rx_stage("向量+词面")
 
     print("\n=== 消融：仅词面（离线降级路径）===")
     settings.embedding_api_key = ""
     rag._query_cache.clear()
-    await eval_profile_stage("仅词面")
     await eval_rx_stage("仅词面")
 
     print("\n=== 基线：全量注入（34 张全给模型）===")
-    pf_rel = len(_PROFILE_STRUCTURAL)
     rx_rel = len(_RX_STRUCTURAL)
     print(f"  召回率恒 100%；准确率上限 ≈ 相关卡占比："
-          f"画像约 ({pf_rel}+针对卡)/34 ≈ {pf_rel / total:.0%}+，处方约 ({rx_rel}+针对卡)/34 ≈ {rx_rel / total:.0%}+")
+          f"处方约 ({rx_rel}+针对卡)/34 ≈ {rx_rel / total:.0%}+")
 
 
 if __name__ == "__main__":

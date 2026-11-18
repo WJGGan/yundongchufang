@@ -13,8 +13,7 @@ from app.llm.provider import LLMError, extract_json, get_provider
 from app.prompts import profile as prompt
 from app.schemas.profile import ProfileResult, Versions
 from app.schemas.record import HealthRecord
-from app.services import rag
-from app.services.data_loader import knowledge_cards, save_profile_result
+from app.services.data_loader import save_profile_result
 
 CST = timezone(timedelta(hours=8))
 
@@ -34,24 +33,6 @@ def current_versions() -> Versions:
     )
 
 
-def _valid_card_ids() -> set[str]:
-    return {card["id"] for card in knowledge_cards()}
-
-
-def _strip_unknown_refs(payload: dict[str, Any]) -> list[str]:
-    """移除不存在的知识卡片引用，返回被移除的 ID，避免前端溯源点击失效。"""
-    valid = _valid_card_ids()
-    dropped: list[str] = []
-
-    for dimension in payload.get("fitness_dimensions") or []:
-        refs = dimension.get("knowledge_refs") or []
-        kept = [ref for ref in refs if ref in valid]
-        dropped.extend(ref for ref in refs if ref not in valid)
-        dimension["knowledge_refs"] = kept
-
-    return sorted(set(dropped))
-
-
 async def stream_profile(record: HealthRecord) -> AsyncIterator[tuple[str, Any]]:
     """流式生成画像。
 
@@ -61,16 +42,14 @@ async def stream_profile(record: HealthRecord) -> AsyncIterator[tuple[str, Any]]
     """
     provider = get_provider()
     record_view = record.to_prompt_dict()
-    # RAG：只把按学段与健康情况检索出的知识卡片注入 prompt，而非全量知识库
-    cards = await rag.retrieve_knowledge_for_profile(record_view)
 
-    user_prompt = prompt.build_user_prompt(record_view, cards)
+    user_prompt = prompt.build_user_prompt(record_view)
     last_error = ""
 
     for attempt in range(2):
         if attempt == 1:
             yield ("retry", last_error)
-            user_prompt = prompt.build_repair_prompt(record_view, cards, last_error)
+            user_prompt = prompt.build_repair_prompt(record_view, last_error)
 
         buffer: list[str] = []
         try:
@@ -85,7 +64,6 @@ async def stream_profile(record: HealthRecord) -> AsyncIterator[tuple[str, Any]]
             last_error = str(exc)
             continue
 
-        dropped = _strip_unknown_refs(payload)
         payload.update(
             {
                 "student_id": record.student_id,
@@ -101,11 +79,6 @@ async def stream_profile(record: HealthRecord) -> AsyncIterator[tuple[str, Any]]
         except ValidationError as exc:
             last_error = exc.json(indent=2)
             continue
-
-        if dropped:
-            result.safety.notes.append(
-                "以下知识卡片引用不存在，已移除：" + "、".join(dropped)
-            )
 
         try:
             # mock 占位结果不落盘，避免污染 data/profiles 的真实画像留档

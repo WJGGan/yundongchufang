@@ -12,15 +12,6 @@ const GOAL_OPTIONS = [
   { text: '养成运动习惯', kw: ['习惯', '依从', '坚持', '兴趣'] },
 ];
 
-const FITT_PRINCIPLE = [
-  { k: 'F', cls: 'f', title: '频率 (Frequency)', desc: '每周运动次数' },
-  { k: 'I', cls: 'i', title: '强度 (Intensity)', desc: '运动强度 / 靶心率 / RPE' },
-  { k: 'T', cls: 't', title: '时间 (Time)', desc: '每次运动持续时间' },
-  { k: 'T', cls: 't2', title: '类型 (Type)', desc: '有氧 / 抗阻 / 柔韧 / 平衡等' },
-  { k: 'V', cls: 'v', title: '进阶量 (Volume)', desc: '运动总量 / 时长 / 组数' },
-  { k: 'P', cls: 'p', title: '个体化 (Personalization)', desc: '结合个人健康状况与目标' },
-];
-
 /* 体质测试项目：key 对应档案 fitness_test 字段，kw 用于在画像 fitness_dimensions 里匹配等级 */
 const FITNESS_ITEMS = [
   { key: 'FHLCJ', label: '肺活量', unit: 'ml', kw: ['肺活量'] },
@@ -99,7 +90,6 @@ const DEFAULT_FORM = {
   medications: '沙丁胺醇气雾剂（按需使用）',
   injuries: '右踝韧带扭伤（2025-04，已恢复，剧烈变向时偶有酸胀）',
   symptoms: '', family: '父亲高血压',
-  sleep: '7',
   weekly_frequency: '2', main_activities: '校内体育课、周末骑行', sedentary: '9',
   goals: '健康体重管理、心肺耐力提升、体测专项提升:1000米',
   days_per_week: '4', minutes_per_session: '45', preferred_slot: '放学后',
@@ -131,7 +121,6 @@ createApp({
       aiOpen: false,
       aiMessages: [],
       abortCtrl: null,
-      fittPrinciple: FITT_PRINCIPLE,
       generalTips: GENERAL_TIPS,
     };
   },
@@ -268,12 +257,12 @@ createApp({
         ? `靶心率 ${z.lower}–${z.upper} 次/分　RPE ${this.rx.intensity_control.rpe_range || '—'}`
         : `RPE ${this.rx.intensity_control.rpe_range || '—'}`;
       return [
-        { label: '运动类型', k: 'T', cls: 't2', value: f.type.value, detail: f.type.detail },
-        { label: '运动强度', k: 'I', cls: 'i', value: f.intensity.value, detail: `${hrLine}　${f.intensity.detail || ''}`.trim() },
-        { label: '运动时间', k: 'T', cls: 't', value: f.time.value, detail: f.time.detail },
-        { label: '运动频率', k: 'F', cls: 'f', value: f.frequency.value, detail: f.frequency.detail },
-        { label: '周运动总量', k: 'V', cls: 'v', value: f.volume.value, detail: f.volume.detail },
-        { label: '运动进阶', k: 'P', cls: 'p', value: f.progression.value, detail: `${f.progression.detail || ''}${this.rx.cycle.next_review ? '　复评：' + this.rx.cycle.next_review : ''}`.trim() },
+        { label: '(Type) 运动类型', k: 'T', cls: 't2', value: f.type.value, detail: f.type.detail },
+        { label: '(Intensity) 运动强度', k: 'I', cls: 'i', value: f.intensity.value, detail: `${hrLine}　${f.intensity.detail || ''}`.trim() },
+        { label: '(Time) 运动时间', k: 'T', cls: 't', value: f.time.value, detail: f.time.detail },
+        { label: '(Frequency) 运动频率', k: 'F', cls: 'f', value: f.frequency.value, detail: f.frequency.detail },
+        { label: '(Volume) 周运动总量', k: 'V', cls: 'v', value: f.volume.value, detail: f.volume.detail },
+        { label: '(Progression) 运动进阶', k: 'P', cls: 'p', value: f.progression.value, detail: `${f.progression.detail || ''}${this.rx.cycle.next_review ? '　复评：' + this.rx.cycle.next_review : ''}`.trim() },
       ];
     },
 
@@ -444,7 +433,7 @@ createApp({
           this.applyResult(data.prescription, data.profile);
         } else if (data.profile) {
           // 只生成过画像：画像照常展示
-          this.genError = '该学生只生成过体质画像，尚无处方，可点「重新生成」补齐';
+          this.genError = '该学生只生成过体质画像，尚无处方，可点「生成处方」补齐';
         } else if (!data.emergency && !data.blocked) {
           this.genError = '该学生的已有结果不含处方内容';
         }
@@ -599,7 +588,6 @@ createApp({
             main_activities: this.splitList(f.main_activities),
             sedentary_hours_per_day: this.toNum(f.sedentary),
           },
-          lifestyle: { sleep_hours: this.toNum(f.sleep) },
         },
         prescription_request: {
           goals: this.splitList(f.goals),

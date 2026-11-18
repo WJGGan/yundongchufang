@@ -24,8 +24,6 @@ class BasicEvaluation(BaseModel):
     weight_kg: float | None = None
     bmi: float | None = None
     bmi_evaluation: str = ""
-    bmi_basis: str = ""
-    growth_note: str = ""
 
 
 class DimensionIndicator(BaseModel):
@@ -43,7 +41,6 @@ class FitnessDimension(BaseModel):
     indicators: list[DimensionIndicator] = Field(default_factory=list)
     level: str = ""
     basis: str = ""
-    knowledge_refs: list[str] = Field(default_factory=list)
 
 
 class Weakness(BaseModel):

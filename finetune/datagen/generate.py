@@ -132,10 +132,9 @@ PE_KEYS = ["YEARSTART", "YEAREND", "XB", "NL", "SG", "TZ", "FHL", "ZYSL", "YYSL"
 FT_KEYS = ["NJ", "XB", "SGCJ", "TZCJ", "FHLCJ", "WSMCJ", "LDTYCJ", "ZWTQQCJ",
            "WSMWFPCJ", "YFZTSCJ", "BBMCJ", "YWQZCJ", "YQMCJ", "YTXSCJ"]
 HP_KEYS = ["chronic_conditions", "medications", "injury_history", "recent_symptoms",
-           "family_history", "vitals", "exercise_history", "lifestyle"]
+           "family_history", "vitals", "exercise_history"]
 EH_KEYS = ["weekly_frequency", "typical_duration_min", "main_activities",
            "training_experience", "sedentary_hours_per_day"]
-LS_KEYS = ["sleep_hours", "screen_time_hours", "breakfast_regular"]
 INJ_KEYS = ["site", "type", "date", "status", "note"]
 ITEM_KEYS = ["FHLCJ", "WSMCJ", "LDTYCJ", "ZWTQQCJ", "WSMWFPCJ", "YFZTSCJ",
              "BBMCJ", "YWQZCJ", "YQMCJ", "YTXSCJ"]
@@ -233,7 +232,6 @@ HEALTH_POOL = [  # (标签, 档案生成要求, 校验函数名)
     ("膝伤恢复期", "injury_history 含一条膝部损伤（恢复期，医生嘱避免深蹲/跳跃类动作）"),
     ("肩部不适", "injury_history 含一条肩部不适（过顶动作疼痛，偶有撞击感）"),
     ("缺铁性贫血恢复期", "chronic_conditions 含缺铁性贫血（已就诊、补铁治疗中），recent_symptoms 可含轻度乏力"),
-    ("睡眠不足", "lifestyle.sleep_hours 不超过 7"),
     ("久坐", "exercise_history.sedentary_hours_per_day 不低于 9"),
     ("田径特长", "exercise_history 含校田径队规律训练经历，体测成绩整体偏好"),
     ("游泳习惯", "main_activities 含游泳，每周规律进行"),
@@ -616,11 +614,9 @@ def validate_archive(arch, spec):
     if bp and not re.match(r"^\d{2,3}/\d{2,3}(\s*mmHg)?$", bp):
         errors.append(f"blood_pressure 格式应为 \"收缩压/舒张压\"，当前 \"{bp}\"")
     # health_profile 结构
-    eh, ls = hp.get("exercise_history", {}), hp.get("lifestyle", {})
+    eh = hp.get("exercise_history", {})
     if set(eh) != set(EH_KEYS):
         errors.append(f"exercise_history 键不符: {sorted(eh)}")
-    if set(ls) != set(LS_KEYS):
-        errors.append(f"lifestyle 键不符: {sorted(ls)}")
     for inj in hp.get("injury_history", []):
         if not isinstance(inj, dict) or set(inj) != set(INJ_KEYS):
             errors.append(f"injury_history 条目键应为 {INJ_KEYS}")
@@ -641,8 +637,6 @@ def validate_archive(arch, spec):
             errors.append("健康设定「哮喘控制良好」未体现在 chronic_conditions")
         if tag == "疑似脊柱侧弯" and "侧弯" not in str(pe.get("JZ", "")):
             errors.append("健康设定「疑似脊柱侧弯」未体现在 JZ")
-        if tag == "睡眠不足" and float(ls.get("sleep_hours", 9) or 9) > 7.5:
-            errors.append("健康设定「睡眠不足」要求 sleep_hours <= 7")
         if tag == "久坐" and float(eh.get("sedentary_hours_per_day", 0) or 0) < 9:
             errors.append("健康设定「久坐」要求 sedentary_hours_per_day >= 9")
         if tag in ("陈旧踝伤", "膝伤恢复期", "肩部不适") and not hp.get("injury_history"):
@@ -688,7 +682,6 @@ def canonical_user_json(arch, rx=None):
         "vitals": {"resting_heart_rate": hp_src["vitals"]["resting_heart_rate"],
                    "blood_pressure": hp_src["vitals"]["blood_pressure"]},
         "exercise_history": {k: hp_src["exercise_history"][k] for k in EH_KEYS},
-        "lifestyle": {k: hp_src["lifestyle"][k] for k in LS_KEYS},
     }
     obj = {"physical_exam": pe, "fitness_test": ft, "health_profile": hp}
     if rx is not None:

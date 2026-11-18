@@ -19,7 +19,7 @@
         {{ cached[s.student_id] ? '★ ' : '' }}{{ s.name }} · {{ s.grade }}{{ s.gender }} · {{ s.age }}岁
       </option>
     </select>
-    <button class="tb-btn primary" v-if="!generating && !isCached" :disabled="!selectedId" @click="generate">
+    <button class="tb-btn primary" v-if="!generating" :disabled="!selectedId" @click="generate">
       生成处方
     </button>
     <button class="tb-btn danger" v-else-if="generating" @click="stopGenerate">■ 停止生成</button>
@@ -27,7 +27,7 @@
             @click="aiOpen = !aiOpen">AI 过程</button>
     <span class="tb-stage" v-if="generating">{{ stage }}</span>
     <span class="tb-spacer"></span>
-    <button class="tb-btn" :class="{ active: showForm }" @click="showForm = !showForm">
+    <button class="tb-btn accent" :class="{ active: showForm }" @click="showForm = !showForm">
       ✎ 自行录入档案
     </button>
     <button class="tb-btn" :disabled="!selectedId" @click="openProfile"
@@ -100,7 +100,6 @@
         <label class="w2">近期症状<input v-model.trim="form.symptoms" placeholder="运动后膝盖疼痛" /></label>
         <label class="w2">家族病史<input v-model.trim="form.family" placeholder="父亲高血压" /></label>
         <label>血压（mmHg）<input v-model.trim="form.blood_pressure" placeholder="110/70" /></label>
-        <label>睡眠时长（小时）<input v-model.trim="form.sleep" placeholder="7.5" /></label>
       </div>
     </div>
 
@@ -233,42 +232,25 @@
         </div>
       </section>
 
-      <!-- 2 运动目的 + FITT-VP 原则 -->
-      <section class="sec two-col">
-        <div class="col-main">
-          <div class="sec-head green"><i>2</i><h3>运动目的</h3></div>
-          <div class="sec-body boxed goal-box">
-            <p class="lead">根据体检结果、体质测试与健康诉求，本次处方优先改善：</p>
-            <div class="goal-grid">
-              <label v-for="g in goalOptions" :key="g.text" :class="{ on: g.on }">
-                <em></em>{{ g.text }}
-              </label>
-            </div>
-            <div class="goal-extra" v-if="extraGoals.length">
-              <span class="label">其他目标</span>
-              <span class="pill" v-for="g in extraGoals" :key="g">{{ g }}</span>
-            </div>
-            <div class="goal-weak" v-if="weaknesses.length">
-              <span class="label">短板排序</span>
-              <span class="rank" v-for="(w, i) in weaknesses" :key="i"><b>{{ i + 1 }}</b>{{ w.dimension }}</span>
-            </div>
+      <!-- 2 运动目的 -->
+      <section class="sec">
+        <div class="sec-head green"><i>2</i><h3>运动目的</h3></div>
+        <div class="sec-body boxed goal-box">
+          <p class="lead">根据体检结果、体质测试与健康诉求，本次处方优先改善：</p>
+          <div class="goal-grid">
+            <label v-for="g in goalOptions" :key="g.text" :class="{ on: g.on }">
+              <em></em>{{ g.text }}
+            </label>
+          </div>
+          <div class="goal-extra" v-if="extraGoals.length">
+            <span class="label">其他目标</span>
+            <span class="pill" v-for="g in extraGoals" :key="g">{{ g }}</span>
+          </div>
+          <div class="goal-weak" v-if="weaknesses.length">
+            <span class="label">短板排序</span>
+            <span class="rank" v-for="(w, i) in weaknesses" :key="i"><b>{{ i + 1 }}</b>{{ w.dimension }}</span>
           </div>
         </div>
-
-        <aside class="col-side">
-          <div class="fitt-panel">
-            <h4>FITT-VP 原则</h4>
-            <div class="fitt-grid">
-              <div class="fitt-row" v-for="p in fittPrinciple" :key="p.k">
-                <span class="fitt-ico" :class="p.cls">{{ p.k }}</span>
-                <div>
-                  <strong>{{ p.title }}</strong>
-                  <p>{{ p.desc }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </aside>
       </section>
 
       <!-- 3 运动方案 -->
@@ -456,7 +438,7 @@
       <button class="ai-close" @click="aiOpen = false">×</button>
     </div>
     <div class="ai-body" ref="aiBody">
-      <p class="ai-empty" v-if="!aiMessages.length">点击「重新生成」后，模型的实时输出会显示在这里。</p>
+      <p class="ai-empty" v-if="!aiMessages.length">点击「生成处方」后，模型的实时输出会显示在这里。</p>
       <template v-for="(m, i) in aiMessages" :key="i">
         <div class="ai-note" v-if="m.kind === 'note'">{{ m.text }}</div>
         <div class="ai-progress" v-else-if="m.kind === 'progress'">

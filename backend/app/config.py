@@ -36,12 +36,9 @@ class Settings:
     compat_api_key: str = os.getenv("OPENAI_COMPATIBLE_API_KEY", "EMPTY").strip()
     compat_model: str = os.getenv("OPENAI_COMPATIBLE_MODEL", "glm-4-9b-chat").strip()
 
-    # RAG 检索：知识卡片与动作候选不再全量拼入 prompt，改为按学生情况检索子集。
-    # 关闭开关即可回到全量拼接，便于 A/B 对比效果与耗时。
+    # RAG 检索：仅用于处方生成阶段，知识卡片与动作候选按学生情况检索子集注入 prompt。
+    # 关闭开关即可回到全量拼接，便于 A/B 对比效果与耗时。档案理解阶段不使用 RAG。
     rag_enabled: bool = os.getenv("RAG_ENABLED", "true").strip().lower() == "true"
-    # 画像阶段与处方阶段分开配置：处方输出结构固定要引用营养/强度/框架等多领域卡片，
-    # 需要更大的子集。实测 top_k=3 时健康主题命中 4/8，6 张起才能稳定覆盖多问题学生
-    rag_profile_top_k: int = int(os.getenv("RAG_PROFILE_TOP_K", "6"))
     rag_knowledge_top_k: int = int(os.getenv("RAG_KNOWLEDGE_TOP_K", "12"))
     rag_exercise_limit: int = int(os.getenv("RAG_EXERCISE_LIMIT", "30"))
 
@@ -66,7 +63,7 @@ class Settings:
     # 资产版本号，随每份画像与处方一并返回，便于定位是哪一版规则/库产出的结果
     exercise_library_version: str = "v1.0.0"
     knowledge_base_version: str = "v1.0.0"
-    prompt_version: str = "v1.1.0"
+    prompt_version: str = "v1.2.0"
 
     @property
     def active_model(self) -> str:

@@ -107,26 +107,25 @@ def _now_iso() -> str:
 
 
 def _archive_result(directory: Path, payload: dict[str, Any]) -> Path:
-    """按 学号_生成时刻_随机后缀 留档一份生成结果，每次生成各留一份。
+    """留档一份生成结果，同一学号仅保留最新一份，重复生成直接覆盖。
 
     学号来自请求体，先清洗为安全字符集，避免用户输入拼进文件路径。
     """
     directory.mkdir(parents=True, exist_ok=True)
     student_id = _UNSAFE_ID_RE.sub("", str(payload.get("student_id", ""))) or "unknown"
-    filename = f"{student_id}_{time.strftime('%Y%m%d%H%M%S')}_{secrets.token_hex(2)}.json"
-    path = directory / filename
+    path = directory / f"{student_id}.json"
     with path.open("w", encoding="utf-8") as handle:
         json.dump(payload, handle, ensure_ascii=False, indent=2)
     return path
 
 
 def save_profile_result(profile: dict[str, Any]) -> Path:
-    """把档案理解生成的画像 JSON 落盘到 data/profiles，每次生成保留一份。"""
+    """把档案理解生成的画像 JSON 落盘到 data/profiles，同一学生仅保留最新一份。"""
     return _archive_result(PROFILE_DIR, profile)
 
 
 def save_prescription_result(prescription: dict[str, Any]) -> Path:
-    """把生成的处方 JSON 落盘到 data/prescriptions，每次生成保留一份。"""
+    """把生成的处方 JSON 落盘到 data/prescriptions，同一学生仅保留最新一份。"""
     return _archive_result(PRESCRIPTION_DIR, prescription)
 
 

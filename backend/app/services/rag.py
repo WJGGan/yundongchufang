@@ -1,5 +1,7 @@
 """RAG 检索服务：把动作库与知识卡片做成外挂知识库，按学生情况检索子集注入 prompt。
 
+仅服务运动处方生成阶段（档案理解阶段不使用 RAG，画像全部由模型直接输出）。
+
 分工：
 - 语料向量由 scripts/build_index.py 离线构建，落盘 data/index/embeddings.json；
 - 运行时把"该学生的情况"压成一句查询文本，调一次嵌入接口（带缓存），
@@ -250,39 +252,6 @@ def _to_int(value: Any) -> int | None:
         return None
 
 
-def _profile_query_text(record: dict[str, Any]) -> str:
-    """档案理解阶段的查询：学段 + 健康情况 + 体测评估要覆盖的维度。"""
-    exam = record.get("physical_exam") or {}
-    health = record.get("health_profile") or {}
-    pieces: list[str] = [
-        str(exam.get("SCHOOL_GRADE") or exam.get("NJ") or ""),
-        f"{exam.get('XB', '')}生 {exam.get('NL', '')}岁",
-        "体质评估维度：心肺耐力、肌肉力量、柔韧性、速度、爆发力、BMI 体重管理、每日活动量",
-    ]
-    pieces.extend(health.get("chronic_conditions") or [])
-    pieces.extend(health.get("medications") or [])
-    for injury in health.get("injury_history") or []:
-        if isinstance(injury, dict):
-            pieces.append(
-                f"{injury.get('site', '')}{injury.get('type', '')}{injury.get('status', '')}"
-            )
-        else:
-            pieces.append(str(injury))
-    pieces.extend(health.get("recent_symptoms") or [])
-    pieces.extend(health.get("family_history") or [])
-    if exam.get("JZ"):
-        pieces.append(f"脊柱筛查 {exam['JZ']}")
-    if exam.get("JSLPJ"):
-        pieces.append(f"视力 {exam['JSLPJ']}")
-    history = health.get("exercise_history")
-    if history:
-        pieces.append(f"运动史 {history}")
-    lifestyle = health.get("lifestyle")
-    if lifestyle:
-        pieces.append(f"生活方式 {json.dumps(lifestyle, ensure_ascii=False)}")
-    return "；".join(str(piece) for piece in pieces if piece)
-
-
 def _prescription_query_text(profile: dict[str, Any], request: dict[str, Any]) -> str:
     """处方阶段的查询：短板 + 目标 + 健康关注 + 偏好。"""
     pieces: list[str] = []
@@ -308,32 +277,6 @@ def _prescription_query_text(profile: dict[str, Any], request: dict[str, Any]) -
 # ---------------------------------------------------------------------------
 # 对外检索接口
 # ---------------------------------------------------------------------------
-
-
-async def retrieve_knowledge_for_profile(record: dict[str, Any]) -> list[dict[str, Any]]:
-    """档案理解：按学段过滤 + 混合排序，返回 top-k 知识卡片。"""
-    cards = knowledge_cards()
-    if not settings.rag_enabled:
-        return cards
-
-    exam = record.get("physical_exam") or {}
-    stage = _school_stage(str(exam.get("SCHOOL_GRADE") or ""), _to_int(exam.get("NL")))
-    pool = _stage_filter(cards, stage)
-
-    top_k = settings.rag_profile_top_k
-    if len(pool) <= top_k:
-        return pool
-
-    docs = [(card["id"], knowledge_doc_text(card)) for card in pool]
-    scores = await _score_docs("knowledge", docs, _profile_query_text(record))
-    ranked = sorted(pool, key=lambda card: scores.get(card["id"], 0.0), reverse=True)
-
-    health = record.get("health_profile") or {}
-    quota = _health_quota(
-        has_chronic=bool(health.get("chronic_conditions") or health.get("medications")),
-        has_injury=bool(health.get("injury_history")),
-    )
-    return _pick_with_quota(ranked, quota, top_k)
 
 
 # 处方输出结构固定含 FITT-VP、强度控制、营养、安全等板块，这些领域保底入选，
@@ -537,7 +480,6 @@ def status() -> dict[str, Any]:
         "enabled": settings.rag_enabled,
         "index_ready": bool(index),
         "embedding_model": index["model"] if index else settings.embedding_model,
-        "profile_top_k": settings.rag_profile_top_k,
         "knowledge_top_k": settings.rag_knowledge_top_k,
         "exercise_limit": settings.rag_exercise_limit,
         "indexed_counts": indexed,

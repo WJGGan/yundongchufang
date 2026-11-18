@@ -34,8 +34,7 @@
           "weekly_frequency": 2, "typical_duration_min": 40,
           "main_activities": ["校内体育课", "周末骑行"],
           "training_experience": "无系统训练经历", "sedentary_hours_per_day": 9
-        },
-        "lifestyle": { "sleep_hours": 7.0, "screen_time_hours": 3.5, "breakfast_regular": true }
+        }
       },
       "prescription_request": {
         "goals": ["健康体重管理", "心肺耐力提升", "体测专项提升:1000米"],
@@ -75,8 +74,7 @@
           "weekly_frequency": 1, "typical_duration_min": 45,
           "main_activities": ["校内体育课"],
           "training_experience": "小学学过三年舞蹈，近三年无规律运动", "sedentary_hours_per_day": 10
-        },
-        "lifestyle": { "sleep_hours": 7.5, "screen_time_hours": 2.0, "breakfast_regular": false }
+        }
       },
       "prescription_request": {
         "goals": ["心肺耐力提升", "体测专项提升:800米"],
@@ -116,8 +114,7 @@
           "weekly_frequency": 3, "typical_duration_min": 50,
           "main_activities": ["校内体育课", "课间跳绳", "周末足球"],
           "training_experience": "校足球兴趣班一年", "sedentary_hours_per_day": 6
-        },
-        "lifestyle": { "sleep_hours": 9.5, "screen_time_hours": 1.5, "breakfast_regular": true }
+        }
       },
       "prescription_request": {
         "goals": ["身高促进与骨骼发育", "体测专项提升:一分钟跳绳"],
@@ -157,8 +154,7 @@
           "weekly_frequency": 2, "typical_duration_min": 45,
           "main_activities": ["校内体育课", "课间操"],
           "training_experience": "无系统训练经历", "sedentary_hours_per_day": 11
-        },
-        "lifestyle": { "sleep_hours": 7.0, "screen_time_hours": 2.0, "breakfast_regular": true }
+        }
       },
       "prescription_request": {
         "goals": ["心肺耐力提升", "体测专项提升:800米"],
@@ -200,8 +196,7 @@
           "weekly_frequency": 3, "typical_duration_min": 60,
           "main_activities": ["篮球", "校内体育课"],
           "training_experience": "自行练习俯卧撑与跑步一年，无专业指导", "sedentary_hours_per_day": 9
-        },
-        "lifestyle": { "sleep_hours": 7.0, "screen_time_hours": 2.5, "breakfast_regular": true }
+        }
       },
       "prescription_request": {
         "goals": ["肌肉力量与耐力", "体测专项提升:引体向上"],
@@ -241,8 +236,7 @@
           "weekly_frequency": 3, "typical_duration_min": 40,
           "main_activities": ["校内体育课", "课间活动", "周末轮滑"],
           "training_experience": "无系统训练经历", "sedentary_hours_per_day": 5
-        },
-        "lifestyle": { "sleep_hours": 10.0, "screen_time_hours": 1.0, "breakfast_regular": true }
+        }
       },
       "prescription_request": {
         "goals": ["爆发力与灵敏协调", "体测专项提升:一分钟跳绳"],
@@ -282,8 +276,7 @@
           "weekly_frequency": 1, "typical_duration_min": 45,
           "main_activities": ["校内体育课"],
           "training_experience": "无系统训练经历", "sedentary_hours_per_day": 11
-        },
-        "lifestyle": { "sleep_hours": 8.0, "screen_time_hours": 4.0, "breakfast_regular": false }
+        }
       },
       "prescription_request": {
         "goals": ["健康体重管理", "心肺耐力提升"],
@@ -323,8 +316,7 @@
           "weekly_frequency": 1, "typical_duration_min": 30,
           "main_activities": ["校内体育课"],
           "training_experience": "初中参加过校排球队两年", "sedentary_hours_per_day": 13
-        },
-        "lifestyle": { "sleep_hours": 6.0, "screen_time_hours": 1.5, "breakfast_regular": true }
+        }
       },
       "prescription_request": {
         "goals": ["心肺耐力提升"],
@@ -364,8 +356,7 @@
           "weekly_frequency": 2, "typical_duration_min": 45,
           "main_activities": ["校内体育课", "课间跳绳"],
           "training_experience": "无系统训练经历", "sedentary_hours_per_day": 7
-        },
-        "lifestyle": { "sleep_hours": 9.0, "screen_time_hours": 2.0, "breakfast_regular": true }
+        }
       },
       "prescription_request": {
         "goals": ["身高促进与骨骼发育", "肌肉力量与耐力"],
@@ -407,8 +398,7 @@
           "weekly_frequency": 2, "typical_duration_min": 40,
           "main_activities": ["校内体育课", "散步"],
           "training_experience": "校健美操队一年，因膝痛暂停", "sedentary_hours_per_day": 10
-        },
-        "lifestyle": { "sleep_hours": 8.0, "screen_time_hours": 2.5, "breakfast_regular": true }
+        }
       },
       "prescription_request": {
         "goals": ["心肺耐力提升", "肌肉力量与耐力"],
@@ -450,8 +440,7 @@
           "weekly_frequency": 5, "typical_duration_min": 90,
           "main_activities": ["校田径队训练", "篮球"],
           "training_experience": "校田径队三年，短跑项目", "sedentary_hours_per_day": 8
-        },
-        "lifestyle": { "sleep_hours": 8.0, "screen_time_hours": 1.5, "breakfast_regular": true }
+        }
       },
       "prescription_request": {
         "goals": ["爆发力与灵敏协调", "体测专项提升:50米跑"],
@@ -491,8 +480,7 @@
           "weekly_frequency": 2, "typical_duration_min": 40,
           "main_activities": ["校内体育课"],
           "training_experience": "无系统训练经历", "sedentary_hours_per_day": 6
-        },
-        "lifestyle": { "sleep_hours": 9.5, "screen_time_hours": 1.5, "breakfast_regular": true }
+        }
       },
       "prescription_request": {
         "goals": ["体测专项提升:坐位体前屈", "爆发力与灵敏协调"],
@@ -532,8 +520,7 @@
           "weekly_frequency": 0, "typical_duration_min": 0,
           "main_activities": [],
           "training_experience": "无系统训练经历，近一年体育课多为旁观", "sedentary_hours_per_day": 12
-        },
-        "lifestyle": { "sleep_hours": 7.0, "screen_time_hours": 5.0, "breakfast_regular": false }
+        }
       },
       "prescription_request": {
         "goals": ["健康体重管理", "心肺耐力提升"],
@@ -573,8 +560,7 @@
           "weekly_frequency": 1, "typical_duration_min": 30,
           "main_activities": ["校内体育课"],
           "training_experience": "无系统训练经历", "sedentary_hours_per_day": 12
-        },
-        "lifestyle": { "sleep_hours": 7.0, "screen_time_hours": 2.0, "breakfast_regular": false }
+        }
       },
       "prescription_request": {
         "goals": ["心肺耐力提升", "肌肉力量与耐力"],
@@ -614,8 +600,7 @@
           "weekly_frequency": 2, "typical_duration_min": 45,
           "main_activities": ["校内体育课"],
           "training_experience": "", "sedentary_hours_per_day": 10
-        },
-        "lifestyle": { "sleep_hours": 8.5, "screen_time_hours": 2.0, "breakfast_regular": true }
+        }
       },
       "prescription_request": {
         "goals": ["心肺耐力提升"],
@@ -655,8 +640,7 @@
           "weekly_frequency": 3, "typical_duration_min": 45,
           "main_activities": ["校内体育课", "课间跳绳"],
           "training_experience": "无系统训练经历", "sedentary_hours_per_day": 6
-        },
-        "lifestyle": { "sleep_hours": 9.5, "screen_time_hours": 1.5, "breakfast_regular": true }
+        }
       },
       "prescription_request": {
         "goals": ["身高促进与骨骼发育", "爆发力与灵敏协调"],
@@ -696,8 +680,7 @@
           "weekly_frequency": 3, "typical_duration_min": 50,
           "main_activities": ["校内体育课", "游泳"],
           "training_experience": "规律游泳两年", "sedentary_hours_per_day": 12
-        },
-        "lifestyle": { "sleep_hours": 7.0, "screen_time_hours": 1.5, "breakfast_regular": true }
+        }
       },
       "prescription_request": {
         "goals": ["心肺耐力提升", "体测专项提升:800米"],
@@ -737,8 +720,7 @@
           "weekly_frequency": 4, "typical_duration_min": 70,
           "main_activities": ["校篮球队训练", "跑步"],
           "training_experience": "校篮球队两年", "sedentary_hours_per_day": 8
-        },
-        "lifestyle": { "sleep_hours": 8.5, "screen_time_hours": 1.5, "breakfast_regular": true }
+        }
       },
       "prescription_request": {
         "goals": ["爆发力与灵敏协调", "体测专项提升:50米跑", "体测专项提升:立定跳远"],
@@ -778,8 +760,7 @@
           "weekly_frequency": 2, "typical_duration_min": 40,
           "main_activities": ["校内体育课", "课间跳绳"],
           "training_experience": "无系统训练经历", "sedentary_hours_per_day": 8
-        },
-        "lifestyle": { "sleep_hours": 9.0, "screen_time_hours": 3.0, "breakfast_regular": true }
+        }
       },
       "prescription_request": {
         "goals": ["健康体重管理", "体测专项提升:一分钟跳绳"],
@@ -819,8 +800,7 @@
           "weekly_frequency": 3, "typical_duration_min": 60,
           "main_activities": ["跑步", "足球"],
           "training_experience": "规律跑步一年", "sedentary_hours_per_day": 9
-        },
-        "lifestyle": { "sleep_hours": 7.5, "screen_time_hours": 2.0, "breakfast_regular": true }
+        }
       },
       "prescription_request": {
         "goals": ["心肺耐力提升", "体测专项提升:1000米"],
