@@ -6,6 +6,12 @@
       "runtimeExecutable": "bash",
       "runtimeArgs": ["-c", "cd backend && LLM_PROVIDER=mock .venv/bin/python -m uvicorn app.main:app --port 8017"],
       "port": 8017
+    },
+    {
+      "name": "mock-backend-8019",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd backend && LLM_PROVIDER=mock .venv/bin/python -m uvicorn app.main:app --port 8019"],
+      "port": 8019
     }
   ]
 }

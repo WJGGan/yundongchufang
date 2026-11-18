@@ -157,13 +157,6 @@ def _mock_prescription() -> dict[str, Any]:
             "talk_test": f"{_MOCK} 能说完整句子但不能唱歌",
             "stop_signals": ["胸闷胸痛", "呼吸困难", "头晕", "关节锐痛"],
         },
-        "nutrition": {
-            "principles": [f"{_MOCK} 不做激进限能量"],
-            "macro_guidance": {"carbohydrate": "50%-60%", "protein": "15%-20%", "fat": "25%-30%"},
-            "around_training": {"pre": f"{_MOCK} 训练前 1-2 小时少量碳水", "post": f"{_MOCK} 训练后补充蛋白与碳水"},
-            "hydration": f"{_MOCK} 每日 1500-1700ml",
-            "cautions": ["饮食建议不替代专业营养师指导"],
-        },
         "risk_notes": [
             {"level": "中", "item": f"{_MOCK} 离线占位风险项", "reason": "占位", "action": "配置真实模型后重新生成"}
         ],

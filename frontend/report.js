@@ -41,6 +41,19 @@ const PREFIX_CATEGORY = {
   FLX: '柔韧', SPD: '速度灵敏', CLD: '放松',
 };
 
+/* 课表标签配色：动作类别 → 色组（图例按同一分组合并展示） */
+const CATEGORY_STYLE = {
+  热身: 'warm', 有氧: 'aer', 抗阻: 'str', 核心: 'str',
+  速度灵敏: 'spd', 柔韧: 'cool', 放松: 'cool',
+};
+const LEGEND_LABELS = [
+  { cls: 'warm', label: '热身' },
+  { cls: 'aer', label: '有氧' },
+  { cls: 'str', label: '力量 / 核心' },
+  { cls: 'spd', label: '速度灵敏' },
+  { cls: 'cool', label: '拉伸 / 放松' },
+];
+
 /* 空骨架：没有数据时报告版式照常渲染，字段留白而非整页隐藏 */
 const EMPTY_FITT_ITEM = { value: '', detail: '' };
 const EMPTY_RX = {
@@ -59,10 +72,6 @@ const EMPTY_RX = {
   intensity_control: {
     target_hr_zone: { lower: null, upper: null, formula_note: '' },
     rpe_range: '', talk_test: '', stop_signals: [],
-  },
-  nutrition: {
-    principles: [], macro_guidance: { carbohydrate: '', protein: '', fat: '' },
-    around_training: { pre: '', post: '' }, hydration: '', cautions: [],
   },
   risk_notes: [],
   forbidden_or_limited: [],
@@ -100,6 +109,8 @@ createApp({
       genError: '',
       emergency: null,
       exerciseMap: {},
+      dayFilter: '全周',
+      pop: { show: false, pinned: false, up: false, x: 0, y: 0, pill: null },
       showForm: false,
       form: clone(DEFAULT_FORM),
       formSaving: false,
@@ -221,88 +232,64 @@ createApp({
       ];
     },
 
-    /* 4.1 周计划表 */
-    weekRows() {
-      const z = this.rx.intensity_control.target_hr_zone || {};
-      const hr = z.lower && z.upper ? `${z.lower}–${z.upper}` : (this.rx.intensity_control.rpe_range ? 'RPE ' + this.rx.intensity_control.rpe_range : '—');
+    /* ---------- 4 一周训练课表 ---------- */
+
+    /* 周计划 → 课表行：每天一行，动作按 热身→主体→放松 的块顺序平铺成标签 */
+    schedule() {
       return (this.rx.weekly_plan || []).map((d) => {
-        const items = [];
-        const notes = [];
-        (d.blocks || []).forEach((b) => {
-          (b.items || []).forEach((it) => {
-            items.push(it.name);
-            if (it.notes) notes.push(it.notes);
+        const pills = [];
+        (d.blocks || []).forEach((b, bi) => {
+          (b.items || []).forEach((it, ii) => {
+            const category = this.categoryOf(it);
+            pills.push({
+              key: `${d.day}-${bi}-${ii}`,
+              id: it.exercise_id,
+              name: it.name,
+              dosage: it.dosage || '',
+              notes: it.notes || '',
+              phase: b.phase || '',
+              category,
+              cls: CATEGORY_STYLE[category] || 'other',
+            });
           });
         });
         return {
           day: d.day,
+          theme: d.theme || (d.is_training_day ? '训练日' : '休息'),
           rest: !d.is_training_day,
-          items: items.length ? items.join(' / ') : (d.theme || '休息'),
-          hr: d.is_training_day ? hr : '—',
-          minutes: d.total_minutes ? `${d.total_minutes}′` : '—',
-          note: notes.length ? notes.join('；') : (d.theme || ''),
+          pills,
+          minutes: d.total_minutes ? `约 ${d.total_minutes} 分钟` : '—',
         };
       });
     },
-
-    /* 所有动作条目扁平化（带类别） */
-    allItems() {
-      const out = [];
-      (this.rx.weekly_plan || []).forEach((d) => {
-        (d.blocks || []).forEach((b) => {
-          (b.items || []).forEach((it) => {
-            out.push({ ...it, day: d.day, phase: b.phase });
-          });
-        });
-      });
-      return out;
+    visibleSchedule() {
+      if (this.dayFilter === '全周') return this.schedule;
+      return this.schedule.filter((d) => d.day === this.dayFilter);
     },
-
-    resistanceMoves() {
-      return this.pickMoves(['抗阻'], 5);
+    dayTabs() {
+      return ['全周', ...this.schedule.map((d) => d.day)];
     },
-    flexMoves() {
-      return this.pickMoves(['柔韧', '核心', '放松', '热身'], 5);
+    /* 图例只列出本处方实际用到的类别组 */
+    legendCats() {
+      const seen = new Set();
+      this.schedule.forEach((d) => d.pills.forEach((p) => seen.add(p.cls)));
+      return LEGEND_LABELS.filter((l) => seen.has(l.cls));
     },
-    resistanceFreq() {
-      const days = new Set(this.resistanceMoves.flatMap((m) => m.days));
-      return days.size ? `每周 ${days.size} 次` : '';
+    /* 概览条：类型 · 强度（靶心率）· 进阶，取自 FITT-VP */
+    planBanner() {
+      const f = this.rx.fitt_vp;
+      const z = this.rx.intensity_control.target_hr_zone || {};
+      const hr = z.lower && z.upper ? `靶心率 ${z.lower}–${z.upper} 次/分` : '';
+      return [f.type.value, f.intensity.value, hr, f.progression.value]
+        .filter(Boolean).join(' · ');
     },
-    muscleGroups() {
-      const set = new Set();
-      this.resistanceMoves.forEach((m) => {
-        (this.detailOf(m.id).muscle_groups || []).forEach((g) => set.add(g));
-      });
-      return [...set].slice(0, 8);
-    },
-
-    /* 4.4 运动流程 */
-    flowRows() {
-      const agg = {};
-      (this.rx.weekly_plan || []).forEach((d) => {
-        if (!d.is_training_day) return;
-        (d.blocks || []).forEach((b) => {
-          if (!b.phase) return;
-          if (!agg[b.phase]) agg[b.phase] = { total: 0, n: 0, names: new Set() };
-          agg[b.phase].total += b.minutes || 0;
-          agg[b.phase].n += 1;
-          (b.items || []).forEach((it) => agg[b.phase].names.add(it.name));
-        });
-      });
-      const order = ['热身', '主体', '柔韧', '放松', '整理'];
-      const clsOf = (p) => (p.includes('热身') ? 'warm' : p.includes('放松') || p.includes('整理') || p.includes('柔韧') ? 'cool' : 'main');
-      return Object.keys(agg)
-        .sort((a, b) => {
-          const ia = order.findIndex((o) => a.includes(o));
-          const ib = order.findIndex((o) => b.includes(o));
-          return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
-        })
-        .map((p) => ({
-          name: p,
-          cls: clsOf(p),
-          minutes: agg[p].n ? Math.round(agg[p].total / agg[p].n) : 0,
-          desc: [...agg[p].names].slice(0, 4).join(' / ') || '—',
-        }));
+    /* 弹层详情：从动作库取要点与常见错误 */
+    popDetail() {
+      const d = this.pop.pill ? this.detailOf(this.pop.pill.id) : {};
+      return {
+        key_points: d.key_points || [],
+        common_errors: d.common_errors || [],
+      };
     },
 
   },
@@ -315,9 +302,21 @@ createApp({
       if (this.hasData && this.rx.student_id === id) return;
       this.onStudentChange();
     },
+    /* 切换日期标签时收起已钉住的动作详情弹层（全周视图不展示弹层） */
+    dayFilter() {
+      this.closePop();
+    },
   },
 
   mounted() {
+    // 动作详情弹层：点击标签与弹层以外的区域关闭；滚动后 fixed 定位失效，直接收起
+    document.addEventListener('click', (e) => {
+      if (!this.pop.show || !this.pop.pinned) return;
+      if (e.target.closest('.move-pop') || e.target.closest('.sd-items .pill')) return;
+      this.closePop();
+    });
+    window.addEventListener('scroll', () => { if (this.pop.show) this.closePop(); }, true);
+
     // 动作库始终加载：生成前用于空态，生成后用于回填动作要点
     fetch('/api/v1/exercises')
       .then((r) => r.json())
@@ -416,6 +415,8 @@ createApp({
       this.genError = '';
       this.emergency = null;
       this.aiMessages = [];
+      this.dayFilter = '全周';
+      this.closePop();
       document.title = '运动处方报告';
     },
 
@@ -594,24 +595,39 @@ createApp({
       return PREFIX_CATEGORY[prefix] || '';
     },
 
-    pickMoves(categories, limit = 6) {
-      const byId = new Map();
-      this.allItems.forEach((it) => {
-        if (!categories.includes(this.categoryOf(it))) return;
-        const key = it.exercise_id || it.name;
-        if (byId.has(key)) { byId.get(key).days.push(it.day); return; }
-        const d = this.detailOf(it.exercise_id);
-        byId.set(key, {
-          key,
-          id: it.exercise_id,
-          name: it.name,
-          dosage: it.dosage || d.dosage_hint || '',
-          point: (d.key_points || [])[0] || it.notes || '',
-          error: (d.common_errors || [])[0] || '',
-          days: [it.day],
-        });
-      });
-      return [...byId.values()].slice(0, limit);
+    /* ---------- 动作详情弹层 ---------- */
+
+    /* fixed 定位：贴着标签下方弹出，靠近视口底部时翻到上方 */
+    placePop(evt) {
+      const r = evt.currentTarget.getBoundingClientRect();
+      const width = 340;
+      this.pop.x = Math.max(8, Math.min(r.left, window.innerWidth - width - 12));
+      this.pop.up = r.bottom > window.innerHeight - 330;
+      this.pop.y = this.pop.up ? r.top - 8 : r.bottom + 8;
+    },
+    pillEnter(evt, pill) {
+      if (this.pop.pinned) return;
+      if (this.dayFilter === '全周') return; // 全周视图不悬停弹出，选中具体日期后才展示
+      this.pop.pill = pill;
+      this.placePop(evt);
+      this.pop.show = true;
+    },
+    pillLeave() {
+      if (!this.pop.pinned) this.pop.show = false;
+    },
+    pillClick(evt, pill) {
+      if (this.pop.pinned && this.pop.pill && this.pop.pill.key === pill.key) {
+        this.closePop();
+        return;
+      }
+      this.pop.pill = pill;
+      this.placePop(evt);
+      this.pop.show = true;
+      this.pop.pinned = true;
+    },
+    closePop() {
+      this.pop.show = false;
+      this.pop.pinned = false;
     },
 
     riskCls(level) { return { 高: 'high', 中: 'mid', 低: 'low' }[level] || 'mid'; },

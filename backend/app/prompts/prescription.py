@@ -33,8 +33,7 @@ SYSTEM = """你是青少年运动处方师，服务对象是中国中小学生�
     - source 只能填"安全"。
     - 替代方案、生效期限等说明一律写进 reason，不要写进 restriction。
 13. 目标心率区间按青少年最大心率约 195 至 205 次/分估算，不要使用 220 减年龄公式，并在 formula_note 中明确这是估算值。
-14. 饮食建议针对青少年生长发育期，不得给出激进限能量或快速减重方案，不得推荐蛋白粉等补剂。
-15. risk_notes 需列出该学生执行本处方时的具体风险点与应对措施，标注 高/中/低 等级。
+14. risk_notes 需列出该学生执行本处方时的具体风险点与应对措施，标注 高/中/低 等级。
 
 输出要求：
 - 只输出一个 JSON 对象，不要输出任何解释文字或代码围栏。
@@ -62,11 +61,6 @@ SYSTEM = """你是青少年运动处方师，服务对象是中国中小学生�
   "intensity_control": {
     "target_hr_zone": {"lower": 0, "upper": 0, "formula_note": ""},
     "rpe_range": "", "talk_test": "", "stop_signals": []
-  },  "nutrition": {
-    "principles": [],
-    "macro_guidance": {"carbohydrate": "", "protein": "", "fat": ""},
-    "around_training": {"pre": "", "post": ""},
-    "hydration": "", "cautions": []
   },
   "risk_notes": [{"level": "", "item": "", "reason": "", "action": ""}],
   "forbidden_or_limited": [{"target": "", "restriction": "", "reason": "", "source": ""}]

@@ -6,7 +6,7 @@
 <title>运动处方报告</title>
 <script src="https://unpkg.com/vue@3.4.38/dist/vue.global.prod.js"></script>
 <script src="https://unpkg.com/marked@12.0.2/marked.min.js"></script>
-<link rel="stylesheet" href="/static/report.css?v=20261110" />
+<link rel="stylesheet" href="/static/report.css?v=20261118" />
 </head>
 <body>
 <div id="report">
@@ -221,99 +221,51 @@
         </div>
       </section>
 
-      <!-- 4 详细执行内容 -->
+      <!-- 4 详细执行内容：按天的一周训练课表，动作标签颜色 = 类别 -->
       <section class="sec">
         <div class="sec-head blue">
-          <i>4</i><h3>详细执行内容（每周计划 + 具体动作）</h3>
+          <i>4</i><h3>详细执行内容</h3>
         </div>
 
-        <div class="sec-body detail-grid">
-          <!-- 4.1 有氧：周计划表单独占满整行，避免分栏挤压 -->
-          <div class="dt-box dt-full">
-            <div class="dt-head purple">4.1 有氧运动</div>
-            <div class="dt-body">
-              <div class="dt-line">
-                <span>强度 / 时长 / 频率：</span>
-                <b>{{ hrText }} · {{ rx.fitt_vp.time.value || '—' }} · {{ rx.fitt_vp.frequency.value || '—' }}</b>
-              </div>
-              <div class="dt-scroll">
-                <table class="week-table">
-                  <thead>
-                    <tr><th>星期</th><th>运动项目</th><th>靶心率</th><th>时长</th><th>备注</th></tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="d in weekRows" :key="d.day" :class="{ rest: d.rest }">
-                      <th>{{ d.day }}</th>
-                      <td>{{ d.items }}</td>
-                      <td class="mono">{{ d.hr }}</td>
-                      <td class="mono">{{ d.minutes }}</td>
-                      <td>{{ d.note }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+        <div class="sec-body">
+          <div class="sched-banner" v-if="planBanner">{{ planBanner }}</div>
 
-          <!-- 4.2 抗阻 -->
-          <div class="dt-box">
-            <div class="dt-head purple">4.2 抗阻运动<em v-if="resistanceFreq">（{{ resistanceFreq }}）</em></div>
-            <div class="dt-body">
-              <div class="dt-line" v-if="muscleGroups.length">
-                <span>主要肌群：</span>
-                <span class="tagline"><em v-for="m in muscleGroups" :key="m">{{ m }}</em></span>
+          <template v-if="schedule.length">
+            <div class="sched-bar">
+              <div class="sched-legend">
+                <em v-for="c in legendCats" :key="c.cls" class="pill" :class="'pill-' + c.cls">{{ c.label }}</em>
               </div>
-              <div class="move" v-for="m in resistanceMoves" :key="m.key">
-                <div class="move-head">
-                  <strong>{{ m.name }}</strong>
-                  <span class="code">{{ m.id }}</span>
-                  <span class="dose">{{ m.dosage }}</span>
-                </div>
-                <p class="move-key" v-if="m.point"><span>要点</span>{{ m.point }}</p>
-                <p class="move-err" v-if="m.error"><span>避免</span>{{ m.error }}</p>
-              </div>
-              <p class="dt-empty" v-if="!resistanceMoves.length">本周期暂未安排抗阻动作。</p>
-            </div>
-          </div>
-
-          <!-- 4.3 柔韧 -->
-          <div class="dt-box">
-            <div class="dt-head purple">4.3 柔韧 / 核心 / 功能训练</div>
-            <div class="dt-body">
-              <div class="mini" v-for="m in flexMoves" :key="m.key">
-                <strong>{{ m.name }}</strong>
-                <span class="dose">{{ m.dosage }}</span>
-                <p v-if="m.point">{{ m.point }}</p>
-              </div>
-              <p class="dt-empty" v-if="!flexMoves.length">本周期暂未安排柔韧/核心动作。</p>
-            </div>
-          </div>
-
-          <!-- 4.4 运动流程 -->
-          <div class="dt-box">
-            <div class="dt-head purple">4.4 运动流程（每次）</div>
-            <div class="dt-body flow">
-              <div class="flow-row" v-for="f in flowRows" :key="f.name">
-                <span class="flow-dot" :class="f.cls"></span>
-                <div>
-                  <strong>{{ f.name }}<em v-if="f.minutes">（{{ f.minutes }} 分钟）</em></strong>
-                  <p>{{ f.desc }}</p>
-                </div>
-              </div>
-              <div class="flow-foot">
-                <span>谈话测试</span>{{ rx.intensity_control.talk_test || '—' }}
+              <div class="sched-tabs">
+                <button v-for="t in dayTabs" :key="t" type="button"
+                        :class="{ on: dayFilter === t }" @click="dayFilter = t">{{ t }}</button>
               </div>
             </div>
-          </div>
-
-          <!-- 进阶要点 -->
-          <div class="dt-box">
-            <div class="dt-head purple">进阶要点</div>
-            <div class="dt-body">
-              <div class="dt-line"><span>进阶方式：</span><b>{{ rx.fitt_vp.progression.value || '—' }}</b></div>
-              <p class="dt-empty">{{ rx.fitt_vp.progression.detail }}</p>
+            <div class="dt-scroll">
+              <table class="sched-table">
+                <thead>
+                  <tr><th>日期</th><th>训练安排</th><th>时长</th></tr>
+                </thead>
+                <tbody>
+                  <tr v-for="d in visibleSchedule" :key="d.day" :class="{ rest: d.rest }">
+                    <td class="sd-day">
+                      <strong>{{ d.day }}</strong>
+                      <span>{{ d.theme }}</span>
+                    </td>
+                    <td class="sd-items">
+                      <button v-for="p in d.pills" :key="p.key" type="button"
+                              class="pill" :class="'pill-' + p.cls"
+                              @mouseenter="pillEnter($event, p)" @mouseleave="pillLeave"
+                              @click="pillClick($event, p)">
+                        {{ p.name }}<i v-if="p.dosage"> · {{ p.dosage }}</i>
+                      </button>
+                    </td>
+                    <td class="sd-min">{{ d.minutes }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          </div>
+          </template>
+          <p class="dt-empty" v-else>生成处方后，这里按天展示一周训练课表。</p>
         </div>
       </section>
 
@@ -353,8 +305,7 @@
               <ul class="mon">
                 <li><span>心率监测</span>运动中控制在 {{ hrText }}</li>
                 <li><span>主观感受</span>RPE {{ rx.intensity_control.rpe_range || '—' }} 为宜</li>
-                <li><span>补&nbsp;&nbsp;&nbsp;&nbsp;水</span>{{ rx.nutrition.hydration || '少量多次补水' }}</li>
-                <li><span>训练前后</span>{{ rx.nutrition.around_training.pre || '—' }}；{{ rx.nutrition.around_training.post || '—' }}</li>
+                <li><span>谈话测试</span>{{ rx.intensity_control.talk_test || '—' }}</li>
                 <li class="stop"><span>立即停止</span>{{ stopSignals }}</li>
               </ul>
             </div>
@@ -368,6 +319,26 @@
       </div>
     </div>
   </div>
+  <!-- 动作详情弹层：悬停预览，点击固定 -->
+  <div class="move-pop" :class="{ up: pop.up }" v-if="pop.show && pop.pill"
+       :style="{ left: pop.x + 'px', top: pop.y + 'px' }">
+    <div class="mp-head">
+      <strong>{{ pop.pill.name }}</strong>
+      <em class="pill" :class="'pill-' + pop.pill.cls">{{ pop.pill.category || '动作' }}</em>
+      <button class="mp-close" type="button" v-if="pop.pinned" @click="closePop">×</button>
+    </div>
+    <div class="mp-dose" v-if="pop.pill.dosage"><span>剂量</span>{{ pop.pill.dosage }}</div>
+    <div class="mp-note" v-if="pop.pill.notes"><span>当日备注</span>{{ pop.pill.notes }}</div>
+    <div class="mp-sec" v-if="popDetail.key_points.length">
+      <h5>动作要点</h5>
+      <ul><li v-for="k in popDetail.key_points" :key="k">{{ k }}</li></ul>
+    </div>
+    <div class="mp-sec err" v-if="popDetail.common_errors.length">
+      <h5>常见错误（避免）</h5>
+      <ul><li v-for="k in popDetail.common_errors" :key="k">{{ k }}</li></ul>
+    </div>
+  </div>
+
   <!-- 右侧 AI 输出抽屉：生成时展示模型实时输出 -->
   <div class="ai-drawer" :class="{ open: aiOpen }">
     <div class="ai-head">
@@ -395,6 +366,6 @@
 
 <script src="/static/sse.js?v=20261118"></script>
 <script src="/static/ai-panel.js?v=20261118"></script>
-<script src="/static/report.js?v=20261118"></script>
+<script src="/static/report.js?v=20261118b"></script>
 </body>
 </html>

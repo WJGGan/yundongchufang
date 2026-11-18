@@ -94,31 +94,6 @@ class IntensityControl(BaseModel):
     stop_signals: list[str] = Field(default_factory=list)
 
 
-class MacroGuidance(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    carbohydrate: str = ""
-    protein: str = ""
-    fat: str = ""
-
-
-class AroundTraining(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    pre: str = ""
-    post: str = ""
-
-
-class Nutrition(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    principles: list[str] = Field(default_factory=list)
-    macro_guidance: MacroGuidance = Field(default_factory=MacroGuidance)
-    around_training: AroundTraining = Field(default_factory=AroundTraining)
-    hydration: str = ""
-    cautions: list[str] = Field(default_factory=list)
-
-
 class RiskNote(BaseModel):
     model_config = ConfigDict(extra="allow")
 
@@ -151,7 +126,6 @@ class PrescriptionResult(BaseModel):
     weekly_plan: list[DayPlan] = Field(default_factory=list)
     exercise_details: list[ExerciseDetail] = Field(default_factory=list)
     intensity_control: IntensityControl = Field(default_factory=IntensityControl)
-    nutrition: Nutrition = Field(default_factory=Nutrition)
     risk_notes: list[RiskNote] = Field(default_factory=list)
     forbidden_or_limited: list[Restriction] = Field(default_factory=list)
     unknown_exercise_ids: list[str] = Field(default_factory=list)

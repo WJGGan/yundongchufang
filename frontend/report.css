@@ -333,78 +333,92 @@ body {
 .pc-main { font-size: var(--fs-body); font-weight: 700; margin: 2px 0 3px; }
 .pc-sub { margin: 0; font-size: var(--fs-sm); color: var(--ink-3); line-height: 1.6; }
 
-/* ---------- 4 详细执行 ----------
-   周计划表（4.1）独占整行保证列宽；其余四块按 2×2 栅格铺排，
-   同一行的盒子等高对齐，避免窄列挤压与参差。 */
-.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: stretch; }
-.detail-grid .dt-full { grid-column: 1 / -1; }
-.dt-box {
-  border: 1px solid #d5cdeb; border-radius: 8px; overflow: hidden; background: #fff;
-  display: flex; flex-direction: column;
+/* ---------- 4 详细执行 · 一周训练课表 ----------
+   每天一行：动作平铺为彩色标签（颜色 = 类别），标签内带剂量；
+   悬停 / 点击标签弹出该动作的要点与常见错误。 */
+.sched-banner {
+  margin: 2px 0 12px; padding: 7px 12px;
+  border-left: 3px solid var(--blue-2); border-radius: 4px;
+  background: var(--blue-soft); color: var(--ink-2);
+  font-size: var(--fs-md); font-weight: 600;
 }
-.dt-head {
-  padding: 7px 12px; font-size: var(--fs-body); font-weight: 700;
-  background: var(--purple-soft); color: var(--purple);
-  border-bottom: 1px solid #d5cdeb;
+
+.sched-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.sched-legend { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.sched-legend .pill { margin: 0; cursor: default; }
+.sched-tabs { margin-left: auto; display: inline-flex; gap: 5px; flex-wrap: wrap; }
+.sched-tabs button {
+  padding: 2px 13px; border-radius: 14px; cursor: pointer;
+  border: 1px solid var(--line); background: #fff; color: var(--ink-2);
+  font-size: var(--fs-sm); font-family: inherit;
 }
-.dt-head em { font-style: normal; font-weight: 400; font-size: var(--fs-xs); color: var(--ink-3); }
-.dt-body { padding: 10px 12px; flex: 1; }
-.dt-line { font-size: var(--fs-md); color: var(--ink-2); margin-bottom: 7px; }
-.dt-line span { color: var(--ink-3); }
-.dt-line b { color: var(--ink); }
+.sched-tabs button:hover { border-color: var(--blue-2); color: var(--blue); }
+.sched-tabs button.on { background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 600; }
+
 .dt-empty { font-size: var(--fs-sm); color: var(--ink-3); margin: 3px 0; }
-
-.tagline { display: inline-flex; flex-wrap: wrap; gap: 4px; }
-.tagline em {
-  font-style: normal; padding: 1px 8px; border-radius: 4px;
-  background: var(--purple-soft); color: var(--purple); font-size: var(--fs-xs);
-}
-
 .dt-scroll { overflow-x: auto; }
-.week-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-.week-table th, .week-table td { border: 1px solid var(--line-2); padding: 7px 10px; font-size: var(--fs-md); text-align: left; word-break: break-word; line-height: 1.6; }
-.week-table thead th { background: #f4f7fc; color: var(--ink-2); font-weight: 600; text-align: center; font-size: var(--fs-sm); }
-.week-table thead th:nth-child(1) { width: 64px; }
-.week-table thead th:nth-child(3) { width: 108px; }
-.week-table thead th:nth-child(4) { width: 64px; }
-.week-table thead th:nth-child(5) { width: 30%; }
-.week-table tbody th { text-align: center; color: var(--blue); font-weight: 600; background: #fafcff; }
-.week-table td.mono { text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.week-table tr.rest td, .week-table tr.rest th { color: var(--ink-3); background: #fafafa; }
 
-.move { padding: 8px 0; border-bottom: 1px dashed var(--line-2); }
-.move:last-child { border-bottom: 0; }
-.move-head { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
-.move-head strong { font-size: var(--fs-body); color: var(--purple); }
-.move-head .code { font-size: var(--fs-xs); color: #7d889e; }
-.move-head .dose { font-size: var(--fs-sm); color: var(--ink); margin-left: auto; }
-.move-key, .move-err { margin: 3px 0 0; font-size: var(--fs-sm); color: var(--ink-3); }
-.move-key span, .move-err span {
-  display: inline-block; margin-right: 5px; padding: 0 6px;
-  border-radius: 3px; font-size: var(--fs-xs);
+.sched-table { width: 100%; border-collapse: collapse; }
+.sched-table th, .sched-table td {
+  border: 1px solid var(--line-2); padding: 9px 12px;
+  font-size: var(--fs-md); text-align: left; vertical-align: top; line-height: 1.7;
 }
-.move-key span { background: var(--blue-soft); color: var(--blue); }
-.move-err span { background: var(--red-soft); color: var(--red); }
+.sched-table thead th { background: #f4f7fc; color: var(--ink-2); font-weight: 600; font-size: var(--fs-sm); }
+.sched-table thead th:nth-child(1) { width: 132px; }
+.sched-table thead th:nth-child(3) { width: 118px; text-align: right; }
+.sd-day strong { display: block; color: var(--blue); font-size: var(--fs-body); line-height: 1.5; }
+.sd-day span { display: block; font-size: var(--fs-xs); color: var(--ink-3); line-height: 1.5; margin-top: 2px; white-space: nowrap; }
+.sd-items { line-height: 2; }
+.sd-min { text-align: right; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.sched-table tr.rest td { background: #fafafa; }
+.sched-table tr.rest .sd-day strong { color: var(--ink-3); }
+.sched-table tr.rest .sd-min { color: var(--ink-3); font-weight: 400; }
 
-.mini { padding: 7px 0; border-bottom: 1px dashed var(--line-2); }
-.mini:last-child { border-bottom: 0; }
-.mini strong { font-size: var(--fs-body); }
-.mini .dose { font-size: var(--fs-sm); color: var(--blue); margin-left: 6px; }
-.mini p { margin: 2px 0 0; font-size: var(--fs-sm); color: var(--ink-3); }
-
-.flow-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; }
-.flow-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 7px; flex: none; }
-.flow-dot.warm { background: #e09a2f; }
-.flow-dot.main { background: #2f7fe0; }
-.flow-dot.cool { background: #30a36a; }
-.flow-row strong { font-size: var(--fs-body); }
-.flow-row strong em { font-style: normal; font-weight: 400; color: var(--ink-3); font-size: var(--fs-xs); }
-.flow-row p { margin: 0; font-size: var(--fs-sm); color: var(--ink-3); }
-.flow-foot {
-  margin-top: 6px; padding-top: 7px; border-top: 1px dashed var(--line-2);
-  font-size: var(--fs-sm); color: var(--ink-2);
+/* 动作标签：颜色 = 类别 */
+.pill {
+  display: inline-block; margin: 3px 6px 3px 0; padding: 2px 10px;
+  border: 0; border-radius: 6px;
+  font-size: var(--fs-sm); font-weight: 600; font-family: inherit;
+  line-height: 1.7; text-align: left;
 }
-.flow-foot span { color: var(--ink-3); margin-right: 6px; }
+button.pill { cursor: pointer; }
+button.pill:hover { filter: brightness(.96); }
+.pill i { font-style: normal; font-weight: 400; }
+.pill-warm  { background: #fdf0d9; color: #8f5505; }
+.pill-aer   { background: #ddeafd; color: #11509e; }
+.pill-str   { background: #ebe4fb; color: #53339f; }
+.pill-spd   { background: #fde3e9; color: #a31b46; }
+.pill-cool  { background: #dcf3e5; color: #11693f; }
+.pill-other { background: #e8ecf3; color: var(--ink-2); }
+
+/* 动作详情弹层：fixed 定位，避免被表格滚动容器裁剪 */
+.move-pop {
+  position: fixed; z-index: 90;
+  width: 340px; max-width: calc(100vw - 24px);
+  max-height: 320px; overflow-y: auto;
+  background: #fff; border: 1px solid var(--line); border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(26, 34, 50, .18);
+  padding: 12px 14px;
+}
+.move-pop.up { transform: translateY(-100%); }
+.mp-head { display: flex; align-items: center; gap: 8px; }
+.mp-head strong { font-size: var(--fs-body); }
+.mp-head .pill { margin: 0; padding: 0 8px; font-size: var(--fs-xs); }
+.mp-close {
+  margin-left: auto; border: 0; background: none; cursor: pointer;
+  font-size: 19px; color: var(--ink-3); line-height: 1; padding: 0 2px;
+}
+.mp-close:hover { color: var(--ink); }
+.mp-dose, .mp-note { margin-top: 7px; font-size: var(--fs-sm); color: var(--ink-2); }
+.mp-dose span, .mp-note span {
+  display: inline-block; margin-right: 6px; padding: 0 6px; border-radius: 3px;
+  font-size: var(--fs-xs); background: var(--blue-soft); color: var(--blue);
+}
+.mp-sec { margin-top: 9px; }
+.mp-sec h5 { margin: 0 0 3px; font-size: var(--fs-xs); color: var(--green); }
+.mp-sec.err h5 { color: var(--red); }
+.mp-sec ul { margin: 0; padding-left: 18px; }
+.mp-sec li { font-size: var(--fs-sm); color: var(--ink-2); line-height: 1.6; }
 
 /* ---------- 5 注意事项 ----------
    四组提示的条数由数据决定、长短悬殊，用多栏流式排版：
@@ -485,8 +499,8 @@ body {
   .info-grid .f.wide { grid-column: auto; }
   .goal-grid { grid-template-columns: 1fr 1fr; }
   .plan-grid { grid-template-columns: 1fr; }
-  .detail-grid { grid-template-columns: 1fr; }
-  .week-table { min-width: 540px; }
+  .sched-table { min-width: 560px; }
+  .sched-tabs { margin-left: 0; }
   .warn-grid { column-count: 1; }
   .rpt-bottom { flex-direction: column; gap: 5px; }
   .rpt-bottom .right { text-align: left; }
