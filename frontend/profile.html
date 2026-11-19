@@ -84,6 +84,7 @@
         <label>立定跳远（cm）<input v-model.trim="form.ldty" placeholder="185" /></label>
         <label>坐位体前屈（cm）<input v-model.trim="form.zwtqq" placeholder="12.5" /></label>
         <label>一分钟跳绳（个）<input v-model.trim="form.yfzts" placeholder="150" /></label>
+        <label>50米×8往返跑·小学（秒）<input v-model.trim="form.wsmwfp" placeholder="105" /></label>
         <label>1000米·男<input v-model.trim="form.yqm" placeholder="4分32秒" /></label>
         <label>800米·女<input v-model.trim="form.bbm" placeholder="3分50秒" /></label>
         <label>引体向上·男（个）<input v-model.trim="form.ytxs" placeholder="5" /></label>
@@ -152,9 +153,9 @@
         </div>
       </section>
 
-      <!-- 2 体质五维 -->
+      <!-- 2 体质六维 -->
       <section class="sec">
-        <div class="sec-head green"><i>2</i><h3>体质五维评价</h3></div>
+        <div class="sec-head green"><i>2</i><h3>体质六维评价</h3></div>
         <div class="sec-body">
           <div class="dim-grid">
             <div class="dim-card" v-for="d in dims" :key="d.dimension">
@@ -171,7 +172,7 @@
               <p class="dim-basis" v-if="d.basis">{{ d.basis }}</p>
             </div>
           </div>
-          <p class="sub-empty" v-if="!dims.length">暂无体质五维评价数据。</p>
+          <p class="sub-empty" v-if="!dims.length">暂无体质六维评价数据。</p>
         </div>
       </section>
 

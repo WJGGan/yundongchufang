@@ -241,6 +241,7 @@ body {
 .lv-badge.lv-good { background: #e3eefc; color: #2561b4; }
 .lv-badge.lv-pass { background: #fdf1df; color: #b06310; }
 .lv-badge.lv-fail { background: #fde7e4; color: #bb3326; }
+.lv-badge.lv-na { background: #eef0f3; color: #6b7280; }
 
 .injury-list { margin: 0; padding: 0; list-style: none; }
 .injury-list li {

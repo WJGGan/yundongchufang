@@ -14,6 +14,11 @@
       "port": 8019
     },
     {
+      "name": "pdf-receiver",
+      "url": "http://localhost:8123",
+      "port": 8123
+    },
+    {
       "name": "mock-backend-8021",
       "runtimeExecutable": "bash",
       "runtimeArgs": ["-c", "cd backend && LLM_PROVIDER=mock .venv/bin/python -m uvicorn app.main:app --port 8021"],

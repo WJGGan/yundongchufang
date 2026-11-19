@@ -57,5 +57,5 @@ if FRONTEND_DIR.is_dir():
 
     @app.get("/profile", include_in_schema=False)
     def profile() -> FileResponse:
-        """健康档案理解报告页：展示第一阶段画像（基础评价、五维、安全评估等）各字段。"""
+        """健康档案理解报告页：展示第一阶段画像（基础评价、六维、安全评估等）各字段。"""
         return FileResponse(FRONTEND_DIR / "profile.html", headers=_NO_CACHE)

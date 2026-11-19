@@ -51,7 +51,7 @@
 
     <rect x="912" y="226" width="320" height="84" rx="6" fill="#FBF3E2" stroke="#A8803A"/>
     <text x="1072" y="248" font-size="13" font-weight="600" fill="#713F12" text-anchor="middle">产出：体质画像 JSON</text>
-    <text x="1072" y="268" font-size="10.5" fill="#4B5563" text-anchor="middle">五维等级 · 短板排序 · 健康关注 · 数据质量</text>
+    <text x="1072" y="268" font-size="10.5" fill="#4B5563" text-anchor="middle">六维等级 · 短板排序 · 健康关注 · 数据质量</text>
     <text x="1072" y="285" font-size="10.5" fill="#4B5563" text-anchor="middle">安全评估：禁忌动作标签＋强度上限＋能否开方</text>
     <text x="1072" y="302" font-size="10.5" fill="#4B5563" text-anchor="middle">结论附知识卡引用，可溯源</text>
   </g>

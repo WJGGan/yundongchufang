@@ -23,7 +23,7 @@ const DEFAULT_FORM = {
   name: '李沐阳', gender: '男', age: '14', grade: '初二',
   height: '168.5', weight: '72.3', fhl: '2680',
   resting_hr: '', blood_pressure: '',
-  wsm: '8.9', ldty: '185', zwtqq: '4.2', yfzts: '',
+  wsm: '8.9', ldty: '185', zwtqq: '4.2', yfzts: '', wsmwfp: '',
   yqm: '4分32秒', bbm: '', ytxs: '3', ywqz: '',
   chronic: '哮喘（轻度间歇性，近一年未急性发作）',
   medications: '沙丁胺醇气雾剂（按需使用）',
@@ -218,6 +218,7 @@ createApp({
         fitness_test: {
           NJ: f.grade, XB: f.gender, SGCJ: f.height, TZCJ: f.weight, FHLCJ: f.fhl,
           WSMCJ: f.wsm, LDTYCJ: f.ldty, ZWTQQCJ: f.zwtqq, YFZTSCJ: f.yfzts,
+          WSMWFPCJ: f.wsmwfp,
           YQMCJ: f.yqm, BBMCJ: f.bbm, YTXSCJ: f.ytxs, YWQZCJ: f.ywqz,
         },
         health_profile: {
@@ -313,6 +314,7 @@ createApp({
     /* 等级 → 徽标类名 + 进度条宽度 */
     levelMeta(level) {
       const s = level || '';
+      if (s.includes('数据不足')) return { cls: 'lv-na bar-na', width: '18%' };
       if (s.includes('优')) return { cls: 'lv-exc bar-exc', width: '95%' };
       if (s.includes('良')) return { cls: 'lv-good bar-good', width: '78%' };
       if (s.includes('不及格') || s.includes('差') || s.includes('弱')) return { cls: 'lv-fail bar-fail', width: '35%' };

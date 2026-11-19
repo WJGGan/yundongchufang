@@ -34,25 +34,25 @@ def _mock_profile() -> dict[str, Any]:
         },
         "fitness_dimensions": [
             {
+                "dimension": "身体形态",
+                "indicators": [{"name": "BMI", "raw": "25.5", "level": "较差"}],
+                "level": "较差",
+                "basis": f"{_MOCK} 离线占位",
+            },
+            {
                 "dimension": "心肺耐力",
                 "indicators": [{"name": "1000米", "raw": "4分32秒", "level": "及格"}],
                 "level": "及格",
                 "basis": f"{_MOCK} 离线占位",
             },
             {
-                "dimension": "柔韧性",
-                "indicators": [{"name": "坐位体前屈", "raw": "4.2", "level": "较差"}],
-                "level": "较差",
-                "basis": f"{_MOCK} 离线占位",
-            },
-            {
-                "dimension": "肌肉力量",
+                "dimension": "肌肉力量与耐力",
                 "indicators": [{"name": "引体向上", "raw": "3", "level": "及格"}],
                 "level": "及格",
                 "basis": f"{_MOCK} 离线占位",
             },
             {
-                "dimension": "速度",
+                "dimension": "速度与灵敏",
                 "indicators": [{"name": "50米", "raw": "8.9", "level": "及格"}],
                 "level": "及格",
                 "basis": f"{_MOCK} 离线占位",
@@ -63,14 +63,21 @@ def _mock_profile() -> dict[str, Any]:
                 "level": "及格",
                 "basis": f"{_MOCK} 离线占位",
             },
+            {
+                "dimension": "柔韧性",
+                "indicators": [{"name": "坐位体前屈", "raw": "4.2", "level": "较差"}],
+                "level": "较差",
+                "basis": f"{_MOCK} 离线占位",
+            },
         ],
         "overall": {
             "level": "中等偏下",
             "summary": f"{_MOCK} 这是离线占位画像，请配置真实模型后重新生成",
             "strengths": [f"{_MOCK} 身高发育良好"],
             "weaknesses": [
-                {"rank": 1, "dimension": "柔韧性", "reason": f"{_MOCK} 低于及格线"},
-                {"rank": 2, "dimension": "心肺耐力", "reason": f"{_MOCK} 提升空间最大"},
+                {"rank": 1, "dimension": "身体形态", "reason": f"{_MOCK} BMI 属肥胖，优先改善"},
+                {"rank": 2, "dimension": "柔韧性", "reason": f"{_MOCK} 低于及格线"},
+                {"rank": 3, "dimension": "心肺耐力", "reason": f"{_MOCK} 提升空间最大"},
             ],
         },
         "health_focus": [

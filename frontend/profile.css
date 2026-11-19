@@ -4,7 +4,7 @@
    这里只放画像特有：五维卡片 / 关注点 / 追问列表。
    =========================================================== */
 
-/* ---------- 2 体质五维卡片 ---------- */
+/* ---------- 2 体质六维卡片 ---------- */
 .dim-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
 }
@@ -25,6 +25,7 @@
 .dim-bar i.bar-good { background: linear-gradient(90deg, #2561b4, #2f7fe0); }
 .dim-bar i.bar-pass { background: linear-gradient(90deg, #b06310, #ef8b2a); }
 .dim-bar i.bar-fail { background: linear-gradient(90deg, #bb3326, #d9534f); }
+.dim-bar i.bar-na { background: #c6ccd4; }
 
 .dim-ind {
   display: flex; flex-wrap: wrap; gap: 4px 16px;
