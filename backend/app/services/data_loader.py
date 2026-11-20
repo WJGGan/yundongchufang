@@ -29,7 +29,8 @@ def exercise_library() -> dict[str, Any]:
 
 @lru_cache(maxsize=1)
 def exercise_index() -> dict[str, dict[str, Any]]:
-    return {item["id"]: item for item in exercise_library()["exercises"]}
+    legacy = _load("exercises_legacy.json")["exercises"]
+    return {item["id"]: item for item in [*legacy, *exercise_library()["exercises"]]}
 
 
 @lru_cache(maxsize=1)

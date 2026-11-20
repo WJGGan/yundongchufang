@@ -41,19 +41,6 @@ const PREFIX_CATEGORY = {
   FLX: '柔韧', SPD: '速度灵敏', CLD: '放松',
 };
 
-/* 课表标签配色：动作类别 → 色组（图例按同一分组合并展示） */
-const CATEGORY_STYLE = {
-  热身: 'warm', 有氧: 'aer', 抗阻: 'str', 核心: 'str',
-  速度灵敏: 'spd', 柔韧: 'cool', 放松: 'cool',
-};
-const LEGEND_LABELS = [
-  { cls: 'warm', label: '热身' },
-  { cls: 'aer', label: '有氧' },
-  { cls: 'str', label: '力量 / 核心' },
-  { cls: 'spd', label: '速度灵敏' },
-  { cls: 'cool', label: '拉伸 / 放松' },
-];
-
 /* 空骨架：没有数据时报告版式照常渲染，字段留白而非整页隐藏 */
 const EMPTY_FITT_ITEM = { value: '', detail: '' };
 const EMPTY_RX = {
@@ -62,6 +49,7 @@ const EMPTY_RX = {
   generated_at: '',
   versions: {},
   goals: [],
+  cycle: { current_phase: '', next_review: '' },
   fitt_vp: {
     frequency: { ...EMPTY_FITT_ITEM }, intensity: { ...EMPTY_FITT_ITEM },
     time: { ...EMPTY_FITT_ITEM }, type: { ...EMPTY_FITT_ITEM },
@@ -109,8 +97,14 @@ createApp({
       genError: '',
       emergency: null,
       exerciseMap: {},
-      dayFilter: '全周',
-      pop: { show: false, pinned: false, up: false, x: 0, y: 0, pill: null },
+      weekLayout: 'horizontal',
+      activeAction: null,
+      activeActionKey: '',
+      actionPopoverStyle: {},
+      exportOpen: false,
+      exportFormat: 'pdf',
+      exportDetails: false,
+      exportName: false,
       showForm: false,
       form: clone(DEFAULT_FORM),
       formSaving: false,
@@ -239,66 +233,19 @@ createApp({
       ];
     },
 
-    /* ---------- 4 一周训练课表 ---------- */
+    planDays() {
+      return (this.rx.weekly_plan || []).map(day => ({
+        ...day,
+        actions: (day.blocks || []).flatMap(block => (block.items || []).map(item => {
+          const detail = this.exerciseMap[item.exercise_id] || {};
+          const phase = block.phase || '';
+          const category = detail.category || '';
+          const kind = /热身/.test(phase) ? 'warm' : /放松|整理|拉伸|柔韧/.test(phase) ? 'cool' : /柔韧|放松/.test(category) ? 'cool' : /抗阻|核心/.test(category) ? 'strength' : /热身/.test(category) ? 'warm' : /有氧|速度灵敏/.test(category) ? 'cardio' : /力量|核心/.test(phase) ? 'strength' : 'cardio';
+          return { ...item, kind, points: (detail.key_points || []).join('；'), errors: (detail.common_errors || []).join('；') };
+        })),
+      }));
+    },
 
-    /* 周计划 → 课表行：每天一行，动作按 热身→主体→放松 的块顺序平铺成标签 */
-    schedule() {
-      return (this.rx.weekly_plan || []).map((d) => {
-        const pills = [];
-        (d.blocks || []).forEach((b, bi) => {
-          (b.items || []).forEach((it, ii) => {
-            const category = this.categoryOf(it);
-            pills.push({
-              key: `${d.day}-${bi}-${ii}`,
-              id: it.exercise_id,
-              name: it.name,
-              dosage: it.dosage || '',
-              notes: it.notes || '',
-              phase: b.phase || '',
-              category,
-              cls: CATEGORY_STYLE[category] || 'other',
-            });
-          });
-        });
-        return {
-          day: d.day,
-          theme: d.theme || (d.is_training_day ? '训练日' : '休息'),
-          rest: !d.is_training_day,
-          rationale: d.rationale || '',
-          pills,
-          minutes: d.total_minutes ? `约 ${d.total_minutes} 分钟` : '—',
-        };
-      });
-    },
-    visibleSchedule() {
-      if (this.dayFilter === '全周') return this.schedule;
-      return this.schedule.filter((d) => d.day === this.dayFilter);
-    },
-    dayTabs() {
-      return ['全周', ...this.schedule.map((d) => d.day)];
-    },
-    /* 图例只列出本处方实际用到的类别组 */
-    legendCats() {
-      const seen = new Set();
-      this.schedule.forEach((d) => d.pills.forEach((p) => seen.add(p.cls)));
-      return LEGEND_LABELS.filter((l) => seen.has(l.cls));
-    },
-    /* 概览条：类型 · 强度（靶心率）· 进阶，取自 FITT-VP */
-    planBanner() {
-      const f = this.rx.fitt_vp;
-      const z = this.rx.intensity_control.target_hr_zone || {};
-      const hr = z.lower && z.upper ? `靶心率 ${z.lower}–${z.upper} 次/分` : '';
-      return [f.type.value, f.intensity.value, hr, f.progression.value]
-        .filter(Boolean).join(' · ');
-    },
-    /* 弹层详情：从动作库取要点与常见错误 */
-    popDetail() {
-      const d = this.pop.pill ? this.detailOf(this.pop.pill.id) : {};
-      return {
-        key_points: d.key_points || [],
-        common_errors: d.common_errors || [],
-      };
-    },
 
   },
 
@@ -310,20 +257,21 @@ createApp({
       if (this.hasData && this.rx.student_id === id) return;
       this.onStudentChange();
     },
-    /* 切换日期标签时收起已钉住的动作详情弹层（全周视图不展示弹层） */
-    dayFilter() {
-      this.closePop();
-    },
+
   },
 
   mounted() {
-    // 动作详情弹层：点击标签与弹层以外的区域关闭；滚动后 fixed 定位失效，直接收起
-    document.addEventListener('click', (e) => {
-      if (!this.pop.show || !this.pop.pinned) return;
-      if (e.target.closest('.move-pop') || e.target.closest('.sd-items .pill')) return;
-      this.closePop();
-    });
-    window.addEventListener('scroll', () => { if (this.pop.show) this.closePop(); }, true);
+    this._closeActionOnOutside = event => {
+      if (!event.target.closest('.action-popover') && !event.target.closest('.wp-action')) this.closeActionDetail();
+    };
+    this._closeActionOnScroll = event => {
+      if (!event.target.closest || !event.target.closest('.action-popover')) this.closeActionDetail();
+    };
+    this._closeActionOnEscape = event => { if (event.key === 'Escape') this.closeActionDetail(); };
+    document.addEventListener('click', this._closeActionOnOutside);
+    document.addEventListener('scroll', this._closeActionOnScroll, true);
+    document.addEventListener('keydown', this._closeActionOnEscape);
+    window.addEventListener('resize', this.closeActionDetail);
 
     // 动作库始终加载：生成前用于空态，生成后用于回填动作要点
     fetch('/api/v1/exercises')
@@ -352,7 +300,89 @@ createApp({
     });
   },
 
+  beforeUnmount() {
+    document.removeEventListener('click', this._closeActionOnOutside);
+    document.removeEventListener('scroll', this._closeActionOnScroll, true);
+    document.removeEventListener('keydown', this._closeActionOnEscape);
+    window.removeEventListener('resize', this.closeActionDetail);
+  },
+
   methods: {
+    closeActionDetail() { this.activeAction = null; this.activeActionKey = ''; },
+    toggleActionDetail(item, key, event) {
+      if (this.activeActionKey === key) { this.closeActionDetail(); return; }
+      const rect = event.currentTarget.getBoundingClientRect();
+      const width = Math.min(300, window.innerWidth - 24);
+      let left = rect.right + 10;
+      if (left + width > window.innerWidth - 12) left = rect.left - width - 10;
+      if (left < 12) left = Math.max(12, Math.min(rect.left, window.innerWidth - width - 12));
+      const top = Math.max(12, Math.min(rect.top, window.innerHeight - 150));
+      this.actionPopoverStyle = { left: left + 'px', top: top + 'px', width: width + 'px', maxHeight: Math.max(100, window.innerHeight - top - 12) + 'px' };
+      this.activeAction = item;
+      this.activeActionKey = key;
+    },
+
+    async exportPlan() {
+      const headers = ['星期', '安排', '时长（分钟）', '动作', '剂量'];
+      if (this.exportDetails) headers.push('动作要点与注意事项');
+      const rows = [];
+      for (const day of this.planDays) {
+        const actions = day.actions.length ? day.actions : [null];
+        for (const item of actions) {
+          const row = [day.day, day.theme || (item ? '训练' : '休息'), day.total_minutes ?? '', item ? (item.name || item.exercise_id) : '休息', item?.dosage || ''];
+          if (this.exportDetails) row.push(item ? [item.notes, item.points && '动作要点：' + item.points, item.errors && '注意避免：' + item.errors].filter(Boolean).join('；') : '');
+          rows.push(row);
+        }
+      }
+      const name = this.exportName ? (this.rx.name || '') : '';
+      if (this.exportFormat === 'xlsx') {
+        try {
+          const response = await fetch('/api/v1/export/weekly-plan.xlsx', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ days: this.planDays, include_details: this.exportDetails, name }) });
+          if (!response.ok) throw new Error('服务返回 ' + response.status);
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = '每周运动计划.xlsx'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch (error) { alert('导出失败：' + error.message); return; }
+      } else {
+        const win = window.open('', '_blank');
+        if (!win) { alert('浏览器阻止了打印窗口，请允许弹出窗口后重试。'); return; }
+        const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
+        const detailMap = new Map();
+        if (this.exportDetails) {
+          for (const day of this.planDays) for (const item of day.actions) {
+            const key = item.exercise_id || item.name;
+            if (!key) continue;
+            if (!detailMap.has(key)) detailMap.set(key, { name: item.name || item.exercise_id, points: new Set(), errors: new Set(), notes: new Map() });
+            const detail = detailMap.get(key);
+            if (item.points) detail.points.add(item.points);
+            if (item.errors) detail.errors.add(item.errors);
+            if (item.notes) { if (!detail.notes.has(item.notes)) detail.notes.set(item.notes, new Set()); detail.notes.get(item.notes).add(day.day); }
+          }
+        }
+        const dayCards = this.planDays.map(day => {
+          const actions = day.actions.map(item => {
+            const kind = ['warm', 'cardio', 'strength', 'cool'].includes(item.kind) ? item.kind : 'cardio';
+            return '<div class="action ' + kind + '"><strong>' + esc(item.name || item.exercise_id || '动作') + '</strong>' + (item.dosage ? '<span>' + esc(item.dosage) + '</span>' : '') + '</div>';
+          }).join('');
+          const dayTime = day.total_minutes != null ? esc(day.total_minutes) + ' 分钟' : '—';
+          return '<div class="day' + (day.actions.length ? '' : ' rest') + '"><div class="day-label"><strong>' + esc(day.day) + '</strong><small>' + esc(day.theme || (day.actions.length ? '训练' : '休息')) + '</small></div><div class="actions">' + (actions || '<span class="rest-text">' + esc(day.theme || '休息') + '</span>') + '</div><div class="time">' + dayTime + '</div></div>';
+        }).join('');
+        const details = [...detailMap.values()].map(detail => {
+          const lines = [...detail.points].map(x => '<p><b>要点：</b>' + esc(x) + '</p>')
+            .concat([...detail.errors].map(x => '<p><b>注意避免：</b>' + esc(x) + '</p>'))
+            .concat([...detail.notes].map(([note, days]) => '<p><b>' + esc([...days].join('、')) + '：</b>' + esc(note) + '</p>'));
+          return lines.length ? '<article class="detail-item"><h3>' + esc(detail.name) + '</h3>' + lines.join('') + '</article>' : '';
+        }).filter(Boolean).join('');
+        const phase = this.rx.cycle.current_phase || '每周训练';
+        const type = this.rx.fitt_vp.type.value || '';
+        const review = this.rx.cycle.next_review || '';
+        win.document.write(`<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>每周运动计划</title><style>
+          *{box-sizing:border-box}body{font:14px/1.55 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:#23354e;margin:0;background:#f3f6fb;-webkit-print-color-adjust:exact;print-color-adjust:exact}.page{max-width:1000px;margin:28px auto;background:white;border:1px solid #dce5f0;border-radius:12px;overflow:hidden}.heading{background:#2468bd;color:white;padding:20px 26px}.heading h1{font-size:23px;margin:0}.heading p{margin:4px 0 0;color:#e6efff}.content{padding:20px 26px}.stage{background:#f3f7fc;padding:10px 13px;border-radius:7px;color:#586c88;margin-bottom:20px}.stage strong{color:#285994;margin-right:8px}.title{font-size:17px;margin:0 0 10px}.legend{display:flex;gap:16px;color:#61738a;font-size:12px;margin-bottom:12px;flex-wrap:wrap}.legend .warm{color:#ad6c23}.legend .cardio{color:#347ac9}.legend .strength{color:#8062bb}.legend .cool{color:#3d9478}.days{border:1px solid #e3eaf3;border-radius:9px;overflow:hidden}.day{display:grid;grid-template-columns:100px minmax(0,1fr) 70px;gap:12px;align-items:start;padding:12px 14px;border-top:1px solid #e3eaf3;break-inside:avoid;page-break-inside:avoid}.day:first-child{border-top:0}.day.rest{background:#fbfcfe}.day-label strong,.day-label small{display:block}.day-label small,.time,.rest-text{font-size:12px;color:#75859c}.time{text-align:right}.actions{display:flex;gap:7px;flex-wrap:wrap;min-width:0}.action{border:1px solid;border-left-width:3px;border-radius:6px;padding:6px 9px;max-width:100%;overflow-wrap:anywhere}.action strong{font-size:13px}.action span{margin-left:7px;font-size:12px}.action.warm{background:#fff5e8;border-color:#f2debd;border-left-color:#d49b46;color:#8d5b21}.action.cardio{background:#edf5ff;border-color:#dbeafa;border-left-color:#4c8ed7;color:#2864a8}.action.strength{background:#f4effc;border-color:#e8dff5;border-left-color:#9b7dca;color:#7353a5}.action.cool{background:#edf8f2;border-color:#dceee4;border-left-color:#62aa89;color:#347b60}.details{max-width:250px;margin-top:5px;color:#40536e;font-size:12px}.details p{margin:3px 0}.detail-section{margin-top:22px}.detail-list{columns:2;column-gap:22px}.detail-item{break-inside:avoid;page-break-inside:avoid;border-top:1px solid #e3eaf3;padding:8px 0;margin:0 0 5px}.detail-item h3{font-size:13px;color:#285994;margin:0 0 4px}.detail-item p{font-size:12px;line-height:1.5;color:#40536e;margin:2px 0;overflow-wrap:anywhere}.foot{font-size:12px;color:#75859c;margin:14px 0 0}@page{size:A4;margin:12mm}@media print{body{background:white}.page{margin:0;max-width:none;border:0;border-radius:0}.heading{padding:15px 20px}.content{padding:16px 0}.day{padding:9px 10px}}
+        </style></head><body><main class="page"><header class="heading"><h1>每周运动计划</h1>${name ? '<p>姓名：' + esc(name) + '</p>' : ''}</header><div class="content"><div class="stage"><strong>${esc(phase)}</strong>${esc(type)}${review ? ' · 复评：' + esc(review) : ''}</div><h2 class="title">本周训练计划</h2><div class="legend"><span class="warm">● 热身</span><span class="cardio">● 有氧</span><span class="strength">● 力量／核心</span><span class="cool">● 拉伸／放松</span></div><div class="days">${dayCards}</div>${details ? '<section class="detail-section"><h2 class="title">动作要点与注意事项</h2><div class="detail-list">' + details + '</div></section>' : ''}<p class="foot">请按动作顺序执行，具体强度与时长以个人处方为准。</p></div></main></body></html>`);
+        win.document.close(); win.focus(); win.print();
+      }
+      this.exportOpen = false;
+    },
+
     /* ---------- 切换学生 / 预生成结果 ---------- */
 
     onStudentChange() {
@@ -411,6 +441,7 @@ createApp({
 
     applyResult(rx) {
       this.rx = rx;
+      this.rx.cycle = rx.cycle || { current_phase: '', next_review: '' };
       (rx.exercise_details || []).forEach((e) => { this.exerciseMap[e.id] = e; });
       this.hasData = true;
       document.title = `${rx.name || ''}运动处方报告`;
@@ -423,8 +454,7 @@ createApp({
       this.genError = '';
       this.emergency = null;
       this.aiMessages = [];
-      this.dayFilter = '全周';
-      this.closePop();
+      this.closeActionDetail();
       document.title = '运动处方报告';
     },
 
@@ -602,32 +632,6 @@ createApp({
       if (d.category) return d.category;
       const prefix = (it.exercise_id || '').split('-')[0];
       return PREFIX_CATEGORY[prefix] || '';
-    },
-
-    /* ---------- 动作详情弹层 ---------- */
-
-    /* fixed 定位：贴着标签下方弹出，靠近视口底部时翻到上方 */
-    placePop(evt) {
-      const r = evt.currentTarget.getBoundingClientRect();
-      const width = 340;
-      this.pop.x = Math.max(8, Math.min(r.left, window.innerWidth - width - 12));
-      this.pop.up = r.bottom > window.innerHeight - 330;
-      this.pop.y = this.pop.up ? r.top - 8 : r.bottom + 8;
-    },
-    /* 动作详情弹层只由点击触发（悬停不弹出） */
-    pillClick(evt, pill) {
-      if (this.pop.pinned && this.pop.pill && this.pop.pill.key === pill.key) {
-        this.closePop();
-        return;
-      }
-      this.pop.pill = pill;
-      this.placePop(evt);
-      this.pop.show = true;
-      this.pop.pinned = true;
-    },
-    closePop() {
-      this.pop.show = false;
-      this.pop.pinned = false;
     },
 
     riskCls(level) { return { 高: 'high', 中: 'mid', 低: 'low' }[level] || 'mid'; },

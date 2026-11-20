@@ -1,0 +1,2571 @@
+{
+  "version": "v1.0.0",
+  "updated_at": "2026-11-09",
+  "source_note": "第一版由研发团队依据通识性运动训练要点整理，待首都体育学院专家审核替换。标签体系与 contraindication_tags 词表保持稳定，内容可替换。",
+  "contraindication_tag_vocabulary": [
+    "憋气风险",
+    "高冲击",
+    "中等冲击",
+    "膝关节高负荷",
+    "踝关节负荷",
+    "腰椎高负荷",
+    "颈椎风险",
+    "肩关节高负荷",
+    "不对称负荷",
+    "最大力量",
+    "倒立体位",
+    "需保护与监护"
+  ],
+  "exercises": [
+    {
+      "id": "WUP-001",
+      "name": "关节活动组合",
+      "category": "热身",
+      "subcategory": "关节准备",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "小区空地",
+        "学校操场",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "全身关节"
+      ],
+      "min_age": 6,
+      "key_points": [
+        "自颈、肩、肘、腕、髋、膝、踝自上而下依次活动",
+        "每个关节绕环 8 至 10 次，幅度由小到大",
+        "动作缓慢可控，不追求速度"
+      ],
+      "common_errors": [
+        "幅度过大过快",
+        "跳过踝关节与腕关节"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "WUP-002"
+      ],
+      "dosage_hint": "2 至 3 分钟，每个关节 8 至 10 次"
+    },
+    {
+      "id": "WUP-002",
+      "name": "动态拉伸组合",
+      "category": "热身",
+      "subcategory": "动态准备",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "小区空地",
+        "学校操场",
+        "体育馆"
+      ],
+      "impact_level": "低",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "腘绳肌",
+        "髋屈肌",
+        "臀部",
+        "肩部"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "包含正踢腿、侧踢腿、弓步转体、手臂绕环",
+        "在可控幅度内移动，不在末端停留",
+        "配合呼吸，不憋气"
+      ],
+      "common_errors": [
+        "用弹振方式强行加大幅度",
+        "动作过快失去控制"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "WUP-001",
+        "WUP-003"
+      ],
+      "dosage_hint": "3 至 5 分钟，每个动作每侧 8 次"
+    },
+    {
+      "id": "WUP-003",
+      "name": "原地快走摆臂",
+      "category": "热身",
+      "subcategory": "心血管准备",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "小区空地",
+        "学校操场",
+        "体育馆"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "下肢",
+        "肩部"
+      ],
+      "min_age": 6,
+      "key_points": [
+        "步频逐渐加快",
+        "手臂自然摆动至肩高",
+        "心率升至 100 次/分以上即可"
+      ],
+      "common_errors": [
+        "时间过短未达到升温效果"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "WUP-004",
+        "AER-014"
+      ],
+      "dosage_hint": "2 至 4 分钟"
+    },
+    {
+      "id": "WUP-004",
+      "name": "原地慢跑",
+      "category": "热身",
+      "subcategory": "心血管准备",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "小区空地",
+        "学校操场",
+        "体育馆"
+      ],
+      "impact_level": "低",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "下肢",
+        "核心"
+      ],
+      "min_age": 6,
+      "key_points": [
+        "前脚掌着地缓冲",
+        "躯干直立核心轻微收紧",
+        "呼吸均匀"
+      ],
+      "common_errors": [
+        "全脚掌砸地",
+        "身体后倾"
+      ],
+      "contraindication_tags": [
+        "踝关节负荷"
+      ],
+      "alternatives": [
+        "WUP-003"
+      ],
+      "dosage_hint": "2 至 4 分钟"
+    },
+    {
+      "id": "WUP-005",
+      "name": "高抬腿走",
+      "category": "热身",
+      "subcategory": "动态准备",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "小区空地",
+        "学校操场",
+        "体育馆"
+      ],
+      "impact_level": "低",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "髋屈肌",
+        "核心",
+        "小腿"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "大腿抬至与地面平行",
+        "支撑腿伸直提踵",
+        "保持躯干不后仰"
+      ],
+      "common_errors": [
+        "抬腿高度不足",
+        "弯腰代偿"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "WUP-002"
+      ],
+      "dosage_hint": "20 米 × 2 组，或原地 20 次 × 2 组"
+    },
+    {
+      "id": "WUP-006",
+      "name": "后踢腿跑",
+      "category": "热身",
+      "subcategory": "动态准备",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "小区空地",
+        "学校操场",
+        "体育馆"
+      ],
+      "impact_level": "低",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "腘绳肌",
+        "臀部"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "脚跟向臀部靠近",
+        "小步幅高频率",
+        "躯干保持直立"
+      ],
+      "common_errors": [
+        "速度过快导致腘绳肌拉伤风险",
+        "身体前倾"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "WUP-005"
+      ],
+      "dosage_hint": "20 米 × 2 组"
+    },
+    {
+      "id": "AER-001",
+      "name": "基础跳绳",
+      "category": "有氧",
+      "subcategory": "跳跃类",
+      "equipment": [
+        "跳绳"
+      ],
+      "venue": [
+        "家庭",
+        "小区空地",
+        "学校操场",
+        "体育馆"
+      ],
+      "impact_level": "高",
+      "intensity_level": "中高",
+      "muscle_groups": [
+        "小腿",
+        "踝关节",
+        "核心",
+        "肩部"
+      ],
+      "min_age": 6,
+      "key_points": [
+        "前脚掌着地，落地时膝关节微屈缓冲",
+        "手腕发力摇绳，大臂贴近身体",
+        "躯干直立，目视前方"
+      ],
+      "common_errors": [
+        "全脚掌落地造成踝膝冲击过大",
+        "整条手臂摇绳导致过早疲劳",
+        "弯腰低头看绳"
+      ],
+      "contraindication_tags": [
+        "高冲击",
+        "踝关节负荷"
+      ],
+      "alternatives": [
+        "AER-002",
+        "AER-003",
+        "AER-014"
+      ],
+      "dosage_hint": "每组 30 至 60 秒，3 至 5 组，组间休息 60 秒。体测备考可按 1 分钟计数"
+    },
+    {
+      "id": "AER-002",
+      "name": "交替脚跳绳",
+      "category": "有氧",
+      "subcategory": "跳跃类",
+      "equipment": [
+        "跳绳"
+      ],
+      "venue": [
+        "家庭",
+        "小区空地",
+        "学校操场",
+        "体育馆"
+      ],
+      "impact_level": "中",
+      "intensity_level": "中",
+      "muscle_groups": [
+        "小腿",
+        "踝关节",
+        "核心"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "左右脚交替轮换落地",
+        "单脚承重时间短",
+        "节奏均匀"
+      ],
+      "common_errors": [
+        "节奏忽快忽慢",
+        "落地过重"
+      ],
+      "contraindication_tags": [
+        "中等冲击",
+        "踝关节负荷"
+      ],
+      "alternatives": [
+        "AER-001",
+        "AER-014"
+      ],
+      "dosage_hint": "每组 45 至 90 秒，3 至 4 组"
+    },
+    {
+      "id": "AER-003",
+      "name": "开合跳",
+      "category": "有氧",
+      "subcategory": "跳跃类",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "小区空地",
+        "学校操场",
+        "体育馆"
+      ],
+      "impact_level": "中",
+      "intensity_level": "中",
+      "muscle_groups": [
+        "下肢",
+        "肩部",
+        "核心"
+      ],
+      "min_age": 7,
+      "key_points": [
+        "手臂与腿同步开合",
+        "前脚掌落地缓冲",
+        "落地时膝不内扣"
+      ],
+      "common_errors": [
+        "膝关节内扣",
+        "落地声响过大",
+        "手脚不同步"
+      ],
+      "contraindication_tags": [
+        "中等冲击",
+        "膝关节高负荷"
+      ],
+      "alternatives": [
+        "AER-004",
+        "AER-014"
+      ],
+      "dosage_hint": "每组 30 至 45 秒，3 至 4 组"
+    },
+    {
+      "id": "AER-004",
+      "name": "原地高抬腿",
+      "category": "有氧",
+      "subcategory": "无器械有氧",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "小区空地",
+        "学校操场",
+        "体育馆"
+      ],
+      "impact_level": "中",
+      "intensity_level": "中高",
+      "muscle_groups": [
+        "髋屈肌",
+        "核心",
+        "小腿"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "大腿抬至髋高",
+        "核心收紧避免后仰",
+        "前脚掌轻落地"
+      ],
+      "common_errors": [
+        "抬腿过低",
+        "上身后倒",
+        "呼吸急促憋气"
+      ],
+      "contraindication_tags": [
+        "中等冲击"
+      ],
+      "alternatives": [
+        "AER-003",
+        "WUP-005"
+      ],
+      "dosage_hint": "每组 20 至 30 秒，3 至 4 组"
+    },
+    {
+      "id": "AER-005",
+      "name": "快走慢跑交替",
+      "category": "有氧",
+      "subcategory": "低冲击有氧",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "小区空地",
+        "学校操场",
+        "户外"
+      ],
+      "impact_level": "低",
+      "intensity_level": "中",
+      "muscle_groups": [
+        "下肢",
+        "心肺"
+      ],
+      "min_age": 7,
+      "key_points": [
+        "快走与慢跑按时间交替，如快走 3 分钟接慢跑 2 分钟",
+        "全程保持能说完整句子的强度",
+        "落地时膝微屈缓冲"
+      ],
+      "common_errors": [
+        "慢跑段速度过快导致心率超区间",
+        "交替过于频繁无法稳定心率"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "AER-014",
+        "AER-011",
+        "AER-006"
+      ],
+      "dosage_hint": "20 至 40 分钟，循环 4 至 8 组"
+    },
+    {
+      "id": "AER-006",
+      "name": "匀速慢跑",
+      "category": "有氧",
+      "subcategory": "持续有氧",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "学校操场",
+        "小区空地",
+        "户外"
+      ],
+      "impact_level": "中",
+      "intensity_level": "中",
+      "muscle_groups": [
+        "下肢",
+        "心肺"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "步频稳定在每分钟 160 至 180 步",
+        "躯干略前倾，手臂自然摆动",
+        "呼吸节奏与步频配合"
+      ],
+      "common_errors": [
+        "步幅过大导致脚跟重击地面",
+        "全程速度起伏过大"
+      ],
+      "contraindication_tags": [
+        "膝关节高负荷",
+        "踝关节负荷"
+      ],
+      "alternatives": [
+        "AER-005",
+        "AER-011",
+        "AER-014"
+      ],
+      "dosage_hint": "20 至 40 分钟连续进行"
+    },
+    {
+      "id": "AER-007",
+      "name": "变速跑",
+      "category": "有氧",
+      "subcategory": "间歇有氧",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "学校操场",
+        "户外"
+      ],
+      "impact_level": "中",
+      "intensity_level": "高",
+      "muscle_groups": [
+        "下肢",
+        "心肺"
+      ],
+      "min_age": 12,
+      "key_points": [
+        "快段控制在可坚持 60 至 90 秒的强度",
+        "慢段完全降速恢复",
+        "快慢比例约 1 比 2"
+      ],
+      "common_errors": [
+        "快段过快导致后续无法完成",
+        "慢段不充分恢复"
+      ],
+      "contraindication_tags": [
+        "膝关节高负荷"
+      ],
+      "alternatives": [
+        "AER-005",
+        "AER-006"
+      ],
+      "dosage_hint": "快 400 米慢 400 米 × 4 至 6 组；仅用于有一定训练基础者"
+    },
+    {
+      "id": "AER-008",
+      "name": "登山者",
+      "category": "有氧",
+      "subcategory": "无器械有氧",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "低",
+      "intensity_level": "中高",
+      "muscle_groups": [
+        "核心",
+        "髋屈肌",
+        "肩部"
+      ],
+      "min_age": 10,
+      "key_points": [
+        "手撑地肩在腕正上方",
+        "臀部不上下起伏",
+        "膝交替向胸部靠近",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "塌腰或撅臀",
+        "肩部塌陷",
+        "速度过快失去核心控制"
+      ],
+      "contraindication_tags": [
+        "肩关节高负荷",
+        "腰椎高负荷"
+      ],
+      "alternatives": [
+        "AER-004",
+        "COR-003"
+      ],
+      "dosage_hint": "每组 20 至 30 秒，3 至 4 组"
+    },
+    {
+      "id": "AER-009",
+      "name": "简化波比跳",
+      "category": "有氧",
+      "subcategory": "综合体能",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "高",
+      "intensity_level": "高",
+      "muscle_groups": [
+        "全身"
+      ],
+      "min_age": 12,
+      "key_points": [
+        "去掉跳跃改为站起，降低冲击",
+        "下蹲手撑地时背部保持中立",
+        "全程节奏可控",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "落地膝内扣",
+        "塌腰",
+        "疲劳后动作变形仍继续"
+      ],
+      "contraindication_tags": [
+        "高冲击",
+        "膝关节高负荷",
+        "腰椎高负荷"
+      ],
+      "alternatives": [
+        "AER-008",
+        "AER-003"
+      ],
+      "dosage_hint": "每组 6 至 10 次，3 组，组间休息 90 秒"
+    },
+    {
+      "id": "AER-010",
+      "name": "爬楼梯",
+      "category": "有氧",
+      "subcategory": "低冲击有氧",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "学校"
+      ],
+      "impact_level": "低",
+      "intensity_level": "中高",
+      "muscle_groups": [
+        "臀部",
+        "股四头肌",
+        "心肺"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "整个脚掌踏实台阶",
+        "手扶栏杆保证安全",
+        "下楼梯改为步行或乘电梯以减少膝关节冲击"
+      ],
+      "common_errors": [
+        "下楼梯快速冲下造成膝关节负荷过大",
+        "身体过度前倾"
+      ],
+      "contraindication_tags": [
+        "膝关节高负荷"
+      ],
+      "alternatives": [
+        "AER-014",
+        "AER-011"
+      ],
+      "dosage_hint": "上行 3 至 5 层 × 4 至 6 组，下行步行恢复"
+    },
+    {
+      "id": "AER-011",
+      "name": "骑行",
+      "category": "有氧",
+      "subcategory": "零冲击有氧",
+      "equipment": [
+        "自行车",
+        "动感单车"
+      ],
+      "venue": [
+        "户外",
+        "健身房",
+        "家庭"
+      ],
+      "impact_level": "无",
+      "intensity_level": "中",
+      "muscle_groups": [
+        "股四头肌",
+        "臀部",
+        "心肺"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "座高调至蹬到底时膝微屈",
+        "踏频保持每分钟 60 至 80 转",
+        "户外骑行佩戴头盔并选择封闭路段"
+      ],
+      "common_errors": [
+        "座位过低造成膝关节压力",
+        "阻力过大导致膝痛"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "AER-005",
+        "AER-012",
+        "AER-014"
+      ],
+      "dosage_hint": "20 至 45 分钟"
+    },
+    {
+      "id": "AER-012",
+      "name": "游泳",
+      "category": "有氧",
+      "subcategory": "零冲击有氧",
+      "equipment": [
+        "泳池"
+      ],
+      "venue": [
+        "游泳馆"
+      ],
+      "impact_level": "无",
+      "intensity_level": "中",
+      "muscle_groups": [
+        "全身",
+        "心肺"
+      ],
+      "min_age": 7,
+      "key_points": [
+        "必须有成人或救生员在场",
+        "入水前充分热身",
+        "以能控制呼吸的强度匀速进行"
+      ],
+      "common_errors": [
+        "未热身直接入水",
+        "过度憋气换气不足"
+      ],
+      "contraindication_tags": [
+        "需保护与监护"
+      ],
+      "alternatives": [
+        "AER-011",
+        "AER-005"
+      ],
+      "dosage_hint": "20 至 40 分钟，分组进行中间休息"
+    },
+    {
+      "id": "AER-013",
+      "name": "篮球运球与投篮练习",
+      "category": "有氧",
+      "subcategory": "趣味球类",
+      "equipment": [
+        "篮球",
+        "篮球场"
+      ],
+      "venue": [
+        "学校操场",
+        "小区空地",
+        "体育馆"
+      ],
+      "impact_level": "中",
+      "intensity_level": "中",
+      "muscle_groups": [
+        "下肢",
+        "核心",
+        "上肢"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "以运球与投篮等非对抗练习为主",
+        "变向时双脚落地缓冲",
+        "控制练习时长避免过度疲劳"
+      ],
+      "common_errors": [
+        "直接进行全场对抗导致变向冲击过大",
+        "场地湿滑仍继续练习"
+      ],
+      "contraindication_tags": [
+        "中等冲击",
+        "踝关节负荷"
+      ],
+      "alternatives": [
+        "AER-005",
+        "AER-011"
+      ],
+      "dosage_hint": "20 至 30 分钟非对抗练习"
+    },
+    {
+      "id": "AER-014",
+      "name": "快走",
+      "category": "有氧",
+      "subcategory": "零冲击有氧",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "小区空地",
+        "学校操场",
+        "户外"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "下肢",
+        "心肺"
+      ],
+      "min_age": 6,
+      "key_points": [
+        "步频加快而非步幅加大",
+        "手臂屈肘摆动助力",
+        "保持能连续说话的强度"
+      ],
+      "common_errors": [
+        "速度过慢达不到有效强度",
+        "步幅过大造成髋部不适"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "AER-005",
+        "AER-011"
+      ],
+      "dosage_hint": "20 至 45 分钟连续进行"
+    },
+    {
+      "id": "RES-001",
+      "name": "徒手深蹲",
+      "category": "抗阻",
+      "subcategory": "下肢",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "学校操场",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "低",
+      "intensity_level": "中",
+      "muscle_groups": [
+        "股四头肌",
+        "臀部",
+        "核心"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "双脚与肩同宽，脚尖略外展",
+        "屈髋屈膝同时下蹲，膝盖方向与脚尖一致",
+        "下蹲至大腿接近与地面平行，背部保持中立",
+        "全程呼吸不中断，下蹲吸气站起呼气"
+      ],
+      "common_errors": [
+        "膝盖内扣",
+        "脚跟离地",
+        "腰部过度前凸或弓背",
+        "下蹲时憋气"
+      ],
+      "contraindication_tags": [
+        "膝关节高负荷"
+      ],
+      "alternatives": [
+        "RES-002",
+        "RES-004"
+      ],
+      "dosage_hint": "12 至 15 次 × 3 组，组间休息 60 秒"
+    },
+    {
+      "id": "RES-002",
+      "name": "靠墙静蹲",
+      "category": "抗阻",
+      "subcategory": "下肢",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "学校",
+        "体育馆"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "股四头肌",
+        "臀部"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "背部贴墙，膝角保持 90 至 120 度",
+        "膝盖不超过脚尖",
+        "正常呼吸不憋气"
+      ],
+      "common_errors": [
+        "膝角过小造成髌骨压力过大",
+        "憋气"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "RES-001",
+        "RES-004"
+      ],
+      "dosage_hint": "每组 30 至 60 秒，3 组"
+    },
+    {
+      "id": "RES-003",
+      "name": "箭步蹲",
+      "category": "抗阻",
+      "subcategory": "下肢",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "学校操场",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "低",
+      "intensity_level": "中",
+      "muscle_groups": [
+        "股四头肌",
+        "臀部",
+        "核心"
+      ],
+      "min_age": 10,
+      "key_points": [
+        "前后脚分开约一步半",
+        "下沉时前膝不超过脚尖",
+        "躯干直立核心收紧"
+      ],
+      "common_errors": [
+        "身体左右晃动",
+        "后膝砸地",
+        "前膝内扣"
+      ],
+      "contraindication_tags": [
+        "膝关节高负荷",
+        "不对称负荷"
+      ],
+      "alternatives": [
+        "RES-001",
+        "RES-002"
+      ],
+      "dosage_hint": "每侧 10 至 12 次 × 3 组"
+    },
+    {
+      "id": "RES-004",
+      "name": "臀桥",
+      "category": "抗阻",
+      "subcategory": "下肢",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "臀部",
+        "腘绳肌",
+        "核心"
+      ],
+      "min_age": 7,
+      "key_points": [
+        "仰卧屈膝，脚跟距臀约一掌",
+        "臀部发力顶起至躯干与大腿成直线",
+        "顶点停留 1 至 2 秒后缓慢落下",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "用腰部代偿顶起",
+        "顶起高度不足",
+        "膝关节外展"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "RES-005",
+        "RES-002"
+      ],
+      "dosage_hint": "15 至 20 次 × 3 组"
+    },
+    {
+      "id": "RES-005",
+      "name": "单腿臀桥",
+      "category": "抗阻",
+      "subcategory": "下肢",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "中",
+      "muscle_groups": [
+        "臀部",
+        "腘绳肌",
+        "核心"
+      ],
+      "min_age": 10,
+      "key_points": [
+        "一腿屈膝支撑，另一腿伸直抬起",
+        "骨盆保持水平不倾斜",
+        "动作缓慢可控",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "骨盆一侧下沉",
+        "腰部代偿",
+        "速度过快"
+      ],
+      "contraindication_tags": [
+        "不对称负荷"
+      ],
+      "alternatives": [
+        "RES-004"
+      ],
+      "dosage_hint": "每侧 10 至 12 次 × 3 组"
+    },
+    {
+      "id": "RES-006",
+      "name": "提踵",
+      "category": "抗阻",
+      "subcategory": "下肢",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "学校",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "小腿"
+      ],
+      "min_age": 7,
+      "key_points": [
+        "缓慢提起脚跟至最高点",
+        "顶点停留 1 秒",
+        "下落时控制速度不坠落"
+      ],
+      "common_errors": [
+        "借惯性弹起",
+        "身体前后晃动"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "RES-002"
+      ],
+      "dosage_hint": "15 至 20 次 × 3 组"
+    },
+    {
+      "id": "RES-007",
+      "name": "弹力带侧向行走",
+      "category": "抗阻",
+      "subcategory": "臀中肌激活",
+      "equipment": [
+        "弹力带"
+      ],
+      "venue": [
+        "家庭",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "臀中肌"
+      ],
+      "min_age": 10,
+      "key_points": [
+        "弹力带套于膝上或踝上",
+        "半蹲姿态侧向移动",
+        "全程保持膝不内扣"
+      ],
+      "common_errors": [
+        "上身左右摆动",
+        "步幅过小没有张力"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "RES-008",
+        "RES-009"
+      ],
+      "dosage_hint": "每方向 10 至 15 步 × 3 组"
+    },
+    {
+      "id": "RES-008",
+      "name": "蚌式开合",
+      "category": "抗阻",
+      "subcategory": "臀中肌激活",
+      "equipment": [
+        "无",
+        "弹力带"
+      ],
+      "venue": [
+        "家庭",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "臀中肌"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "侧卧屈膝，双脚并拢",
+        "上侧膝向上打开，骨盆不后翻",
+        "顶点停留后缓慢回落",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "骨盆向后翻转代偿",
+        "幅度过大"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "RES-007",
+        "RES-009"
+      ],
+      "dosage_hint": "每侧 15 次 × 3 组"
+    },
+    {
+      "id": "RES-009",
+      "name": "侧卧抬腿",
+      "category": "抗阻",
+      "subcategory": "臀中肌激活",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "臀中肌",
+        "髋外侧"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "侧卧身体成一条直线",
+        "上侧腿伸直向上抬起约 45 度",
+        "脚尖略向内不外翻",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "身体向后倾倒",
+        "抬腿过高用腰代偿"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "RES-008",
+        "RES-007"
+      ],
+      "dosage_hint": "每侧 15 次 × 3 组"
+    },
+    {
+      "id": "RES-010",
+      "name": "标准俯卧撑",
+      "category": "抗阻",
+      "subcategory": "上肢推",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "学校",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "低",
+      "intensity_level": "中高",
+      "muscle_groups": [
+        "胸大肌",
+        "三角肌前束",
+        "三头肌",
+        "核心"
+      ],
+      "min_age": 10,
+      "key_points": [
+        "双手略宽于肩，手腕在肩正下方",
+        "身体从头到脚跟保持一条直线",
+        "下放至肘约 90 度，肘关节约 45 度外展",
+        "核心收紧避免塌腰",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "塌腰或撅臀",
+        "头部前伸",
+        "肘部完全外展成直角",
+        "下放幅度不足"
+      ],
+      "contraindication_tags": [
+        "肩关节高负荷"
+      ],
+      "alternatives": [
+        "RES-011",
+        "RES-012"
+      ],
+      "dosage_hint": "8 至 12 次 × 3 组"
+    },
+    {
+      "id": "RES-011",
+      "name": "跪姿俯卧撑",
+      "category": "抗阻",
+      "subcategory": "上肢推",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "学校",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "低",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "胸大肌",
+        "三头肌",
+        "核心"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "膝着地，躯干与大腿成一条直线",
+        "下放节奏可控",
+        "肩胛稳定不耸肩",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "臀部后坐",
+        "塌腰"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "RES-012",
+        "RES-010"
+      ],
+      "dosage_hint": "10 至 15 次 × 3 组"
+    },
+    {
+      "id": "RES-012",
+      "name": "上斜俯卧撑",
+      "category": "抗阻",
+      "subcategory": "上肢推",
+      "equipment": [
+        "台阶",
+        "椅子"
+      ],
+      "venue": [
+        "家庭",
+        "学校",
+        "体育馆"
+      ],
+      "impact_level": "低",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "胸大肌",
+        "三头肌",
+        "核心"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "双手撑在台阶或稳固椅面上",
+        "台面越高难度越低",
+        "身体保持一条直线"
+      ],
+      "common_errors": [
+        "支撑物不稳固",
+        "塌腰"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "RES-011",
+        "RES-010"
+      ],
+      "dosage_hint": "10 至 15 次 × 3 组"
+    },
+    {
+      "id": "RES-013",
+      "name": "弹力带坐姿划船",
+      "category": "抗阻",
+      "subcategory": "上肢拉",
+      "equipment": [
+        "弹力带"
+      ],
+      "venue": [
+        "家庭",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "中",
+      "muscle_groups": [
+        "背阔肌",
+        "菱形肌",
+        "二头肌"
+      ],
+      "min_age": 9,
+      "key_points": [
+        "弹力带固定于前方稳固物",
+        "肩胛先后缩再屈肘拉动",
+        "躯干保持直立不后倒"
+      ],
+      "common_errors": [
+        "用躯干后摆借力",
+        "耸肩",
+        "只屈肘不动肩胛"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "RES-015",
+        "RES-016"
+      ],
+      "dosage_hint": "12 至 15 次 × 3 组"
+    },
+    {
+      "id": "RES-014",
+      "name": "弹力带肩上推举",
+      "category": "抗阻",
+      "subcategory": "上肢推",
+      "equipment": [
+        "弹力带"
+      ],
+      "venue": [
+        "家庭",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "中",
+      "muscle_groups": [
+        "三角肌",
+        "三头肌",
+        "核心"
+      ],
+      "min_age": 10,
+      "key_points": [
+        "双脚踩住弹力带，双手持握于肩",
+        "向上推至手臂接近伸直",
+        "核心收紧避免腰部反弓"
+      ],
+      "common_errors": [
+        "腰部过度后仰",
+        "推举时憋气",
+        "阻力过大导致代偿"
+      ],
+      "contraindication_tags": [
+        "肩关节高负荷",
+        "憋气风险"
+      ],
+      "alternatives": [
+        "RES-011",
+        "RES-013"
+      ],
+      "dosage_hint": "12 至 15 次 × 3 组，呼气推起"
+    },
+    {
+      "id": "RES-015",
+      "name": "斜身引体",
+      "category": "抗阻",
+      "subcategory": "上肢拉",
+      "equipment": [
+        "低单杠"
+      ],
+      "venue": [
+        "学校操场",
+        "小区空地",
+        "体育馆"
+      ],
+      "impact_level": "低",
+      "intensity_level": "中",
+      "muscle_groups": [
+        "背阔肌",
+        "二头肌",
+        "核心"
+      ],
+      "min_age": 9,
+      "key_points": [
+        "身体倾斜握杠，脚着地支撑",
+        "躯干保持一条直线",
+        "拉至胸部接近横杠"
+      ],
+      "common_errors": [
+        "屈髋顶胯借力",
+        "肩胛不参与发力"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "RES-013",
+        "RES-016"
+      ],
+      "dosage_hint": "8 至 12 次 × 3 组，是引体向上的入门过渡动作"
+    },
+    {
+      "id": "RES-016",
+      "name": "引体向上",
+      "category": "抗阻",
+      "subcategory": "上肢拉",
+      "equipment": [
+        "单杠"
+      ],
+      "venue": [
+        "学校操场",
+        "小区空地",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "低",
+      "intensity_level": "高",
+      "muscle_groups": [
+        "背阔肌",
+        "二头肌",
+        "核心"
+      ],
+      "min_age": 11,
+      "key_points": [
+        "正握略宽于肩，肩胛先下沉后缩",
+        "拉至下巴超过横杠",
+        "下放时控制速度至手臂伸直",
+        "避免摆动借力"
+      ],
+      "common_errors": [
+        "身体摆动借惯性",
+        "下放时直接坠落",
+        "颈部前伸凑下巴",
+        "全程憋气"
+      ],
+      "contraindication_tags": [
+        "肩关节高负荷"
+      ],
+      "alternatives": [
+        "RES-015",
+        "RES-013"
+      ],
+      "dosage_hint": "按个人能力分组，如 3 至 5 次 × 4 组；不足 1 次者先做斜身引体与弹性带辅助"
+    },
+    {
+      "id": "COR-001",
+      "name": "平板支撑",
+      "category": "核心",
+      "subcategory": "静力稳定",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "学校",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "中",
+      "muscle_groups": [
+        "腹横肌",
+        "腹直肌",
+        "臀部",
+        "肩部"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "肘在肩正下方，前臂贴地",
+        "头、肩、髋、踝成一条直线",
+        "臀部与腹部同时收紧",
+        "正常呼吸，不憋气",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "塌腰导致腰部代偿",
+        "臀部抬得过高",
+        "头部下垂或过度抬起",
+        "全程憋气"
+      ],
+      "contraindication_tags": [
+        "腰椎高负荷",
+        "肩关节高负荷"
+      ],
+      "alternatives": [
+        "COR-003",
+        "COR-004"
+      ],
+      "dosage_hint": "每组 20 至 45 秒，3 组；姿态变形即停止，不以时长为唯一目标"
+    },
+    {
+      "id": "COR-002",
+      "name": "侧平板支撑",
+      "category": "核心",
+      "subcategory": "静力稳定",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "中",
+      "muscle_groups": [
+        "腹斜肌",
+        "臀中肌",
+        "肩部"
+      ],
+      "min_age": 10,
+      "key_points": [
+        "肘在肩正下方，身体侧面成一条直线",
+        "髋部主动顶起不下沉",
+        "可屈膝降低难度",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "髋部下沉",
+        "身体前后旋转",
+        "肩部塌陷"
+      ],
+      "contraindication_tags": [
+        "不对称负荷",
+        "肩关节高负荷"
+      ],
+      "alternatives": [
+        "COR-001",
+        "COR-004"
+      ],
+      "dosage_hint": "每侧 15 至 30 秒，3 组"
+    },
+    {
+      "id": "COR-003",
+      "name": "死虫式",
+      "category": "核心",
+      "subcategory": "动态稳定",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "腹横肌",
+        "腹直肌"
+      ],
+      "min_age": 7,
+      "key_points": [
+        "仰卧，腰部贴地不留空隙",
+        "对侧手脚同时缓慢伸出",
+        "全程腰椎保持不动",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "腰部离地拱起",
+        "动作过快",
+        "伸展幅度超出控制范围"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "COR-004",
+        "COR-001"
+      ],
+      "dosage_hint": "每侧 10 至 12 次 × 3 组"
+    },
+    {
+      "id": "COR-004",
+      "name": "鸟狗式",
+      "category": "核心",
+      "subcategory": "动态稳定",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "核心",
+        "臀部",
+        "肩部"
+      ],
+      "min_age": 7,
+      "key_points": [
+        "四点支撑，背部保持中立",
+        "对侧手脚同时伸出至水平",
+        "骨盆不旋转",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "腰部塌陷",
+        "抬腿过高导致腰椎反弓",
+        "骨盆歪斜"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "COR-003"
+      ],
+      "dosage_hint": "每侧 10 至 12 次 × 3 组"
+    },
+    {
+      "id": "COR-005",
+      "name": "卷腹",
+      "category": "核心",
+      "subcategory": "屈曲",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "学校",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "腹直肌"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "仰卧屈膝，双手置于胸前或耳侧",
+        "肩胛离地即可，下背贴地",
+        "呼气卷起吸气落下",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "双手抱头下压颈部",
+        "借颈部前伸发力",
+        "起身幅度过大变成仰卧起坐"
+      ],
+      "contraindication_tags": [
+        "颈椎风险"
+      ],
+      "alternatives": [
+        "COR-003",
+        "COR-009"
+      ],
+      "dosage_hint": "15 至 20 次 × 3 组"
+    },
+    {
+      "id": "COR-006",
+      "name": "仰卧举腿",
+      "category": "核心",
+      "subcategory": "屈曲",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "中",
+      "muscle_groups": [
+        "下腹",
+        "髋屈肌"
+      ],
+      "min_age": 10,
+      "key_points": [
+        "仰卧双手置于体侧",
+        "双腿伸直缓慢抬起至垂直",
+        "下落时腰部不离地，离地即屈膝降低难度",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "腰部拱起离地",
+        "借惯性快速摆腿"
+      ],
+      "contraindication_tags": [
+        "腰椎高负荷"
+      ],
+      "alternatives": [
+        "COR-003",
+        "COR-005"
+      ],
+      "dosage_hint": "10 至 15 次 × 3 组"
+    },
+    {
+      "id": "COR-007",
+      "name": "俄罗斯转体",
+      "category": "核心",
+      "subcategory": "旋转",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "中",
+      "muscle_groups": [
+        "腹斜肌",
+        "核心"
+      ],
+      "min_age": 10,
+      "key_points": [
+        "坐姿屈膝，躯干略后倾",
+        "由胸椎带动旋转而非仅摆手",
+        "背部保持中立不弓背",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "弓背后倒",
+        "仅手臂左右摆动",
+        "速度过快"
+      ],
+      "contraindication_tags": [
+        "腰椎高负荷"
+      ],
+      "alternatives": [
+        "COR-002",
+        "COR-004"
+      ],
+      "dosage_hint": "每侧 12 至 15 次 × 3 组"
+    },
+    {
+      "id": "COR-008",
+      "name": "臀桥保持",
+      "category": "核心",
+      "subcategory": "静力稳定",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "臀部",
+        "核心",
+        "腘绳肌"
+      ],
+      "min_age": 7,
+      "key_points": [
+        "臀桥顶点静态保持",
+        "肋骨下沉避免腰部反弓",
+        "正常呼吸",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "用腰部支撑而非臀部发力",
+        "憋气"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "RES-004",
+        "COR-001"
+      ],
+      "dosage_hint": "每组 20 至 40 秒，3 组"
+    },
+    {
+      "id": "COR-009",
+      "name": "仰卧起坐",
+      "category": "核心",
+      "subcategory": "屈曲",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "学校",
+        "体育馆"
+      ],
+      "impact_level": "无",
+      "intensity_level": "中",
+      "muscle_groups": [
+        "腹直肌",
+        "髋屈肌"
+      ],
+      "min_age": 9,
+      "key_points": [
+        "仰卧屈膝，双手轻置耳侧不抱头下压",
+        "由腹部发力卷起至上背离地",
+        "下落时控制速度不砸地",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "双手抱头猛拉颈部",
+        "借手臂摆动起身",
+        "下落时腰背砸地"
+      ],
+      "contraindication_tags": [
+        "颈椎风险",
+        "腰椎高负荷"
+      ],
+      "alternatives": [
+        "COR-005",
+        "COR-003"
+      ],
+      "dosage_hint": "体测备考按 1 分钟计数；日常训练 15 至 20 次 × 3 组"
+    },
+    {
+      "id": "FLX-001",
+      "name": "坐位体前屈拉伸",
+      "category": "柔韧",
+      "subcategory": "静态拉伸",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "学校",
+        "体育馆"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "腘绳肌",
+        "下背"
+      ],
+      "min_age": 6,
+      "key_points": [
+        "坐姿双腿伸直并拢，脚尖向上",
+        "从髋部开始前屈而非弓背",
+        "在轻微牵拉感处停留，不追求疼痛",
+        "保持均匀呼吸不憋气",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "弓背低头凑距离",
+        "弹振式反复下压",
+        "屈膝代偿"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "FLX-002",
+        "FLX-007"
+      ],
+      "dosage_hint": "每次 30 秒 × 2 至 3 组，训练后或洗澡后进行效果更好"
+    },
+    {
+      "id": "FLX-002",
+      "name": "腘绳肌静态拉伸",
+      "category": "柔韧",
+      "subcategory": "静态拉伸",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "学校",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "腘绳肌"
+      ],
+      "min_age": 6,
+      "key_points": [
+        "仰卧单腿抬起，双手扶大腿后侧",
+        "膝可微屈，脚踝放松",
+        "牵拉感出现即停留",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "强行伸直膝关节",
+        "用力下压造成疼痛"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "FLX-001"
+      ],
+      "dosage_hint": "每侧 30 秒 × 2 组"
+    },
+    {
+      "id": "FLX-003",
+      "name": "股四头肌拉伸",
+      "category": "柔韧",
+      "subcategory": "静态拉伸",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "学校",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "股四头肌",
+        "髋屈肌"
+      ],
+      "min_age": 7,
+      "key_points": [
+        "站立或侧卧，手握同侧脚踝向后拉",
+        "膝关节并拢，骨盆后倾",
+        "可扶墙保持平衡"
+      ],
+      "common_errors": [
+        "腰部前凸代偿",
+        "膝关节外展"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "FLX-004"
+      ],
+      "dosage_hint": "每侧 30 秒 × 2 组"
+    },
+    {
+      "id": "FLX-004",
+      "name": "髋屈肌拉伸",
+      "category": "柔韧",
+      "subcategory": "静态拉伸",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "髋屈肌",
+        "股四头肌"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "跪姿弓步，后侧膝着地",
+        "骨盆后倾并向前送髋",
+        "躯干保持直立",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "腰部反弓代偿",
+        "前膝超过脚尖"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "FLX-003"
+      ],
+      "dosage_hint": "每侧 30 秒 × 2 组；久坐人群建议每日进行"
+    },
+    {
+      "id": "FLX-005",
+      "name": "胸椎旋转",
+      "category": "柔韧",
+      "subcategory": "活动度",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "胸椎",
+        "肩部"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "侧卧或四点支撑位，一手置于头后",
+        "由胸椎带动旋转打开",
+        "腰椎与骨盆保持稳定",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "用腰部旋转代偿",
+        "速度过快"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "FLX-008"
+      ],
+      "dosage_hint": "每侧 8 至 10 次 × 2 组"
+    },
+    {
+      "id": "FLX-006",
+      "name": "肩部后侧拉伸",
+      "category": "柔韧",
+      "subcategory": "静态拉伸",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "学校",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "肩部",
+        "上背"
+      ],
+      "min_age": 7,
+      "key_points": [
+        "一臂横过胸前，另一手在肘上方施加轻压",
+        "肩部下沉不耸肩",
+        "保持呼吸"
+      ],
+      "common_errors": [
+        "按压在肘关节上",
+        "耸肩代偿"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "FLX-005"
+      ],
+      "dosage_hint": "每侧 30 秒 × 2 组"
+    },
+    {
+      "id": "FLX-007",
+      "name": "小腿拉伸",
+      "category": "柔韧",
+      "subcategory": "静态拉伸",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "学校",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "小腿",
+        "跟腱"
+      ],
+      "min_age": 6,
+      "key_points": [
+        "面墙弓步，后腿伸直脚跟踩实",
+        "身体重心前移",
+        "脚尖朝正前方"
+      ],
+      "common_errors": [
+        "后脚跟离地",
+        "脚尖外八"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "FLX-001"
+      ],
+      "dosage_hint": "每侧 30 秒 × 2 组；跳绳与跑步后必做"
+    },
+    {
+      "id": "FLX-008",
+      "name": "猫牛式",
+      "category": "柔韧",
+      "subcategory": "活动度",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "脊柱",
+        "核心"
+      ],
+      "min_age": 6,
+      "key_points": [
+        "四点支撑，脊柱逐节屈曲与伸展",
+        "配合呼吸，吸气展背呼气弓背",
+        "动作缓慢连贯",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "仅腰部活动，胸椎不参与",
+        "速度过快"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "FLX-005",
+        "FLX-009"
+      ],
+      "dosage_hint": "8 至 12 次 × 2 组"
+    },
+    {
+      "id": "FLX-009",
+      "name": "婴儿式",
+      "category": "柔韧",
+      "subcategory": "放松体位",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "下背",
+        "臀部",
+        "肩部"
+      ],
+      "min_age": 6,
+      "key_points": [
+        "跪坐臀部贴向脚跟",
+        "双手向前延伸，前额触垫",
+        "深长呼吸放松",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "膝关节不适仍强行保持",
+        "耸肩"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "FLX-008",
+        "CLD-003"
+      ],
+      "dosage_hint": "保持 60 至 90 秒"
+    },
+    {
+      "id": "SPD-001",
+      "name": "加速跑",
+      "category": "速度灵敏",
+      "subcategory": "加速能力",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "学校操场",
+        "体育馆"
+      ],
+      "impact_level": "中",
+      "intensity_level": "中高",
+      "muscle_groups": [
+        "下肢",
+        "核心"
+      ],
+      "min_age": 9,
+      "key_points": [
+        "起动前几步身体前倾，步幅由小到大",
+        "手臂大幅摆动配合步频",
+        "30 米内逐渐达到最高速度"
+      ],
+      "common_errors": [
+        "起动即直立身体",
+        "上身僵硬",
+        "未充分热身直接冲刺"
+      ],
+      "contraindication_tags": [
+        "中等冲击"
+      ],
+      "alternatives": [
+        "SPD-002",
+        "SPD-004"
+      ],
+      "dosage_hint": "30 米 × 4 至 6 组，组间走回恢复 90 秒"
+    },
+    {
+      "id": "SPD-002",
+      "name": "短距离冲刺",
+      "category": "速度灵敏",
+      "subcategory": "最大速度",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "学校操场",
+        "体育馆"
+      ],
+      "impact_level": "中",
+      "intensity_level": "高",
+      "muscle_groups": [
+        "下肢",
+        "核心"
+      ],
+      "min_age": 10,
+      "key_points": [
+        "必须在充分热身后进行",
+        "前脚掌着地，蹬地充分",
+        "保持高频摆臂，目视前方"
+      ],
+      "common_errors": [
+        "热身不足导致拉伤",
+        "低头跑",
+        "疲劳后仍继续全力冲刺"
+      ],
+      "contraindication_tags": [
+        "中等冲击",
+        "膝关节高负荷"
+      ],
+      "alternatives": [
+        "SPD-001",
+        "SPD-003"
+      ],
+      "dosage_hint": "50 米 × 3 至 5 组，组间充分恢复 2 至 3 分钟；50 米体测备考专项"
+    },
+    {
+      "id": "SPD-003",
+      "name": "折返跑",
+      "category": "速度灵敏",
+      "subcategory": "变向能力",
+      "equipment": [
+        "标志物"
+      ],
+      "venue": [
+        "学校操场",
+        "体育馆"
+      ],
+      "impact_level": "高",
+      "intensity_level": "高",
+      "muscle_groups": [
+        "下肢",
+        "核心",
+        "踝关节"
+      ],
+      "min_age": 10,
+      "key_points": [
+        "减速时降低重心，小步调整",
+        "转身时外侧脚蹬地，膝不内扣",
+        "场地需干燥防滑"
+      ],
+      "common_errors": [
+        "变向时膝内扣",
+        "单脚急停造成踝关节扭伤",
+        "场地湿滑仍进行"
+      ],
+      "contraindication_tags": [
+        "高冲击",
+        "膝关节高负荷",
+        "踝关节负荷"
+      ],
+      "alternatives": [
+        "SPD-006",
+        "SPD-001"
+      ],
+      "dosage_hint": "10 米折返 × 4 组；50 米往返跑体测专项"
+    },
+    {
+      "id": "SPD-004",
+      "name": "反应启动",
+      "category": "速度灵敏",
+      "subcategory": "反应能力",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "学校操场",
+        "体育馆",
+        "小区空地"
+      ],
+      "impact_level": "中",
+      "intensity_level": "中",
+      "muscle_groups": [
+        "下肢",
+        "核心"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "听到或看到信号后立即启动",
+        "起动方向可变化",
+        "每次冲刺 5 至 10 米即止"
+      ],
+      "common_errors": [
+        "预判信号提前启动",
+        "启动距离过长变成耐力练习"
+      ],
+      "contraindication_tags": [
+        "中等冲击"
+      ],
+      "alternatives": [
+        "SPD-001"
+      ],
+      "dosage_hint": "6 至 10 次 × 2 组"
+    },
+    {
+      "id": "SPD-005",
+      "name": "绳梯步法",
+      "category": "速度灵敏",
+      "subcategory": "协调性",
+      "equipment": [
+        "敏捷绳梯"
+      ],
+      "venue": [
+        "学校操场",
+        "体育馆"
+      ],
+      "impact_level": "中",
+      "intensity_level": "中",
+      "muscle_groups": [
+        "下肢",
+        "踝关节",
+        "核心"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "前脚掌快速点地",
+        "重心保持稳定不上下起伏",
+        "由慢到快逐步提高频率"
+      ],
+      "common_errors": [
+        "低头看梯格",
+        "速度超出控制能力导致踩绳"
+      ],
+      "contraindication_tags": [
+        "踝关节负荷"
+      ],
+      "alternatives": [
+        "SPD-006",
+        "SPD-004"
+      ],
+      "dosage_hint": "每种步法 2 至 3 趟，共 8 至 10 趟"
+    },
+    {
+      "id": "SPD-006",
+      "name": "侧滑步",
+      "category": "速度灵敏",
+      "subcategory": "协调性",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "学校操场",
+        "体育馆",
+        "小区空地"
+      ],
+      "impact_level": "低",
+      "intensity_level": "中",
+      "muscle_groups": [
+        "臀中肌",
+        "下肢",
+        "核心"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "半蹲姿态保持重心低",
+        "双脚不交叉",
+        "膝盖方向与脚尖一致"
+      ],
+      "common_errors": [
+        "身体直立重心过高",
+        "双脚交叉绊倒"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "SPD-005",
+        "RES-007"
+      ],
+      "dosage_hint": "每方向 10 米 × 4 组"
+    },
+    {
+      "id": "SPD-007",
+      "name": "立定跳远练习",
+      "category": "速度灵敏",
+      "subcategory": "爆发力",
+      "equipment": [
+        "软垫",
+        "沙坑"
+      ],
+      "venue": [
+        "学校操场",
+        "体育馆"
+      ],
+      "impact_level": "高",
+      "intensity_level": "高",
+      "muscle_groups": [
+        "臀部",
+        "股四头肌",
+        "小腿",
+        "核心"
+      ],
+      "min_age": 9,
+      "key_points": [
+        "双脚平行站立，预摆手臂带动屈髋屈膝",
+        "蹬地与摆臂同步向前上方发力",
+        "落地时双脚同时着地并屈膝缓冲"
+      ],
+      "common_errors": [
+        "落地时膝关节伸直硬着地",
+        "落地膝内扣",
+        "手臂摆动与蹬地不同步",
+        "在硬质地面反复练习"
+      ],
+      "contraindication_tags": [
+        "高冲击",
+        "膝关节高负荷",
+        "踝关节负荷"
+      ],
+      "alternatives": [
+        "SPD-008",
+        "RES-001"
+      ],
+      "dosage_hint": "5 至 8 次 × 3 组，组间休息 90 秒；需软质落地面"
+    },
+    {
+      "id": "SPD-008",
+      "name": "纵跳摸高",
+      "category": "速度灵敏",
+      "subcategory": "爆发力",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "学校操场",
+        "体育馆",
+        "小区空地"
+      ],
+      "impact_level": "高",
+      "intensity_level": "中高",
+      "muscle_groups": [
+        "臀部",
+        "小腿",
+        "股四头肌"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "快速下蹲后立即向上起跳",
+        "落地前脚掌先触地并屈膝缓冲",
+        "纵向起跳不前后移动"
+      ],
+      "common_errors": [
+        "落地僵直",
+        "连续跳跃未恢复导致动作变形",
+        "膝内扣"
+      ],
+      "contraindication_tags": [
+        "高冲击",
+        "膝关节高负荷"
+      ],
+      "alternatives": [
+        "SPD-007",
+        "AER-003"
+      ],
+      "dosage_hint": "8 至 10 次 × 3 组；纵向跳跃对骨骼发育有正向刺激"
+    },
+    {
+      "id": "CLD-001",
+      "name": "慢走放松",
+      "category": "放松",
+      "subcategory": "心率回落",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "学校操场",
+        "小区空地",
+        "体育馆"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "下肢"
+      ],
+      "min_age": 6,
+      "key_points": [
+        "训练后立即慢走而非直接坐下",
+        "配合深呼吸",
+        "持续至心率降至 100 次/分以下"
+      ],
+      "common_errors": [
+        "训练结束立刻静坐",
+        "放松时间不足"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "CLD-003"
+      ],
+      "dosage_hint": "3 至 5 分钟"
+    },
+    {
+      "id": "CLD-002",
+      "name": "泡沫轴放松",
+      "category": "放松",
+      "subcategory": "软组织放松",
+      "equipment": [
+        "泡沫轴"
+      ],
+      "venue": [
+        "家庭",
+        "体育馆",
+        "健身房"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "股四头肌",
+        "腘绳肌",
+        "小腿",
+        "臀部"
+      ],
+      "min_age": 10,
+      "key_points": [
+        "缓慢滚动，每个部位 30 至 60 秒",
+        "避开骨突与关节处",
+        "痛感明显处停留并放松呼吸"
+      ],
+      "common_errors": [
+        "滚动速度过快",
+        "直接压在膝关节或腰椎上"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "FLX-003",
+        "FLX-007"
+      ],
+      "dosage_hint": "每个部位 30 至 60 秒，总计 5 至 8 分钟"
+    },
+    {
+      "id": "CLD-003",
+      "name": "腹式呼吸放松",
+      "category": "放松",
+      "subcategory": "呼吸调节",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭",
+        "学校",
+        "体育馆"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "膈肌"
+      ],
+      "min_age": 6,
+      "key_points": [
+        "一手置于腹部感受起伏",
+        "用鼻吸气 4 秒，腹部鼓起；用口呼气 6 秒",
+        "全程肩部放松不上提"
+      ],
+      "common_errors": [
+        "胸式呼吸肩部起伏",
+        "刻意延长憋气时间"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "CLD-004",
+        "FLX-009"
+      ],
+      "dosage_hint": "5 至 10 分钟；属极低风险活动，适用于高风险人群或需要停止运动时的替代方案"
+    },
+    {
+      "id": "CLD-004",
+      "name": "渐进式肌肉放松",
+      "category": "放松",
+      "subcategory": "身心放松",
+      "equipment": [
+        "无"
+      ],
+      "venue": [
+        "家庭"
+      ],
+      "impact_level": "无",
+      "intensity_level": "低",
+      "muscle_groups": [
+        "全身"
+      ],
+      "min_age": 8,
+      "key_points": [
+        "自足至头依次收紧肌群 5 秒后完全放松",
+        "配合缓慢呼吸",
+        "环境安静不受打扰",
+        "在瑜伽垫、地毯等柔软表面进行更舒适，无垫子亦可完成"
+      ],
+      "common_errors": [
+        "收紧力度过大造成抽筋",
+        "顺序跳跃"
+      ],
+      "contraindication_tags": [],
+      "alternatives": [
+        "CLD-003",
+        "FLX-009"
+      ],
+      "dosage_hint": "8 至 12 分钟；适合睡前或压力较大时进行"
+    }
+  ]
+}

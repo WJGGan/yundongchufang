@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 _MOCK = "[MOCK]"
@@ -17,7 +18,37 @@ def _is_prescription_task(system: str) -> bool:
 
 def build_mock_payload(system: str, user: str) -> dict[str, Any]:
     if _is_prescription_task(system):
-        return _mock_prescription()
+        payload = _mock_prescription()
+        candidates = {
+            match.group(1): (match.group(2), match.group(3))
+            for match in re.finditer(
+                r"^\[([A-Z]+-\d+)\] (.+?)｜类型 (.+?)｜", user, re.MULTILINE
+            )
+        }
+        replacements = {
+            "WUP-001": "WUP-103", "WUP-003": "WUP-101",
+            "AER-005": "AER-103", "AER-006": "AER-102", "AER-001": "AER-104",
+            "RES-004": "RES-102", "RES-011": "RES-103", "COR-001": "COR-101",
+            "FLX-001": "FLX-101", "FLX-002": "FLX-101",
+            "FLX-004": "FLX-103", "FLX-007": "FLX-102",
+        }
+        for day in payload["weekly_plan"]:
+            for block in day["blocks"]:
+                selected = []
+                for item in block["items"]:
+                    new_id = replacements.get(item["exercise_id"])
+                    if new_id not in candidates:
+                        prefix = item["exercise_id"].split("-")[0] + "-"
+                        new_id = next((key for key in candidates if key.startswith(prefix)), None)
+                    if new_id not in candidates:
+                        continue
+                    item["exercise_id"] = new_id
+                    item["name"] = candidates[new_id][0]
+                    item["dosage"] = f"{_MOCK} 按指导完成"
+                    item["notes"] = f"{_MOCK} 示例动作"
+                    selected.append(item)
+                block["items"] = selected
+        return payload
     return _mock_profile()
 
 

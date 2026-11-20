@@ -6,7 +6,7 @@
 <title>运动处方报告</title>
 <script src="https://unpkg.com/vue@3.4.38/dist/vue.global.prod.js"></script>
 <script src="https://unpkg.com/marked@12.0.2/marked.min.js"></script>
-<link rel="stylesheet" href="/static/report.css?v=20261118" />
+<link rel="stylesheet" href="/static/report.css?v=20261120-week" />
 </head>
 <body>
 <div id="report">
@@ -229,54 +229,22 @@
         </div>
       </section>
 
-      <!-- 4 详细执行内容：按天的一周训练课表，动作标签颜色 = 类别 -->
-      <section class="sec">
-        <div class="sec-head blue">
-          <i>4</i><h3>详细执行内容</h3>
-        </div>
-
+      <!-- 4 每周训练计划 -->
+      <section class="sec week-plan">
+        <div class="sec-head blue"><i>4</i><h3>详细执行内容</h3><span class="sec-note">{{ rx.cycle.current_phase || '—' }}</span></div>
         <div class="sec-body">
-          <div class="sched-banner" v-if="planBanner">{{ planBanner }}</div>
-
-          <template v-if="schedule.length">
-            <div class="sched-bar">
-              <div class="sched-legend">
-                <em v-for="c in legendCats" :key="c.cls" class="pill" :class="'pill-' + c.cls">{{ c.label }}</em>
-              </div>
-              <div class="sched-tabs">
-                <button v-for="t in dayTabs" :key="t" type="button"
-                        :class="{ on: dayFilter === t }" @click="dayFilter = t">{{ t }}</button>
-              </div>
+          <p class="wp-stage"><strong>{{ rx.cycle.current_phase || '当前阶段' }}</strong> {{ rx.fitt_vp.type.value }} <span v-if="rx.cycle.next_review"> · 复评：{{ rx.cycle.next_review }}</span></p>
+          <div class="wp-toolbar"><h4>本周训练计划</h4><div class="wp-switch" role="group" aria-label="切换布局"><button type="button" @click="weekLayout = 'horizontal'" :aria-pressed="weekLayout === 'horizontal'">横排</button><button type="button" @click="weekLayout = 'vertical'" :aria-pressed="weekLayout === 'vertical'">竖排</button></div></div>
+          <div class="wp-legend"><span class="warm">● 热身</span><span class="cardio">● 有氧／速度灵敏</span><span class="strength">● 力量／核心</span><span class="cool">● 拉伸／放松</span><small>点击动作查看要点</small></div>
+          <p v-if="!planDays.length" class="dt-empty">暂无每周计划。</p>
+          <div v-else class="wp-scroll"><div :class="['wp-days', weekLayout]">
+            <div v-for="day in planDays" :key="day.day" class="wp-day" :class="{rest: !day.actions.length}">
+              <div class="wp-day-title"><strong>{{ day.day }}</strong><small>{{ day.theme || (day.actions.length ? '训练' : '休息') }}</small></div>
+              <div class="wp-actions"><button type="button" v-for="(item, index) in day.actions" :key="index" :class="['wp-action', item.kind]" @click.stop="toggleActionDetail(item, day.day + '-' + index, $event)" :aria-expanded="activeActionKey === day.day + '-' + index" aria-haspopup="dialog"><strong>{{ item.name || item.exercise_id || '动作' }}</strong><small>{{ item.dosage }}</small></button><span v-if="!day.actions.length" class="wp-empty">{{ day.theme || '休息' }}</span></div>
+              <span class="wp-time">{{ day.total_minutes != null ? day.total_minutes + ' 分钟' : '—' }}</span>
             </div>
-            <div class="dt-scroll">
-              <table class="sched-table">
-                <thead>
-                  <tr><th>日期</th><th>训练安排</th><th>时长</th></tr>
-                </thead>
-                <tbody>
-                  <tr v-for="d in visibleSchedule" :key="d.day" :class="{ rest: d.rest }">
-                    <td class="sd-day">
-                      <strong>{{ d.day }}</strong>
-                      <span>{{ d.theme }}</span>
-                    </td>
-                    <td class="sd-items">
-                      <template v-for="(p, pi) in d.pills" :key="p.key">
-                        <button type="button"
-                                class="pill" :class="'pill-' + p.cls"
-                                @click="pillClick($event, p)">
-                          {{ p.name }}<i v-if="p.dosage"> · {{ p.dosage }}</i>
-                        </button>
-                        <span v-if="pi < d.pills.length - 1" class="pill-arrow" aria-hidden="true">→</span>
-                      </template>
-                      <p class="sd-why" v-if="dayFilter !== '全周' && d.rationale"><span>为什么这样练</span>{{ d.rationale }}</p>
-                    </td>
-                    <td class="sd-min">{{ d.minutes }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </template>
-          <p class="dt-empty" v-else>生成处方后，这里按天展示一周训练课表。</p>
+          </div></div>
+          <div class="wp-export-bar"><p class="wp-foot">请按动作顺序执行，具体强度与时长以个人处方为准。</p><button type="button" class="wp-export-open" :disabled="!planDays.length" @click="exportOpen = true">↓ 导出每周计划</button></div>
         </div>
       </section>
 
@@ -330,26 +298,23 @@
       </div>
     </div>
   </div>
-  <!-- 动作详情弹层：悬停预览，点击固定 -->
-  <div class="move-pop" :class="{ up: pop.up }" v-if="pop.show && pop.pill"
-       :style="{ left: pop.x + 'px', top: pop.y + 'px' }">
-    <div class="mp-head">
-      <strong>{{ pop.pill.name }}</strong>
-      <em class="pill" :class="'pill-' + pop.pill.cls">{{ pop.pill.category || '动作' }}</em>
-      <button class="mp-close" type="button" v-if="pop.pinned" @click="closePop">×</button>
-    </div>
-    <div class="mp-dose" v-if="pop.pill.dosage"><span>剂量</span>{{ pop.pill.dosage }}</div>
-    <div class="mp-note" v-if="pop.pill.notes"><span>当日备注</span>{{ pop.pill.notes }}</div>
-    <div class="mp-sec" v-if="popDetail.key_points.length">
-      <h5>动作要点</h5>
-      <ul><li v-for="k in popDetail.key_points" :key="k">{{ k }}</li></ul>
-    </div>
-    <div class="mp-sec err" v-if="popDetail.common_errors.length">
-      <h5>常见错误（避免）</h5>
-      <ul><li v-for="k in popDetail.common_errors" :key="k">{{ k }}</li></ul>
+  <teleport to="body"><div v-if="activeAction" class="action-popover" role="dialog" aria-label="动作详情" :style="actionPopoverStyle" @click.stop @keydown.esc.stop="closeActionDetail">
+    <div class="action-popover-head"><strong>{{ activeAction.name || activeAction.exercise_id || '动作详情' }}</strong><button type="button" aria-label="关闭动作详情" @click="closeActionDetail">×</button></div>
+    <p class="action-popover-dose" v-if="activeAction.dosage">{{ activeAction.dosage }}</p>
+    <p v-if="activeAction.notes">{{ activeAction.notes }}</p><p v-if="activeAction.points"><b>动作要点：</b>{{ activeAction.points }}</p><p v-if="activeAction.errors"><b>注意避免：</b>{{ activeAction.errors }}</p><p v-if="!activeAction.notes && !activeAction.points && !activeAction.errors">暂无动作说明。</p>
+  </div></teleport>
+  <div v-if="exportOpen" class="export-overlay" @click.self="exportOpen = false" @keydown.esc="exportOpen = false">
+    <div class="export-dialog" role="dialog" aria-modal="true" aria-labelledby="export-title">
+      <div class="export-head"><div><h3 id="export-title">导出每周运动计划</h3><p>选择适合查看、打印或整理的格式</p></div><button type="button" class="export-close" aria-label="关闭" @click="exportOpen = false">×</button></div>
+      <div class="export-formats" role="radiogroup" aria-label="导出格式">
+        <label class="export-choice" :class="{selected: exportFormat === 'pdf'}"><input type="radio" value="pdf" v-model="exportFormat"><span class="export-icon">PDF</span><span><strong>PDF 文档</strong><small>按网页周计划排版，适合保存与打印</small></span></label>
+        <label class="export-choice" :class="{selected: exportFormat === 'xlsx'}"><input type="radio" value="xlsx" v-model="exportFormat"><span class="export-icon sheet">表格</span><span><strong>Excel 表格</strong><small>可用 Excel、WPS 或其他表格软件打开</small></span></label>
+      </div>
+      <div class="export-options"><strong>导出内容</strong><label><input type="checkbox" v-model="exportDetails"> 附加动作要点与注意事项</label><label><input type="checkbox" v-model="exportName"> 包含姓名</label></div>
+      <p class="export-hint">{{ exportFormat === 'pdf' ? '点击后将打开打印窗口，请选择“存储为 PDF”。' : '按日期和运动类别合并单元格，保留休息日。' }}</p>
+      <div class="export-actions"><button type="button" @click="exportOpen = false">取消</button><button type="button" class="primary" @click="exportPlan">{{ exportFormat === 'pdf' ? '打开打印 / 保存 PDF' : '下载 Excel 表格' }}</button></div>
     </div>
   </div>
-
   <!-- 右侧 AI 输出抽屉：生成时展示模型实时输出 -->
   <div class="ai-drawer" :class="{ open: aiOpen }">
     <div class="ai-head">
@@ -377,6 +342,6 @@
 
 <script src="/static/sse.js?v=20261118"></script>
 <script src="/static/ai-panel.js?v=20261118"></script>
-<script src="/static/report.js?v=20261118b"></script>
+<script src="/static/report.js?v=20261120-week"></script>
 </body>
 </html>

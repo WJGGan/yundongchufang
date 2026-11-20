@@ -8,6 +8,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import router
+from app.api.export import router as export_router
 from app.config import FRONTEND_DIR
 
 app = FastAPI(
@@ -25,6 +26,7 @@ app.add_middleware(
 )
 
 app.include_router(router)
+app.include_router(export_router)
 
 
 @app.get("/health")

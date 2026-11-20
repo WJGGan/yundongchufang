@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 
 from app.config import settings
 from app.schemas.common import Versions
+from app.services.data_loader import exercise_library
 
 CST = timezone(timedelta(hours=8))
 
@@ -16,7 +17,7 @@ def now_iso() -> str:
 
 def current_versions() -> Versions:
     return Versions(
-        exercise_library=settings.exercise_library_version,
+        exercise_library=exercise_library().get("version", settings.exercise_library_version),
         knowledge_base=settings.knowledge_base_version,
         prompt=settings.prompt_version,
         model=settings.active_model,

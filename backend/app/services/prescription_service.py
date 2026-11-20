@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+import re
 from collections.abc import AsyncIterator
 from typing import Any
 
@@ -35,8 +36,6 @@ DISCLAIMER = (
 )
 
 WEEKDAYS = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
-
-_MIN_CANDIDATES = 20
 
 # 校园默认器材：学生不再填写器材清单，按中小学普遍可得的器材过滤候选动作。
 # 跳绳人人有，单杠/低单杠是学校操场标配，标志物可用书包水瓶替代；
@@ -101,7 +100,6 @@ def filter_candidates(
 ) -> list[dict[str, Any]]:
     """按器械、场地、年龄过滤出可用动作。"""
     picked: list[dict[str, Any]] = []
-    fallback: list[dict[str, Any]] = []
 
     for exercise in exercise_library()["exercises"]:
         if age is not None and exercise.get("min_age") and age < exercise["min_age"]:
@@ -109,16 +107,6 @@ def filter_candidates(
 
         if _equipment_ok(exercise, equipment) and _venue_ok(exercise, venue):
             picked.append(exercise)
-        elif not (exercise.get("equipment") or ["无"]) or "无" in (exercise.get("equipment") or []):
-            fallback.append(exercise)
-
-    # 过滤过严时补入无器械动作，保证模型有足够素材可排期
-    if len(picked) < _MIN_CANDIDATES:
-        existing = {item["id"] for item in picked}
-        for exercise in fallback:
-            if exercise["id"] not in existing:
-                picked.append(exercise)
-
     return picked
 
 
@@ -152,6 +140,20 @@ def validate_payload(
     if off_list:
         problems.append(f"以下动作不在可用候选集内：{'、'.join(off_list)}")
 
+    for day in payload.get("weekly_plan") or []:
+        for block in day.get("blocks") or []:
+            for item in block.get("items") or []:
+                exercise_id = item.get("exercise_id", "")
+                if not exercise_id:
+                    problems.append("运动计划中有动作缺少 exercise_id")
+                elif exercise_id in index and item.get("name") != index[exercise_id]["name"]:
+                    problems.append(f"动作 {exercise_id} 名称与动作库不一致")
+
+    rpe = (payload.get("intensity_control") or {}).get("rpe_range", "")
+    values = [int(value) for value in re.findall(r"\d+", str(rpe))]
+    if values and max(values) > 6:
+        problems.append("RPE 超过系统上限 6")
+
     days = [str(day.get("day", "")) for day in payload.get("weekly_plan") or []]
     missing_days = [day for day in WEEKDAYS if day not in days]
     if missing_days:
@@ -180,7 +182,9 @@ def validate_payload(
     return problems
 
 
-def build_exercise_details(payload: dict[str, Any]) -> tuple[list[ExerciseDetail], list[str]]:
+def build_exercise_details(
+    payload: dict[str, Any], *, candidate_ids: set[str] | None = None
+) -> tuple[list[ExerciseDetail], list[str]]:
     """从动作库回填被引用动作的完整信息。"""
     index = exercise_index()
     details: list[ExerciseDetail] = []
@@ -198,7 +202,7 @@ def build_exercise_details(payload: dict[str, Any]) -> tuple[list[ExerciseDetail
                 why=f"{index[alt_id].get('impact_level', '')}冲击的同类替代动作",
             )
             for alt_id in exercise.get("alternatives") or []
-            if alt_id in index
+            if alt_id in index and (candidate_ids is None or alt_id in candidate_ids)
         ]
         details.append(
             ExerciseDetail(
@@ -222,8 +226,9 @@ def _assemble(
     payload: dict[str, Any],
     *,
     record: HealthRecord,
+    candidate_ids: set[str] | None = None,
 ) -> PrescriptionResult:
-    details, unknown = build_exercise_details(payload)
+    details, unknown = build_exercise_details(payload, candidate_ids=candidate_ids)
 
     payload.update(
         {
@@ -256,14 +261,19 @@ async def stream_prescription(
     candidates = filter_candidates(
         age=age,
         equipment=DEFAULT_EQUIPMENT,
-        venue=[],
+        venue=["学校操场", "学校", "体育馆"],
     )
-    # 校验边界用过滤后的全集：候选截断只是 prompt 瘦身，
-    # 模型只要用了候选集合内的动作就不算违规
-    candidate_ids = {item["id"] for item in candidates}
+    allowed_ids = {item["id"] for item in candidates}
 
     # RAG：候选动作按健康状况排序截断，知识卡片检索相关子集
     candidates = await rag.rank_exercises(candidates, record_view)
+    candidate_ids = {item["id"] for item in candidates}
+    categories = {item.get("category") for item in candidates}
+    if not {"热身", "放松"}.issubset(categories) or not categories.intersection(
+        {"有氧", "抗阻", "核心", "柔韧", "速度灵敏"}
+    ):
+        yield ("error", "可用动作不足以组成热身、主体和放松，请检查年龄及场地条件。")
+        return
     cards = await rag.retrieve_knowledge_for_prescription(record_view)
 
     base_prompt = prompt.build_user_prompt(
@@ -328,8 +338,16 @@ async def stream_prescription(
             last_problems = problems
             continue
 
+        if problems and any(
+            message.startswith(("以下 exercise_id", "以下动作不在", "运动计划中有动作缺少", "动作 ", "RPE 超过"))
+            or "超过单次上限" in message
+            for message in problems
+        ):
+            yield ("error", "处方动作校验未通过：" + "；".join(problems))
+            return
+
         try:
-            result = _assemble(payload, record=record)
+            result = _assemble(payload, record=record, candidate_ids=allowed_ids)
         except ValidationError as exc:
             last_problems = [exc.json()]
             if attempt == 0:
